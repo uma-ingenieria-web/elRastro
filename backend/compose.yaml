@@ -10,7 +10,7 @@
 services:
   server:
     build:
-      context: .
+      context: ./apps/main/
     ports:
       - 8000:8000
 
