@@ -1,11 +1,14 @@
 from typing import Union
 
 from fastapi import FastAPI
+from dotenv import load_dotenv
+
 import pymongo
 
 app = FastAPI()
 
-# uri = f"mongodb+srv://{os.getenv('MONGODB_USER')}:{os.getenv('MONGODB_PASSWORD')}{@os.getenv('MONGODB_CLUSTER')}.mongodb.net/?retryWrites=true&w=majority
+load_dotenv()
+uri = f"mongodb+srv://{os.getenv('MONGODB_USER')}:{os.getenv('MONGODB_PASSWORD')}{os.getenv('MONGODB_CLUSTER')}.mongodb.net/?retryWrites=true&w=majority"
 
 @app.get("/")
 def read_root():
