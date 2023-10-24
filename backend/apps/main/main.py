@@ -5,7 +5,7 @@ import pymongo
 
 app = FastAPI()
 
-# uri = f"mongodb+srv://{os.getenv('MONGODB_USER')}:{os.getenv('MONGODB_PASSWORD')}{@os.getenv('MONGODB_CLUSTER')}.mongodb.net/?retryWrites=true&w=majority
+uri = f"mongodb+srv://{os.getenv('MONGODB_USER')}:{os.getenv('MONGODB_PASSWORD')}{@os.getenv('MONGODB_CLUSTER')}.mongodb.net/?retryWrites=true&w=majority"
 
 @app.get("/")
 def read_root():
