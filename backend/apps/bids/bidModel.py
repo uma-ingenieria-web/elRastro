@@ -1,8 +1,6 @@
 from bson import ObjectId
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Any
-from pydantic_core import core_schema
 
 class PyObjectId(ObjectId):
     @classmethod
@@ -35,10 +33,10 @@ class Bid(BaseModel):
     owner: Owner = Field(...)
 
     class Config:
-        populate_by_name = True
+        allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
-        json_schema_extra = {
+        schema_extra = {
             "example": {
                 "amount": 78.8,
                 "timestamp": "2023-10-25T12:00:00",
