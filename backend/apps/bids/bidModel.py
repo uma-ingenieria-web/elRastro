@@ -18,11 +18,11 @@ class PyObjectId(ObjectId):
         field_schema.update(type="string")
 
 class Product(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: str = Field(...)
     name: str = Field(...)
 
 class Owner(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: str = Field(...)
     name: str = Field(...)
 
 class Bid(BaseModel):
@@ -33,6 +33,7 @@ class Bid(BaseModel):
     owner: Owner = Field(...)
 
     class Config:
+        orm_mode: True
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
@@ -41,10 +42,12 @@ class Bid(BaseModel):
                 "amount": 78.8,
                 "timestamp": "2023-10-25T12:00:00",
                 "product": {
+                  "id": "653e27ba54d16794592d4731",  
                   "name": "T-shirt"  
                 },
                 "owner": {
-                    "name": "Manolo"
+                  "id": "653e27ba54d16794592d4741",
+                  "name": "Manolo"
                 }
             }
         }
