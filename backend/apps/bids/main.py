@@ -105,6 +105,7 @@ def delete_bid(id: str):
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
+
 @app.get(
     "/" + versionRoute + "/bids",
     summary="List all bids",
@@ -137,6 +138,7 @@ def get_bid(id):
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
+
 @app.get(
     "/" + versionRoute + "/bids/price/",
     summary="List all bids in a price range",
@@ -144,7 +146,7 @@ def get_bid(id):
 )
 def get_bids_by_price(minPrice: float = None, maxPrice: float = None):
     bids = []
-    
+
     if minPrice is not None and maxPrice is not None:
         bids_cursor = db.Bid.find({"amount": {"$gte": minPrice, "$lte": maxPrice}})
     elif minPrice is not None:
@@ -160,6 +162,7 @@ def get_bids_by_price(minPrice: float = None, maxPrice: float = None):
         return bids
     else:
         return []
+
 
 @app.get(
     "/" + versionRoute + "/bids/date/",
@@ -205,5 +208,41 @@ def get_bids_by_username(username: str):
         for document in bids_cursor:
             bids.append(Bid(**document))
         return bids
+    else:
+        return []
+
+
+@app.get(
+    "/" + versionRoute + "/bids/{id}/products/",
+    summary="List all products of the owner of a bid ",
+    response_description="Get all products of the owner of a bid",
+)
+def get_products_by_bid(id: str):
+    products = []
+    products_cursor = db.Bid.aggregate(
+        [
+            {"$match": {"_id": ObjectId(id)}},
+            {
+                "$project": {
+                    "_id": 0,
+                    "owner.username": 1,
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "Product",
+                    "localField": "owner.username",
+                    "foreignField": "buyer.username",
+                    "as": "products",
+                }
+            },
+            {"$unwind": "$products"},
+            {"$group": {"_id": "$_id", "products": {"$push": "$products"}}},
+        ]
+    )
+    if products_cursor is not None:
+        for document in products_cursor:
+            products.append(document)
+        return products
     else:
         return []
