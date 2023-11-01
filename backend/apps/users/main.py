@@ -96,8 +96,6 @@ async def get_user_products(user_id: str):
     ])
     if user is not None:
         user_products = user.next()["products"]
-        for product in user_products:
-            product['_id'] = str(product['_id'])
         return {"products": user_products}
     else:
         raise HTTPException(status_code=404, detail=f"User {id} not found")
@@ -145,3 +143,36 @@ async def delete_user(id: str):
         raise HTTPException(status_code=404, detail=f"User {id} not found")
     else:
         return None
+
+
+@app.get("/" + versionRoute + "/user/{username}/buyers",
+         response_description="Finds the user's products buyers",
+         response_model=userModel.UserBasicInfoCollection,
+         summary="Get the user's products buyers",
+         status_code=status.HTTP_200_OK,
+         tags=["User"])
+async def get_user_buyers(username: str):
+    user = db.aggregate([
+        {
+            "$match": {"username": username}
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "products.buyer": 1
+            }
+        },
+        {
+            "$unwind": "$products"
+        },
+        {
+            "$group": {
+                "_id": "$_id",
+                "buyers": {"$push": "$products.buyer"}
+            }
+        }
+    ])
+    if user is not None:
+        return {"users": user.next()["buyers"]}
+    else:
+        raise HTTPException(status_code=404, detail=f"User {id} not found")

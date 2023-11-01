@@ -23,6 +23,9 @@ class UserBasicInfo(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
 
+class UserBasicInfoCollection(BaseModel):
+    users: List[UserBasicInfo]
+
 class User(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
