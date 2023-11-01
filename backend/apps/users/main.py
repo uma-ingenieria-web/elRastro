@@ -45,6 +45,19 @@ async def read_user(id: str):
     else:
         raise HTTPException(status_code=404, detail=f"User {id} not found")
     
+@app.get("/" + versionRoute + "/user/username/{username}/",
+        response_description="The user with the given username",
+        summary="Find the user with the given username",
+        status_code=status.HTTP_200_OK,
+        tags=["User"],
+        response_model=userModel.UserBasicInfo)
+async def read_user_username(username: str):
+    user = db.find_one({"username": username})
+    
+    if user is not None:
+        return user
+    else:
+        raise HTTPException(status_code=404, detail=f"User {username} not found")
 
 @app.get("/" + versionRoute + "/user/{user_id}/products",
         response_description="Finds the user products sorted by date",
