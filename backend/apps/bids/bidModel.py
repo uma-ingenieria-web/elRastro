@@ -1,21 +1,9 @@
 from bson import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, BeforeValidator, ConfigDict
 from datetime import datetime
+from typing_extensions import Annotated, Optional
 
-class PyObjectId(ObjectId):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        if not ObjectId.is_valid(v):
-            raise ValueError("Invalid objectid")
-        return ObjectId(v)
-
-    @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema.update(type="string")
+PyObjectId = Annotated[str, BeforeValidator(str)]
 
 class Product(BaseModel):
     id: str = Field(...)
@@ -26,17 +14,15 @@ class Owner(BaseModel):
     name: str = Field(...)
 
 class Bid(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
     amount: float = Field(...)
     timestamp: datetime = Field(default_factory=datetime.now)
     product: Product = Field(...)
     owner: Owner = Field(...)
-    class Config:
-        orm_mode: True
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
-        schema_extra = {
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_extra={
             "example": {
                 "amount": 78.8,
                 "timestamp": "2023-10-25T12:00:00",
@@ -50,4 +36,4 @@ class Bid(BaseModel):
                 }
             }
         }
-
+    )
