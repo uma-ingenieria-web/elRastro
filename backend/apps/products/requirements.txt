@@ -2,4 +2,4 @@ fastapi
 uvicorn
 pymongo
 python-dotenv
-pydantic == 1.*
+pydantic == 2.*
