@@ -1,6 +1,8 @@
 from typing import Union
+from bson import ObjectId
 from fastapi import FastAPI, Body, HTTPException, status
 from dotenv import load_dotenv
+from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
 
 import os
@@ -21,18 +23,26 @@ db = client.elRastro.User
 
 versionRoute = "api/v1"
 
-@app.get("/" + versionRoute + "/users/{user_id}")
-async def read_root():
-    return {"Hello": "World"}
-
-
-@app.post("/" + versionRoute + "/users",
-        status_code=status.HTTP_201_CREATED,)
+@app.post("/" + versionRoute + "/users", status_code=status.HTTP_201_CREATED, response_description="Create a user")
 async def create_user(user: userModel.CreateUser = Body(...)):
     db.insert_one(user.model_dump(by_alias=True, exclude=["id"]))
     
+@app.put("/" + versionRoute + "/users/{id}", status_code=status.HTTP_200_OK, response_description="Update a user")
+async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
+    user = {
+        u: v for u, v in user.model_dump(by_alias=True).items() if v is not None
+    }
 
-
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+    if len(user) >= 1:
+        update_result = db.find_one_and_update(
+            {"_id": ObjectId(id)},
+            {"$set": user},
+            return_document=ReturnDocument.AFTER,
+        )
+        if update_result is not None:
+            update_result['_id'] = str(update_result['_id'])
+            return update_result
+        else:
+            raise HTTPException(status_code=404, detail=f"User {id} not found")
+    else:
+        raise HTTPException(status_code=400, detail=f"No fields specfied")

@@ -1,7 +1,7 @@
 from bson import ObjectId
-from pydantic import BeforeValidator, BaseModel, Field
+from pydantic import BeforeValidator, BaseModel, ConfigDict, EmailStr, Field
 from typing_extensions import Annotated
-from typing import List
+from typing import List, Optional
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
@@ -46,7 +46,6 @@ class User(BaseModel):
             }
         }
 
-
 class CreateUser(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     username: str = Field(...)
@@ -60,3 +59,16 @@ class CreateUser(BaseModel):
                 "username": "Javi Jordan",
             }
         }
+
+class UpdateUser(BaseModel):
+    username: Optional[str] = None
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+        json_encoders={ObjectId: str},
+        json_schema_extra={
+            "example": {
+                "username": "Javi Jordan"
+            }
+        }
+    )
