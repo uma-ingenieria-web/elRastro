@@ -39,4 +39,13 @@ async def read_user(id: str):
         status_code=status.HTTP_201_CREATED,)
 async def create_user(user: userModel.CreateUser = Body(...)):
     db.insert_one(user.model_dump(by_alias=True, exclude=["id"]))
-    
+
+
+@app.delete("/" + versionRoute + "/user/{id}",
+        status_code=status.HTTP_204_NO_CONTENT,)
+async def create_user(id: str):
+    result = db.delete_one({"_id": ObjectId(id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail=f"User {id} not found")
+    else:
+        return None
