@@ -14,16 +14,20 @@ class Bid(BaseModel):
     amount: float = Field(...)
     product: Product = Field(...)
 
+class UserBasicInfo(BaseModel):
+    id: PyObjectId = Field(alias="_id", default=None)
+    username: str = Field(...)
+
 class User(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
     products: List[Product]
     bids: List[Bid]
 
-    class Config:
-        populate_by_name = True
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
+    model_config = ConfigDict(
+        populate_by_name = True,
+        arbitrary_types_allowed = True,
+        json_encoders = {ObjectId: str},
         json_schema_extra = {
             "example": {
                 "username": "Javi Jordan",
@@ -45,20 +49,22 @@ class User(BaseModel):
                 ]
             }
         }
+    )
 
 class CreateUser(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: PyObjectId = Field(default=None, alias="_id")
     username: str = Field(...)
 
-    class Config:
-        populate_by_name = True
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
-        json_schema_extra = {
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_encoders={ObjectId: str},
+        json_schema_extra={
             "example": {
                 "username": "Javi Jordan",
             }
         }
+    )
 
 class UpdateUser(BaseModel):
     username: Optional[str] = None
