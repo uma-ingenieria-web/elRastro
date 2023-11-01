@@ -31,7 +31,6 @@ class Bid(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.now)
     product: Product = Field(...)
     owner: Owner = Field(...)
-
     class Config:
         orm_mode: True
         allow_population_by_field_name = True
@@ -51,3 +50,4 @@ class Bid(BaseModel):
                 }
             }
         }
+

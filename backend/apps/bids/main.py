@@ -1,8 +1,9 @@
 from typing import Union
-from fastapi import FastAPI, HTTPException, 
+from fastapi import FastAPI, HTTPException, Response, status
 from dotenv import load_dotenv
+from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
-from bidModel import Bid, Product, Owner
+from bidModel import Bid
 from bson import ObjectId
 
 import os
@@ -42,22 +43,40 @@ def save_bid(bid : Bid):
     craeted_bid = db.Bid.find_one({'_id': new_bid.inserted_id})
     return craeted_bid
 
-@app.post("/" + versionRoute + "/bids", response_description= "Add new bid", response_model=Bid)
+@app.post("/" + versionRoute + "/bids", response_description= "Add new bid", response_model=Bid, status_code=status.HTTP_201_CREATED)
 def craete_bid(bid : Bid):
     response = save_bid(bid.dict())
     if response:
         return response
-    raise HTTPException(400, 'Something went wrong')
+    raise HTTPException(status_code=400, detail='Something went wrong')
 
-@app.put("/" + versionRoute + "/bids")
-def update_bid(bid : Bid):
-    return
+@app.put("/" + versionRoute + "/bids{id}", response_description="Update description", response_model=Bid)
+def update_bid(id:str, new_bid : Bid):
+    if len(new_bid.dict()) >= 1:
+        update_result = db.Bid.find_one_and_update(
+            {"_id": ObjectId(id)},
+            {"$set": new_bid.dict()},
+            return_document=ReturnDocument.AFTER,
+        )
+        if update_result is not None:
+            return update_result
+        else:
+            raise HTTPException(status_code=404, detail=f"Bid {id} not found")
 
-@app.delete("/" + versionRoute + "/bids{id}")
-def delete_bid():
-    return
+    if (existing_bid := db.Bid.find_one({"_id": id})) is not None:
+        return existing_bid
+
+    raise HTTPException(status_code=404, detail=f"Bid {id} not found")
+
+@app.delete("/" + versionRoute + "/bids{id}", response_description="Delete a bid", status_code=204)
+def delete_bid(id: str):
+    result = db.Bid.delete_one({"_id": ObjectId(id)})
     
-@app.get("/" + versionRoute + "/bids", response_description="List all ")
+    if result.deleted_count == 1:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    raise HTTPException(status_code=404, detail="Bid not found")
+    
+@app.get("/" + versionRoute + "/bids", response_description="List all bids")
 def get_bids():
     bids = []
     bids_cursor = db.Bid.find({})  # Get the MongoDB cursor
@@ -71,8 +90,3 @@ def get_bid(id):
     if bid:
         return Bid(**bid)  # Convert the data to a Bid object
     raise HTTPException(404, 'Bid not found')  # Raise an exception if the bid is not found
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
