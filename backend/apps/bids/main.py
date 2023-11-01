@@ -44,14 +44,16 @@ def save_bid(bid : Bid):
     craeted_bid = db.Bid.find_one({'_id': new_bid.inserted_id})
     return craeted_bid
 
-@app.post("/" + versionRoute + "/bids", response_description= "Add new bid", response_model=Bid, status_code=status.HTTP_201_CREATED)
+@app.post("/" + versionRoute + "/bids", response_description= "Add new bid", summary="Create a new bid with the desired amount",
+        response_model=Bid, status_code=status.HTTP_201_CREATED)
 def craete_bid(bid : Bid):
     response = save_bid(bid.model_dump())
     if response:
         return response
     raise HTTPException(status_code=400, detail='Something went wrong')
 
-@app.put("/" + versionRoute + "/bids/{id}", response_description="Update bid", response_model=Bid)
+@app.put("/" + versionRoute + "/bids/{id}", response_description="Update bid", summary="Update the values of a bid",
+        response_model=Bid)
 def update_bid(id:str, new_bid : Bid):
     try:
         
@@ -73,7 +75,8 @@ def update_bid(id:str, new_bid : Bid):
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
-@app.delete("/" + versionRoute + "/bids/{id}", response_description="Delete a bid", status_code=204)
+@app.delete("/" + versionRoute + "/bids/{id}", response_description="Delete a bid", 
+        summary="Delete the bid from the database", status_code=204)
 def delete_bid(id: str):
     try:    
         
@@ -85,7 +88,7 @@ def delete_bid(id: str):
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
     
-@app.get("/" + versionRoute + "/bids", response_description="List all bids")
+@app.get("/" + versionRoute + "/bids", response_description="List all bids", summary="Get all bids stored")
 def get_bids():
     bids = []
     bids_cursor = db.Bid.find({})  # Get the MongoDB cursor
@@ -93,7 +96,8 @@ def get_bids():
         bids.append(Bid(**document))
     return bids
 
-@app.get("/" + versionRoute + "/bids/{id}", response_model=Bid, response_description="Get one bid")
+@app.get("/" + versionRoute + "/bids/{id}", response_model=Bid, response_description="Get one bid", 
+        summary="Get the bid with the same id")
 def get_bid(id):
     try:
         
