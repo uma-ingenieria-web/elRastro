@@ -33,6 +33,7 @@ async def get_users(page: int = Query(1, ge=1), page_size: int = Query(10, le=20
 
 @app.get("/" + versionRoute + "/user/{id}",
         response_description="The user with the given id",
+        response_model=userModel.UserBasicInfo,
         summary="Find a user with a certain id",
         status_code=status.HTTP_200_OK,
         tags=["User"])
@@ -40,7 +41,6 @@ async def read_user(id: str):
     user = db.find_one({"_id": ObjectId(id)})
     
     if user is not None:
-        user['_id'] = str(user['_id'])
         return user
     else:
         raise HTTPException(status_code=404, detail=f"User {id} not found")
@@ -61,6 +61,7 @@ async def read_user_username(username: str):
 
 @app.get("/" + versionRoute + "/user/{user_id}/products",
         response_description="Finds the user products sorted by date",
+        response_model=userModel.ProductCollection,
         summary="Get the user products",
         status_code=status.HTTP_200_OK,
         tags=["User"])
@@ -92,7 +93,7 @@ async def get_user_products(user_id: str):
         user_products = user.next()["products"]
         for product in user_products:
             product['_id'] = str(product['_id'])
-        return user_products
+        return {"products": user_products}
     else:
         raise HTTPException(status_code=404, detail=f"User {id} not found")
 

@@ -2,12 +2,17 @@ from bson import ObjectId
 from pydantic import BeforeValidator, BaseModel, ConfigDict, EmailStr, Field
 from typing_extensions import Annotated
 from typing import List, Optional
+import datetime
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
 class Product(BaseModel):
-    id: str = Field(...)
+    id: PyObjectId = Field(alias="_id", default=None)
     name: str = Field(...)
+    date: datetime.datetime = Field(...)
+
+class ProductCollection(BaseModel):
+    products: List[Product]
 
 class Bid(BaseModel):
     id: str = Field(...)
