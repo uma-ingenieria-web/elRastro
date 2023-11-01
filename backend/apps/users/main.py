@@ -34,6 +34,43 @@ async def read_user(id: str):
         return user
     else:
         raise HTTPException(status_code=404, detail=f"User {id} not found")
+    
+
+@app.get("/" + versionRoute + "/user/{user_id}/products",
+        response_description="Finds the user products sorted by date",
+        summary="Get the user products",
+        status_code=status.HTTP_200_OK,)
+async def get_user_products(user_id: str):
+    user = db.aggregate([
+    {
+        "$match": { "_id": ObjectId(user_id) }
+    },
+    {
+        "$project": {
+            "_id": 0,
+            "products": 1,
+        }
+    },
+    {
+        "$unwind": "$products"
+    },
+    {
+        "$sort": { "products.date": -1 }
+    },
+    {
+        "$group": {
+            "_id": "$_id",
+            "products": { "$push": "$products" }
+        }
+    }
+    ])
+    if user is not None:
+        user_products = user.next()["products"]
+        for product in user_products:
+            product['_id'] = str(product['_id'])
+        return user_products
+    else:
+        raise HTTPException(status_code=404, detail=f"User {id} not found")
 
 @app.post("/" + versionRoute + "/user", 
         status_code=status.HTTP_201_CREATED,
