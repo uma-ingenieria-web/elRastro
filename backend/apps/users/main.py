@@ -48,6 +48,7 @@ async def read_user(id: str):
 
 @app.get("/" + versionRoute + "/user/{user_id}/products",
         response_description="Finds the user products sorted by date",
+        response_model=userModel.ProductCollection,
         summary="Get the user products",
         status_code=status.HTTP_200_OK,
         tags=["User"])
@@ -79,7 +80,7 @@ async def get_user_products(user_id: str):
         user_products = user.next()["products"]
         for product in user_products:
             product['_id'] = str(product['_id'])
-        return user_products
+        return {"products": user_products}
     else:
         raise HTTPException(status_code=404, detail=f"User {id} not found")
 
