@@ -112,20 +112,40 @@ async def create_user(user: userModel.CreateUser = Body(...)):
 @app.put("/" + versionRoute + "/user/{id}",
          status_code=status.HTTP_200_OK,
          response_description="Update a user",
-         tags=["User"])
+         tags=["User"],
+         response_model=userModel.UserBasicInfo)
 async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
-    user = {
+    userOptions = {
         u: v for u, v in user.model_dump(by_alias=True).items() if v is not None
     }
 
-    if len(user) >= 1:
+    if len(userOptions) >= 1:
         update_result = db.find_one_and_update(
             {"_id": ObjectId(id)},
-            {"$set": user},
+            {"$set": userOptions},
             return_document=ReturnDocument.AFTER,
         )
+        db.update_many(
+            {"products.buyer._id": ObjectId(id)},
+            {"$set": {"products.buyer.username": user.username}}
+        )
+        client.elRastro.Bid.update_many(
+            {"owner._id": ObjectId(id)},
+            {"$set": {"owner.username": user.username}}
+        )
+        client.elRastro.Product.update_many(
+            {"owner._id": ObjectId(id)},
+            {"$set": {"owner.username": user.username}}
+        )
+        client.elRastro.Product.update_many(
+            {"buyer._id": ObjectId(id)},
+            {"$set": {"buyer.username": user.username}}
+        )
+        client.elRastro.Product.update_many(
+            {"bids.bidder._id": ObjectId(id)},
+            {"$set": {"bids.biddder.username": user.username}}
+        ) 
         if update_result is not None:
-            update_result['_id'] = str(update_result['_id'])
             return update_result
         else:
             raise HTTPException(status_code=404, detail=f"User {id} not found")
