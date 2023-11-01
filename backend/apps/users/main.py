@@ -1,4 +1,3 @@
-from typing import Union
 from bson import ObjectId
 from fastapi import FastAPI, Body, HTTPException, status
 from dotenv import load_dotenv
@@ -23,11 +22,28 @@ db = client.elRastro.User
 
 versionRoute = "api/v1"
 
-@app.post("/" + versionRoute + "/users", status_code=status.HTTP_201_CREATED, response_description="Create a user")
+@app.get("/" + versionRoute + "/user/{id}",
+        response_description="The user with the given id",
+        summary="Find a user with a certain id",
+        status_code=status.HTTP_200_OK,)
+async def read_user(id: str):
+    user = db.find_one({"_id": ObjectId(id)})
+    
+    if user is not None:
+        user['_id'] = str(user['_id'])
+        return user
+    else:
+        raise HTTPException(status_code=404, detail=f"User {id} not found")
+
+@app.post("/" + versionRoute + "/user", 
+        status_code=status.HTTP_201_CREATED,
+        response_description="Create a user")
 async def create_user(user: userModel.CreateUser = Body(...)):
     db.insert_one(user.model_dump(by_alias=True, exclude=["id"]))
     
-@app.put("/" + versionRoute + "/users/{id}", status_code=status.HTTP_200_OK, response_description="Update a user")
+@app.put("/" + versionRoute + "/user/{id}",
+         status_code=status.HTTP_200_OK,
+         response_description="Update a user")
 async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
     user = {
         u: v for u, v in user.model_dump(by_alias=True).items() if v is not None
@@ -46,3 +62,12 @@ async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
             raise HTTPException(status_code=404, detail=f"User {id} not found")
     else:
         raise HTTPException(status_code=400, detail=f"No fields specfied")
+
+@app.delete("/" + versionRoute + "/user/{id}",
+        status_code=status.HTTP_204_NO_CONTENT,)
+async def create_user(id: str):
+    result = db.delete_one({"_id": ObjectId(id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail=f"User {id} not found")
+    else:
+        return None
