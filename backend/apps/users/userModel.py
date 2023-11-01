@@ -1,22 +1,9 @@
-import pymongo
 from bson import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BeforeValidator, BaseModel, Field
+from typing_extensions import Annotated
 from typing import List
 
-class PyObjectId(ObjectId):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        if not ObjectId.is_valid(v):
-            raise ValueError("Invalid objectid")
-        return ObjectId(v)
-
-    @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema.update(type="string")
+PyObjectId = Annotated[str, BeforeValidator(str)]
 
 class Product(BaseModel):
     id: str = Field(...)
@@ -34,10 +21,10 @@ class User(BaseModel):
     bids: List[Bid]
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "username": "Javi Jordan",
                 "products": [
@@ -56,5 +43,20 @@ class User(BaseModel):
                         }
                     }
                 ]
+            }
+        }
+
+
+class CreateUser(BaseModel):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    username: str = Field(...)
+
+    class Config:
+        populate_by_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+        json_schema_extra = {
+            "example": {
+                "username": "Javi Jordan",
             }
         }
