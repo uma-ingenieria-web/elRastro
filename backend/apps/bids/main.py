@@ -15,7 +15,8 @@ app = FastAPI()
 
 load_dotenv()
 
-uri = f"mongodb+srv://{os.getenv('MONGODB_USER')}:{os.getenv('MONGODB_PASSWORD')}@{os.getenv('MONGODB_CLUSTER')}.mongodb.net/?retryWrites=true&w=majority"
+# uri of the connection
+uri = os.getenv('MONGODB_URI')
 
 # Create a new client and connect to the server
 client = MongoClient(uri)

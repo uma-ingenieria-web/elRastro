@@ -6,12 +6,12 @@ from typing_extensions import Annotated, Optional
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
 class Product(BaseModel):
-    id: str = Field(...)
+    id: PyObjectId = Field(alias="_id", default=None)
     name: str = Field(...)
 
 class Owner(BaseModel):
-    id: str = Field(...)
-    name: str = Field(...)
+    id: PyObjectId = Field(alias="_id", default=None)
+    username: str = Field(...)
 
 class Bid(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
@@ -32,7 +32,7 @@ class Bid(BaseModel):
                 },
                 "owner": {
                   "id": "653e27ba54d16794592d4741",
-                  "name": "Manolo"
+                  "username": "Manolo"
                 }
             }
         }
