@@ -44,8 +44,8 @@ def read_root():
 
 def save_bid(bid: Bid):
     new_bid = db.Bid.insert_one(bid)
-    craeted_bid = db.Bid.find_one({"_id": new_bid.inserted_id})
-    return craeted_bid
+    created_bid = db.Bid.find_one({"_id": new_bid.inserted_id})
+    return created_bid
 
 
 @app.post(
@@ -55,7 +55,7 @@ def save_bid(bid: Bid):
     response_model=Bid,
     status_code=status.HTTP_201_CREATED,
 )
-def craete_bid(bid: Bid):
+def create_bid(bid: Bid):
     response = save_bid(bid.model_dump())
     if response:
         return response
