@@ -24,6 +24,14 @@ services:
       context: ./apps/bids/
     ports:
       - 8001:8000
+  backend-micro-image-storage:
+    container_name: backend-image-storage
+    env_file:
+      - ./apps/image-storage/.env
+    build:
+      context: ./apps/image-storage/
+    ports:
+      - 8001:8000
   backend-micro-products:
     container_name: backend-products
     env_file:
