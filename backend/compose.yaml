@@ -24,14 +24,6 @@ services:
       context: ./apps/bids/
     ports:
       - 8001:8000
-  backend-micro-image-storage:
-    container_name: backend-image-storage
-    env_file:
-      - ./apps/image-storage/.env
-    build:
-      context: ./apps/image-storage/
-    ports:
-      - 8001:8000
   backend-micro-products:
     container_name: backend-products
     env_file:
@@ -40,6 +32,14 @@ services:
       context: ./apps/products/
     ports:
       - 8002:8000
+  backend-micro-image-storage:
+    container_name: backend-image-storage
+    env_file:
+      - ./apps/image-storage/.env
+    build:
+      context: ./apps/image-storage/
+    ports:
+      - 8003:8000
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to
