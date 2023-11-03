@@ -1,4 +1,4 @@
-from typing import Union
+from typing import List
 from fastapi import FastAPI, HTTPException, Response, status
 from dotenv import load_dotenv
 from pymongo import ReturnDocument
@@ -109,18 +109,29 @@ def delete_bid(id: str):
 @app.get(
     "/" + versionRoute + "/bids",
     summary="List all bids",
-    response_description="Get all bids stored",
+    response_description="Get all bids stored, can be sorted by date (order), between a minnimum and maximum price (minPrice, maxPrice), by product (product) or by owner (username)",
+    response_model=List[Bid]
 )
-def get_bids():
+def get_bids(order: int = -1, minPrice: float = None, maxPrice: float = None, product: str = "", username: str = ""):
     bids = []
-    bids_cursor = db.Bid.find({})
+    bids_cursor = db.Bid.find()
     if bids_cursor is not None:
         for document in bids_cursor:
             bids.append(Bid(**document))
-        return bids
-    else:
-        return []
-
+    
+    if minPrice or maxPrice:
+        bids = get_bids_by_price(minPrice, maxPrice, bids)
+    
+    if product:
+        bids = get_bids_by_product(product, bids)
+        
+    if username:
+        bids = get_bids_by_username(username, bids)
+        
+    if (order):
+        bids = get_bids_sorted_by_date(order, bids)
+        
+    return bids
 
 @app.get(
     "/" + versionRoute + "/bids/{id}",
@@ -139,110 +150,68 @@ def get_bid(id):
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
 
-@app.get(
-    "/" + versionRoute + "/bids/price/",
-    summary="List all bids in a price range",
-    response_description="Get all bids stored that are in the price range if specified",
-)
-def get_bids_by_price(minPrice: float = None, maxPrice: float = None):
-    bids = []
+def get_bids_by_price(minPrice: float, maxPrice: float, bids: List[Bid]):
+    bids_by_price = []
+    
+    for bid in bids:
+        if (not minPrice or bid.amount >= minPrice) and (not maxPrice or bid.amount <= maxPrice):
+            bids_by_price.append(bid)
+    return bids_by_price
 
-    if minPrice is not None and maxPrice is not None:
-        bids_cursor = db.Bid.find({"amount": {"$gte": minPrice, "$lte": maxPrice}})
-    elif minPrice is not None:
-        bids_cursor = db.Bid.find({"amount": {"$gte": minPrice}})
-    elif maxPrice is not None:
-        bids_cursor = db.Bid.find({"amount": {"$lte": maxPrice}})
+def get_bids_sorted_by_date(order: int, bids: List[Bid]):
+    if order == 1:
+        bids.sort(key=lambda bid: bid.timestamp, reverse=True)
     else:
-        bids_cursor = db.Bid.find({})
+        bids.sort(key=lambda bid: bid.timestamp, reverse=False)
+    return bids
 
-    if bids_cursor is not None:
-        for document in bids_cursor:
-            bids.append(Bid(**document))
-        return bids
-    else:
-        return []
-
-
-@app.get(
-    "/" + versionRoute + "/bids/date/",
-    summary="List all bids sorted by date",
-    response_description="Get all bids stored sorted by date",
-)
-def get_bids_by_date(order: int = -1):
-    bids = []
-    bids_cursor = db.Bid.find({}).sort("timestamp", order)
-    if bids_cursor is not None:
-        for document in bids_cursor:
-            bids.append(Bid(**document))
-        return bids
-    else:
-        return []
+def get_bids_by_product(product: str, bids: List[Bid]):
+    bids_by_product = []
+    for bid in bids:
+        if product in bid.product.name:
+            bids_by_product.append(bid)
+    return bids_by_product
 
 
-@app.get(
-    "/" + versionRoute + "/bids/product/{name}",
-    summary="List bids of a product",
-    response_description="Get all bids stored whose product matches a certain name",
-)
-def get_bids_by_name(name: str):
-    bids = []
-    bids_cursor = db.Bid.find({"product.name": {"$regex": name, "$options": "i"}})
-    if bids_cursor is not None:
-        for document in bids_cursor:
-            bids.append(Bid(**document))
-        return bids
-    else:
-        return []
+def get_bids_by_username(username: str, bids: List[Bid]):
+    bids_by_username = []
+    for bid in bids:
+        if username in bid.owner.username:
+            bids_by_username.append(bid)
+    return bids_by_username
 
 
-@app.get(
-    "/" + versionRoute + "/bids/owner/{username}",
-    summary="List all bids of a user",
-    response_description="Get all bids stored whose owner matches a certain username",
-)
-def get_bids_by_username(username: str):
-    bids = []
-    bids_cursor = db.Bid.find({"owner.username": {"$regex": username, "$options": "i"}})
-    if bids_cursor is not None:
-        for document in bids_cursor:
-            bids.append(Bid(**document))
-        return bids
-    else:
-        return []
-
-
-@app.get(
-    "/" + versionRoute + "/bids/{id}/products/",
-    summary="List all products of the owner of a bid ",
-    response_description="Get all products of the owner of a bid",
-)
-def get_products_by_bid(id: str):
-    products = []
-    products_cursor = db.Bid.aggregate(
-        [
-            {"$match": {"_id": ObjectId(id)}},
-            {
-                "$project": {
-                    "_id": 0,
-                    "owner.username": 1,
-                }
-            },
-            {
-                "$lookup": {
-                    "from": "Product",
-                    "localField": "owner.username",
-                    "foreignField": "buyer.username",
-                    "as": "products",
-                }
-            },
-            {"$unwind": "$products"},
-            {"$group": {"_id": "$_id", "products": {"$push": "$products"}}},
-        ]
-    )
-    if products_cursor is not None:
-        for document in products_cursor:
-            products.append(document)
-        return products
-    else:
-        return []
+# @app.get(
+#     "/" + versionRoute + "/bids/{id}/products/",
+#     summary="List all products of the owner of a bid ",
+#     response_description="Get all products of the owner of a bid",
+# )
+# def get_products_by_bid(id: str):
+#     products = []
+#     products_cursor = db.Bid.aggregate(
+#         [
+#             {"$match": {"_id": ObjectId(id)}},
+#             {
+#                 "$project": {
+#                     "_id": 0,
+#                     "owner.username": 1,
+#                 }
+#             },
+#             {
+#                 "$lookup": {
+#                     "from": "Product",
+#                     "localField": "owner.username",
+#                     "foreignField": "buyer.username",
+#                     "as": "products",
+#                 }
+#             },
+#             {"$unwind": "$products"},
+#             {"$group": {"_id": "$_id", "products": {"$push": "$products"}}},
+#         ]
+#     )
+#     if products_cursor is not None:
+#         for document in products_cursor:
+#             products.append(document)
+#         return products
+#     else:
+#         return []
