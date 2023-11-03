@@ -110,6 +110,7 @@ def delete_bid(id: str):
     "/" + versionRoute + "/bids",
     summary="List all bids",
     response_description="Get all bids stored, can be sorted by date (order), between a minnimum and maximum price (minPrice, maxPrice), by product (product) or by owner (username)",
+    response_model=List[Bid]
 )
 def get_bids(order: int = -1, minPrice: float = None, maxPrice: float = None, product: str = "", username: str = ""):
     bids = []
@@ -131,9 +132,6 @@ def get_bids(order: int = -1, minPrice: float = None, maxPrice: float = None, pr
         bids = get_bids_sorted_by_date(order, bids)
         
     return bids
-    
-    
-
 
 @app.get(
     "/" + versionRoute + "/bids/{id}",
