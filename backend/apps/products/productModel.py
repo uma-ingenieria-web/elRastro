@@ -47,7 +47,7 @@ class Product(BaseModel):
                 },
                 "bids": [
                     {
-                        "id": "ifauygawopafaeoiu817",
+                        "id": "653e27baafafeu94592d4742",
                         "amount": 22.0,
                         "bidder": {
                             "id": "653e27baafafeu94592d4741",
