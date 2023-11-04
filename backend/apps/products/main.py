@@ -170,3 +170,10 @@ def get_products_sorted_by_timestamp(order: int, products: List[Product]):
     else:
         products.sort(key=lambda prod: prod.timestamp, reverse=False)
     return products
+
+def get_products_by_username(username: str, products: List[Product]):
+    products_by_username = []
+    for product in products:
+        if username in product.owner.username:
+            products_by_username.append(product)
+    return products_by_username
