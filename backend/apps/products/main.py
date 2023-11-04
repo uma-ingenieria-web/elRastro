@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException, Response, status
 from dotenv import load_dotenv
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
-from productModel import Product
+from productModel import Bid, Product
 from bson import ObjectId
 from bson.errors import InvalidId
 from errors import *
@@ -187,3 +187,37 @@ def get_products_by_initialprice(minPrice: float, maxPrice: float, products: Lis
         ):
             products_by_price.append(product)
     return products_by_price
+
+@app.get(
+    "/" + versionRoute + "/products/{id}/bids/",
+    summary="List all bids of a product",
+    response_description="Get all bids of a product",
+    response_model=List[Product],
+    responses={400: error_400, 422: error_422},
+)
+def get_bids_by_product(id: str):
+    try:
+        bids = []
+        bids_cursor = db.Product.aggregate(
+            [
+                {"$match": {"_id": ObjectId(id)}},
+                {
+                    "$lookup": {
+                        "from": "Bid",
+                        "localField": "bid.amount",
+                        "foreignField": "bid.amount",
+                        "as": "bids",
+                    }
+                },
+                {"$unwind": "$bids"},
+            ]
+        )
+        if bids_cursor is not None:
+            for document in bids_cursor:
+                bids.append(Bid(**document["bids"]))
+            return bids
+        else:
+            return []
+
+    except InvalidId as e:
+        raise HTTPException(status_code=400, detail="Invalid ObjectId format")
