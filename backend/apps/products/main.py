@@ -50,7 +50,7 @@ def save_product(product: Product):
     status_code=status.HTTP_201_CREATED,
 )
 def create_bid(product: Product):
-    response = save_product(product.model_dump())
+    response = save_product(product.model_dump(by_alias=True, exclude={"id"}))
     if response:
         return response
     raise HTTPException(status_code=400, detail="Something went wrong")
