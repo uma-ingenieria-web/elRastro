@@ -86,3 +86,33 @@ def update_product(id: str, new_product: Product):
 
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
+    
+
+# Delete a product
+@app.delete(
+    "/" + versionRoute + "/products/{id}",
+    summary="Delete a product",
+    response_description="Delete the product from the database",
+    status_code=204,
+    responses={
+        204: {
+            "description": "Product deleted successfully",
+            "content": {
+                "application/json": {"example": {"message": "Product deleted successfully"}}
+            },
+        },
+        404: error_404,
+        400: error_400,
+        422: error_422,
+    },
+)
+def delete_product(id: str):
+    try:
+        result = db.Product.delete_one({"_id": ObjectId(id)})
+        if result.deleted_count == 1:
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+        
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    except InvalidId as e:
+        raise HTTPException(status_code=400, detail="Invalid ObjectId format")
