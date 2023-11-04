@@ -1,4 +1,4 @@
-from typing import Union
+from typing import List
 from fastapi import FastAPI, HTTPException, Response, status
 from dotenv import load_dotenv
 from pymongo import ReturnDocument
@@ -116,3 +116,23 @@ def delete_product(id: str):
 
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
+    
+
+# Get all products
+@app.get(
+    "/" + versionRoute + "/products",
+    summary="List all products",
+    response_description="Get all products stored",
+    response_model=List[Product],
+    responses={
+        422: error_422,
+    },
+)
+def get_products():
+    products = []
+    products_cursor = db.Product.find()
+    if products_cursor is not None:
+        for document in products_cursor:
+            products.append(Product(**document))
+
+    return products
