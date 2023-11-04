@@ -6,7 +6,7 @@ from pymongo.mongo_client import MongoClient
 from productModel import Product
 from bson import ObjectId
 from bson.errors import InvalidId
-from errors import error_404, error_400, error_422
+from errors import *
 
 import os
 
