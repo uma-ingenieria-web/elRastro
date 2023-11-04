@@ -37,6 +37,32 @@ print(db.list_collection_names())
 
 versionRoute = "api/v1"
 
+error_422 = {
+    "description": "Invalid data",
+    "content": {
+        "application/json": {
+            "example": {
+                "detail": [
+                    "Field 'field_name' is required",
+                    "Field 'another_field' is required",
+                ]
+            }
+        }
+    },
+}
+
+error_400 = {
+    "description": "Invalid ObjectId format",
+    "content": {
+        "application/json": {"example": {"message": "Invalid ObjectId format"}}
+    },
+}
+
+error_404 = {
+    "description": "Bid not found",
+    "content": {"application/json": {"example": {"message": "Bid not found"}}},
+}
+
 
 @app.get("/")
 def read_root():
@@ -55,6 +81,7 @@ def save_bid(bid: Bid):
     response_description="Create a new bid with the desired amount",
     response_model=Bid,
     status_code=status.HTTP_201_CREATED,
+    responses={422: error_422},
 )
 def create_bid(bid: Bid):
     bid.product.id = ObjectId(bid.product.id)
@@ -70,15 +97,16 @@ def create_bid(bid: Bid):
     summary="Update bid",
     response_description="Update the values of a bid",
     response_model=Bid,
+    responses={404: error_404, 400: error_400, 422: error_422},
 )
 def update_bid(id: str, new_bid: Bid):
     try:
-        if len(new_bid.model_dump(by_alias=True, exclude={'id'})) >= 1:
+        if len(new_bid.model_dump(by_alias=True, exclude={"id"})) >= 1:
             new_bid.product.id = ObjectId(new_bid.product.id)
             new_bid.owner.id = ObjectId(new_bid.owner.id)
             update_result = db.Bid.find_one_and_update(
                 {"_id": ObjectId(id)},
-                {"$set": new_bid.model_dump(by_alias=True, exclude={'id'})},
+                {"$set": new_bid.model_dump(by_alias=True, exclude={"id"})},
                 return_document=ReturnDocument.AFTER,
             )
             if update_result is not None:
@@ -99,6 +127,17 @@ def update_bid(id: str, new_bid: Bid):
     summary="Delete a bid",
     response_description="Delete the bid from the database",
     status_code=204,
+    responses={
+        204: {
+            "description": "Bid deleted successfully",
+            "content": {
+                "application/json": {"example": {"message": "Bid deleted successfully"}}
+            },
+        },
+        404: error_404,
+        400: error_400,
+        422: error_422,
+    },
 )
 def delete_bid(id: str):
     try:
@@ -115,34 +154,61 @@ def delete_bid(id: str):
     "/" + versionRoute + "/bids",
     summary="List all bids",
     response_description="Get all bids stored, can be sorted by date (order), between a minnimum and maximum price (minPrice, maxPrice), by product (product) or by owner (username)",
-    response_model=List[Bid]
+    response_model=List[Bid],
+    responses={
+        422: {
+            "description": "Invalid data",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": [
+                            "Field 'field_name' is required",
+                            "Field 'another_field' is required",
+                        ]
+                    }
+                }
+            },
+        }
+    },
 )
-def get_bids(order: int = -1, minPrice: float = None, maxPrice: float = None, product: str = "", username: str = ""):
+def get_bids(
+    order: int = -1,
+    minPrice: float = None,
+    maxPrice: float = None,
+    product: str = "",
+    username: str = "",
+):
     bids = []
     bids_cursor = db.Bid.find()
     if bids_cursor is not None:
         for document in bids_cursor:
             bids.append(Bid(**document))
-    
+
     if minPrice or maxPrice:
         bids = get_bids_by_price(minPrice, maxPrice, bids)
-    
+
     if product:
         bids = get_bids_by_product(product, bids)
-        
+
     if username:
         bids = get_bids_by_username(username, bids)
-        
-    if (order):
+
+    if order:
         bids = get_bids_sorted_by_date(order, bids)
-        
+
     return bids
+
 
 @app.get(
     "/" + versionRoute + "/bids/{id}",
     response_model=Bid,
     summary="Get one bid",
     response_description="Get the bid with the same id",
+    responses={
+        404: error_404,
+        400: error_400,
+        422: error_422,
+    },
 )
 def get_bid(id):
     try:
@@ -157,11 +223,14 @@ def get_bid(id):
 
 def get_bids_by_price(minPrice: float, maxPrice: float, bids: List[Bid]):
     bids_by_price = []
-    
+
     for bid in bids:
-        if (not minPrice or bid.amount >= minPrice) and (not maxPrice or bid.amount <= maxPrice):
+        if (not minPrice or bid.amount >= minPrice) and (
+            not maxPrice or bid.amount <= maxPrice
+        ):
             bids_by_price.append(bid)
     return bids_by_price
+
 
 def get_bids_sorted_by_date(order: int, bids: List[Bid]):
     if order == 1:
@@ -169,6 +238,7 @@ def get_bids_sorted_by_date(order: int, bids: List[Bid]):
     else:
         bids.sort(key=lambda bid: bid.timestamp, reverse=False)
     return bids
+
 
 def get_bids_by_product(product: str, bids: List[Bid]):
     bids_by_product = []
@@ -185,30 +255,37 @@ def get_bids_by_username(username: str, bids: List[Bid]):
             bids_by_username.append(bid)
     return bids_by_username
 
+
 @app.get(
     "/" + versionRoute + "/bids/{id}/products/",
     summary="List all products of the owner of a bid ",
     response_description="Get all products of the owner of a bid",
+    response_model=List[Product],
+    responses={400: error_400, 422: error_422},
 )
 def get_products_by_bid(id: str):
-    products = []
-    products_cursor = db.Bid.aggregate(
-        [
-            {"$match": {"_id": ObjectId(id)}},
-            {
-                "$lookup": {
-                    "from": "Product",
-                    "localField": "owner.username",
-                    "foreignField": "owner.username",
-                    "as": "products",
-                }
-            },
-            {"$unwind": "$products"},
-        ]
-    )
-    if products_cursor is not None:
-        for document in products_cursor:
-            products.append(Product(**document["products"]))
-        return products
-    else:
-        return []
+    try:
+        products = []
+        products_cursor = db.Bid.aggregate(
+            [
+                {"$match": {"_id": ObjectId(id)}},
+                {
+                    "$lookup": {
+                        "from": "Product",
+                        "localField": "owner.username",
+                        "foreignField": "owner.username",
+                        "as": "products",
+                    }
+                },
+                {"$unwind": "$products"},
+            ]
+        )
+        if products_cursor is not None:
+            for document in products_cursor:
+                products.append(Product(**document["products"]))
+            return products
+        else:
+            return []
+
+    except InvalidId as e:
+        raise HTTPException(status_code=400, detail="Invalid ObjectId format")
