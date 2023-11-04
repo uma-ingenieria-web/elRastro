@@ -7,23 +7,23 @@ from typing import List
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
 class User(BaseModel):
-    id: str = Field(...)
+    id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
 
 class Bid(BaseModel):
-    id: str = Field(...)
+    id: PyObjectId = Field(alias="_id", default=None)
     amount: float = Field(...)
     bidder: User = Field(...)
 
 class Product(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    id: PyObjectId = Field(alias="_id", default=None)
     owner: User = Field(...)
     buyer: User = Field(...)
     bids: List[Bid]
     title: str = Field(...)
     description: str = Field(...)
     initialPrice: float = Field(...)
-    closeDate: datetime = Field(default_factory=datetime.now)
+    closeDate: datetime = Field(...)
     timestamp: datetime = Field(default_factory=datetime.now)
     location: str = Field(...)
     model_config = ConfigDict(
@@ -38,19 +38,19 @@ class Product(BaseModel):
                 "timestamp": "2023-10-25T12:00:00",
                 "location": "53.339688, -6.236688",
                 "owner": {
-                    "id": "653e27ba54d16794592d4741",
+                    "_id": "653e27ba54d16794592d4741",
                     "username": "Manolo"
                 },
                 "buyer": {
-                  "id": "653e27baafafeu94592d4741",
+                  "_id": "653e27baafafeu94592d4741",
                   "username": "Manuela"
                 },
                 "bids": [
                     {
-                        "id": "653e27baafafeu94592d4742",
+                        "_id": "653e27baafafeu94592d4742",
                         "amount": 22.0,
                         "bidder": {
-                            "id": "653e27baafafeu94592d4741",
+                            "_id": "653e27baafafeu94592d4741",
                             "username": "Manuela"
                         }
                     }

@@ -57,7 +57,9 @@ def save_bid(bid: Bid):
     status_code=status.HTTP_201_CREATED,
 )
 def create_bid(bid: Bid):
-    response = save_bid(bid.model_dump())
+    bid.product.id = ObjectId(bid.product.id)
+    bid.owner.id = ObjectId(bid.owner.id)
+    response = save_bid(bid.model_dump(by_alias=True, exclude={"id"}))
     if response:
         return response
     raise HTTPException(status_code=400, detail="Something went wrong")
@@ -71,10 +73,12 @@ def create_bid(bid: Bid):
 )
 def update_bid(id: str, new_bid: Bid):
     try:
-        if len(new_bid.model_dump()) >= 1:
+        if len(new_bid.model_dump(by_alias=True, exclude={'id'})) >= 1:
+            new_bid.product.id = ObjectId(new_bid.product.id)
+            new_bid.owner.id = ObjectId(new_bid.owner.id)
             update_result = db.Bid.find_one_and_update(
                 {"_id": ObjectId(id)},
-                {"$set": new_bid.model_dump()},
+                {"$set": new_bid.model_dump(by_alias=True, exclude={'id'})},
                 return_document=ReturnDocument.AFTER,
             )
             if update_result is not None:
