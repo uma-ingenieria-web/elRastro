@@ -177,3 +177,13 @@ def get_products_by_username(username: str, products: List[Product]):
         if username in product.owner.username:
             products_by_username.append(product)
     return products_by_username
+
+def get_products_by_initialprice(minPrice: float, maxPrice: float, products: List[Product]):
+    products_by_price = []
+
+    for product in products:
+        if (not minPrice or product.initialPrice >= minPrice) and (
+            not maxPrice or product.initialPrice <= maxPrice
+        ):
+            products_by_price.append(product)
+    return products_by_price
