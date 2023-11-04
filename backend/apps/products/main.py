@@ -163,3 +163,10 @@ def get_products_sorted_by_closedate(order: int, products: List[Product]):
     else:
         products.sort(key=lambda prod: prod.closeDate, reverse=False)
     return products
+
+def get_products_sorted_by_timestamp(order: int, products: List[Product]):
+    if order == 1:
+        products.sort(key=lambda prod: prod.timestamp, reverse=True)
+    else:
+        products.sort(key=lambda prod: prod.timestamp, reverse=False)
+    return products
