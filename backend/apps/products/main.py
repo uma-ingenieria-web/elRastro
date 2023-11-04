@@ -156,3 +156,10 @@ def get_product(id):
 
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
+
+def get_products_sorted_by_closedate(order: int, products: List[Product]):
+    if order == 1:
+        products.sort(key=lambda prod: prod.closeDate, reverse=True)
+    else:
+        products.sort(key=lambda prod: prod.closeDate, reverse=False)
+    return products
