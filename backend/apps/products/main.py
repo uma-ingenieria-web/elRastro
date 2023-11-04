@@ -37,12 +37,26 @@ versionRoute = "api/v1"
 def read_root():
     return {"API": "REST"}
 
-# Add a new product
-def save_product(product: Product):
-    new_product = db.Product.insert_one(product)
-    created_product = db.Product.find_one({"_id": new_product.inserted_id})
-    return created_product
+# Get all products
+@app.get(
+    "/" + versionRoute + "/products",
+    summary="List all products",
+    response_description="Get all products stored",
+    response_model=List[Product],
+    responses={
+        422: error_422,
+    },
+)
+def get_products():
+    products = []
+    products_cursor = db.Product.find()
+    if products_cursor is not None:
+        for document in products_cursor:
+            products.append(Product(**document))
 
+    return products
+
+# Add a new product
 @app.post(
     "/" + versionRoute + "/products",
     summary="Add new product",
@@ -55,6 +69,11 @@ def create_product(product: Product):
     if response:
         return response
     raise HTTPException(status_code=400, detail="Something went wrong")
+
+def save_product(product: Product):
+    new_product = db.Product.insert_one(product)
+    created_product = db.Product.find_one({"_id": new_product.inserted_id})
+    return created_product
 
 # Update a product
 @app.put(
@@ -116,23 +135,3 @@ def delete_product(id: str):
 
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
-    
-
-# Get all products
-@app.get(
-    "/" + versionRoute + "/products",
-    summary="List all products",
-    response_description="Get all products stored",
-    response_model=List[Product],
-    responses={
-        422: error_422,
-    },
-)
-def get_products():
-    products = []
-    products_cursor = db.Product.find()
-    if products_cursor is not None:
-        for document in products_cursor:
-            products.append(Product(**document))
-
-    return products
