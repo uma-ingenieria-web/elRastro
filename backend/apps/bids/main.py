@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
 from bidModel import Bid
+from productModel import Product
 from bson import ObjectId
 from bson.errors import InvalidId
 
@@ -180,38 +181,30 @@ def get_bids_by_username(username: str, bids: List[Bid]):
             bids_by_username.append(bid)
     return bids_by_username
 
-
-# @app.get(
-#     "/" + versionRoute + "/bids/{id}/products/",
-#     summary="List all products of the owner of a bid ",
-#     response_description="Get all products of the owner of a bid",
-# )
-# def get_products_by_bid(id: str):
-#     products = []
-#     products_cursor = db.Bid.aggregate(
-#         [
-#             {"$match": {"_id": ObjectId(id)}},
-#             {
-#                 "$project": {
-#                     "_id": 0,
-#                     "owner.username": 1,
-#                 }
-#             },
-#             {
-#                 "$lookup": {
-#                     "from": "Product",
-#                     "localField": "owner.username",
-#                     "foreignField": "buyer.username",
-#                     "as": "products",
-#                 }
-#             },
-#             {"$unwind": "$products"},
-#             {"$group": {"_id": "$_id", "products": {"$push": "$products"}}},
-#         ]
-#     )
-#     if products_cursor is not None:
-#         for document in products_cursor:
-#             products.append(document)
-#         return products
-#     else:
-#         return []
+@app.get(
+    "/" + versionRoute + "/bids/{id}/products/",
+    summary="List all products of the owner of a bid ",
+    response_description="Get all products of the owner of a bid",
+)
+def get_products_by_bid(id: str):
+    products = []
+    products_cursor = db.Bid.aggregate(
+        [
+            {"$match": {"_id": ObjectId(id)}},
+            {
+                "$lookup": {
+                    "from": "Product",
+                    "localField": "owner.username",
+                    "foreignField": "owner.username",
+                    "as": "products",
+                }
+            },
+            {"$unwind": "$products"},
+        ]
+    )
+    if products_cursor is not None:
+        for document in products_cursor:
+            products.append(Product(**document["products"]))
+        return products
+    else:
+        return []
