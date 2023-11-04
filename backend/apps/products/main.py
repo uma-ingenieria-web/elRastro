@@ -156,3 +156,39 @@ def get_product(id):
 
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
+
+
+
+@app.get(
+    "/" + versionRoute + "/bids/{id}/products/",
+    summary="List all products of the owner of a bid ",
+    response_description="Get all products of the owner of a bid",
+    response_model=List[Product],
+    responses={400: error_400, 422: error_422},
+)
+def get_products_by_bid(id: str):
+    try:
+        products = []
+        products_cursor = db.Bid.aggregate(
+            [
+                {"$match": {"_id": ObjectId(id)}},
+                {
+                    "$lookup": {
+                        "from": "Product",
+                        "localField": "owner.username",
+                        "foreignField": "owner.username",
+                        "as": "products",
+                    }
+                },
+                {"$unwind": "$products"},
+            ]
+        )
+        if products_cursor is not None:
+            for document in products_cursor:
+                products.append(Product(**document["products"]))
+            return products
+        else:
+            return []
+
+    except InvalidId as e:
+        raise HTTPException(status_code=400, detail="Invalid ObjectId format")
