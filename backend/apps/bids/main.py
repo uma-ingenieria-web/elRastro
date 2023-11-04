@@ -7,6 +7,7 @@ from bidModel import Bid
 from productModel import Product
 from bson import ObjectId
 from bson.errors import InvalidId
+from errors import *
 
 import os
 
@@ -36,32 +37,6 @@ db = client.elRastro
 print(db.list_collection_names())
 
 versionRoute = "api/v1"
-
-error_422 = {
-    "description": "Invalid data",
-    "content": {
-        "application/json": {
-            "example": {
-                "detail": [
-                    "Field 'field_name' is required",
-                    "Field 'another_field' is required",
-                ]
-            }
-        }
-    },
-}
-
-error_400 = {
-    "description": "Invalid ObjectId format",
-    "content": {
-        "application/json": {"example": {"message": "Invalid ObjectId format"}}
-    },
-}
-
-error_404 = {
-    "description": "Bid not found",
-    "content": {"application/json": {"example": {"message": "Bid not found"}}},
-}
 
 
 @app.get("/")
