@@ -156,19 +156,7 @@ def delete_bid(id: str):
     response_description="Get all bids stored, can be sorted by date (order), between a minnimum and maximum price (minPrice, maxPrice), by product (product) or by owner (username)",
     response_model=List[Bid],
     responses={
-        422: {
-            "description": "Invalid data",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "detail": [
-                            "Field 'field_name' is required",
-                            "Field 'another_field' is required",
-                        ]
-                    }
-                }
-            },
-        }
+        422: error_422,
     },
 )
 def get_bids(
