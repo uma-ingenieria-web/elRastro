@@ -61,8 +61,39 @@ def save_bid(bid: Bid):
 def create_bid(bid: Bid):
     bid.product.id = ObjectId(bid.product.id)
     bid.owner.id = ObjectId(bid.owner.id)
+    bid.bidder.id = ObjectId(bid.bidder.id)
     response = save_bid(bid.model_dump(by_alias=True, exclude={"id"}))
+    
     if response:
+        
+        product = db.Product.find_one({"_id": ObjectId(bid.product.id)})
+        
+        if product:
+            
+            db.Product.find_one_and_update(
+                {"_id": ObjectId(bid.product.id)},
+                {"$push": {"bids": {
+                    "_id": response["_id"],
+                    "amount": response["amount"],
+                    "bidder": {
+                        "_id": response["bidder"]["_id"],
+                        "username": response["bidder"]["username"]
+                    }
+                }}}
+            )            
+        
+        db.User.find_one_and_update(
+            {"_id": ObjectId(bid.bidder.id)},
+            {"$push": {"bids": {
+                "_id": response["_id"],
+                "amount": response["amount"],
+                "product": {
+                    "_id": response["product"]["_id"],
+                    "name": response["product"]["name"]
+                }
+            }}} # Por aclarar
+        )
+        
         return response
     raise HTTPException(status_code=400, detail="Something went wrong")
 
@@ -117,8 +148,19 @@ def update_bid(id: str, new_bid: Bid):
 def delete_bid(id: str):
     try:
         result = db.Bid.delete_one({"_id": ObjectId(id)})
+        
+        db.Product.update_many(
+            {"bids._id": ObjectId(id)},
+            {"$pull": {"bids": {"_id": ObjectId(id)}}}
+        )
+        
+        db.User.update_many(
+            {"bids._id": ObjectId(id)},
+            {"$pull": {"bids": {"_id": ObjectId(id)}}}
+        )
+        
         if result.deleted_count == 1:
-            return Response(status_code=status.HTTP_204_NO_CONTENT)
+            return Response(status_code=status.HTTP_204_NO_CONTENT, media_type="application/json", headers={"message": "Bid deleted successfully"})
         raise HTTPException(status_code=404, detail="Bid not found")
 
     except InvalidId as e:

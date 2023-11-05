@@ -33,28 +33,49 @@ print(db.list_collection_names())
 
 versionRoute = "api/v1"
 
+
 @app.get("/")
 def read_root():
     return {"API": "REST"}
+
 
 # Get all products
 @app.get(
     "/" + versionRoute + "/products",
     summary="List all products",
-    response_description="Get all products stored",
+    response_description="Get all products stored, can be sorted by closeDate, timestamp, username, by a range of initialPrice (minPrice and maxPrice))",
     response_model=List[Product],
     responses={
         422: error_422,
     },
 )
-def get_products():
+def get_products(
+    orderDate: int = -1,
+    orderTimestamp: int = -1,
+    username: str = "",
+    minPrice: float = None,
+    maxPrice: float = None,
+):
     products = []
     products_cursor = db.Product.find()
     if products_cursor is not None:
         for document in products_cursor:
             products.append(Product(**document))
 
+    if minPrice or maxPrice:
+        products = get_products_by_initialprice(minPrice, maxPrice, products)
+
+    if username:
+        products = get_products_by_username(username, products)
+
+    if orderDate:
+        products = get_products_sorted_by_closedate(orderDate, products)
+
+    if orderTimestamp:
+        products = get_products_sorted_by_timestamp(orderTimestamp, products)
+
     return products
+
 
 # Add a new product
 @app.post(
@@ -67,13 +88,27 @@ def get_products():
 def create_product(product: Product):
     response = save_product(product.model_dump(by_alias=True, exclude={"id"}))
     if response:
+        db.User.update_many(
+            {"_id": ObjectId(product.owner.id)},
+            {
+                "$push": {
+                    "products": {
+                        "_id": response["_id"],
+                        "name": response["title"],
+                    }
+                }
+            },  # Por aclarar
+        )
+
         return response
     raise HTTPException(status_code=400, detail="Something went wrong")
+
 
 def save_product(product: Product):
     new_product = db.Product.insert_one(product)
     created_product = db.Product.find_one({"_id": new_product.inserted_id})
     return created_product
+
 
 # Update a product
 @app.put(
@@ -86,17 +121,35 @@ def save_product(product: Product):
 def update_product(id: str, new_product: Product):
     try:
         if len(new_product.model_dump(by_alias=True, exclude={"id"})) >= 1:
-            new_product.product.id = ObjectId(new_product.product.id)
+            new_product.id = ObjectId(new_product.id)
             new_product.owner.id = ObjectId(new_product.owner.id)
             update_result = db.Product.find_one_and_update(
                 {"_id": ObjectId(id)},
                 {"$set": new_product.model_dump(by_alias=True, exclude={"id"})},
                 return_document=ReturnDocument.AFTER,
             )
+
+            db.Bid.update_many(
+                {"product._id": ObjectId(id)},
+                {"$set": {"product.name": new_product.title}},
+            )
+
+            db.User.update_one(
+                {"products._id": ObjectId(id)},
+                {"$set": {"products.$.name": new_product.title}},
+            )
+
+            db.User.update_many(
+                {"bids.product._id": ObjectId(id)},
+                {"$set": {"bids.$.product.name": new_product.title}},
+            )
+
             if update_result is not None:
                 return update_result
             else:
-                raise HTTPException(status_code=404, detail=f"Product with id:{id} not found")
+                raise HTTPException(
+                    status_code=404, detail=f"Product with id:{id} not found"
+                )
 
         if (product_db := db.Product.find_one({"_id": id})) is not None:
             return product_db
@@ -117,7 +170,9 @@ def update_product(id: str, new_product: Product):
         204: {
             "description": "Product deleted successfully",
             "content": {
-                "application/json": {"example": {"message": "Product deleted successfully"}}
+                "application/json": {
+                    "example": {"message": "Product deleted successfully"}
+                }
             },
         },
         404: error_404,
@@ -129,12 +184,29 @@ def delete_product(id: str):
     try:
         result = db.Product.delete_one({"_id": ObjectId(id)})
         if result.deleted_count == 1:
-            return Response(status_code=status.HTTP_204_NO_CONTENT)
+            db.Bid.delete_many({"product._id": ObjectId(id)})
+
+            db.User.update_many(
+                {"products._id": ObjectId(id)},
+                {"$pull": {"products": {"_id": ObjectId(id)}}},
+            )
+
+            db.User.update_many(
+                {"bids.product._id": ObjectId(id)},
+                {"$pull": {"bids": {"product._id": ObjectId(id)}}},
+            )
+
+            return Response(
+                status_code=status.HTTP_204_NO_CONTENT,
+                media_type="application/json",
+                headers={"message": "Product deleted successfully"},
+            )
 
         raise HTTPException(status_code=404, detail="Product not found")
 
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
+
 
 @app.get(
     "/" + versionRoute + "/products/{id}",
@@ -157,12 +229,14 @@ def get_product(id):
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
+
 def get_products_sorted_by_closedate(order: int, products: List[Product]):
     if order == 1:
         products.sort(key=lambda prod: prod.closeDate, reverse=True)
     else:
         products.sort(key=lambda prod: prod.closeDate, reverse=False)
     return products
+
 
 def get_products_sorted_by_timestamp(order: int, products: List[Product]):
     if order == 1:
@@ -171,6 +245,7 @@ def get_products_sorted_by_timestamp(order: int, products: List[Product]):
         products.sort(key=lambda prod: prod.timestamp, reverse=False)
     return products
 
+
 def get_products_by_username(username: str, products: List[Product]):
     products_by_username = []
     for product in products:
@@ -178,7 +253,10 @@ def get_products_by_username(username: str, products: List[Product]):
             products_by_username.append(product)
     return products_by_username
 
-def get_products_by_initialprice(minPrice: float, maxPrice: float, products: List[Product]):
+
+def get_products_by_initialprice(
+    minPrice: float, maxPrice: float, products: List[Product]
+):
     products_by_price = []
 
     for product in products:
@@ -187,6 +265,7 @@ def get_products_by_initialprice(minPrice: float, maxPrice: float, products: Lis
         ):
             products_by_price.append(product)
     return products_by_price
+
 
 @app.get(
     "/" + versionRoute + "/products/{id}/bids/",
