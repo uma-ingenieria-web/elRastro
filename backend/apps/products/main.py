@@ -84,6 +84,9 @@ def get_products(
     response_description="Create a new product by specifying its attributes",
     response_model=Product,
     status_code=status.HTTP_201_CREATED,
+    responses={
+        422: error_422,
+    }
 )
 def create_product(product: Product):
     response = save_product(product.model_dump(by_alias=True, exclude={"id"}))
@@ -169,11 +172,7 @@ def update_product(id: str, new_product: Product):
     responses={
         204: {
             "description": "Product deleted successfully",
-            "content": {
-                "application/json": {
-                    "example": {"message": "Product deleted successfully"}
-                }
-            },
+            "headers": {"message": "Product deleted successfully"},
         },
         404: error_404,
         400: error_400,

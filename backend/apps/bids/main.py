@@ -136,9 +136,7 @@ def update_bid(id: str, new_bid: Bid):
     responses={
         204: {
             "description": "Bid deleted successfully",
-            "content": {
-                "application/json": {"example": {"message": "Bid deleted successfully"}}
-            },
+            "headers": {"message": "Bid deleted successfully"},
         },
         404: error_404,
         400: error_400,
@@ -170,7 +168,7 @@ def delete_bid(id: str):
 @app.get(
     "/" + versionRoute + "/bids",
     summary="List all bids",
-    response_description="Get all bids stored, can be sorted by date (order), between a minnimum and maximum price (minPrice, maxPrice), by product (product) or by owner (username)",
+    response_description="Get all bids stored, can be sorted by date (order), between a minimum and maximum price (minPrice, maxPrice), by product (product) or by owner (username)",
     response_model=List[Bid],
     responses={
         422: error_422,

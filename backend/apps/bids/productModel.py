@@ -19,7 +19,7 @@ class Product(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     owner: User = Field(...)
     buyer: User = Field(...)
-    bids: List[Bid]
+    bids: List[Bid] = Field(default_factory=list)
     title: str = Field(...)
     description: str = Field(...)
     initialPrice: float = Field(...)
