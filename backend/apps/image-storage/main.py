@@ -35,7 +35,7 @@ versionRoute = "api/v1"
         },
          tags=["User"])
 def get_user_photo(id: str):
-    image_url, options = cloudinary.utils.cloudinary_url(id, format="jpeg")
+    image_url, options = cloudinary.utils.cloudinary_url(id, format="jpeg", secure=True)
     return image_url
 
 @app.post("/" + versionRoute + "/user/{id}/photo",
