@@ -26,6 +26,7 @@ class Product(BaseModel):
     closeDate: datetime = Field(...)
     timestamp: datetime = Field(default_factory=datetime.now)
     location: str = Field(...)
+    weight: float = Field(...)
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
@@ -37,6 +38,7 @@ class Product(BaseModel):
                 "closeDate": "2023-11-02T12:00:00",
                 "timestamp": "2023-10-25T12:00:00",
                 "location": "53.339688, -6.236688",
+                "weight": 0.5,
                 "owner": {
                     "_id": "653e27ba54d16794592d4741",
                     "username": "Manolo"
