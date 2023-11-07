@@ -10,10 +10,13 @@ class UserBasicInfo(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
 
+class UserBasicInfoCollection(BaseModel):
+    users: List[UserBasicInfo]
+
 class Product(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
-    name: str = Field(...)
-    date: datetime.datetime = Field(...)
+    title: str = Field(...)
+    closeDate: datetime.datetime = Field(...)
     buyer: UserBasicInfo = Field(...)
 
 class ProductCollection(BaseModel):
@@ -22,14 +25,18 @@ class ProductCollection(BaseModel):
 class Bid(BaseModel):
     id: str = Field(...)
     amount: float = Field(...)
+    timestamp: datetime.datetime = Field(...)
     product: Product = Field(...)
 
-class UserBasicInfoCollection(BaseModel):
-    users: List[UserBasicInfo]
+class Location(BaseModel):
+    lat: float = Field(...)
+    lon: float = Field(...)
 
 class User(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
+    location: Location = Field(...)
+    rating: float = Field(...)
     products: List[Product]
     bids: List[Bid]
 
@@ -39,29 +46,31 @@ class User(BaseModel):
         json_encoders = {ObjectId: str},
         json_schema_extra = {
             "example": {
-                "username": "Javi Jordan",
+                "username": "username",
+                "location": {
+                    "lat": 36.749058,
+                    "lon": -4.516260
+                },
+                "rating": 5.0,
                 "products": [
                     {
-                        "_id": "653e27ba54d16794592d4731",
-                        "title": "Balon de Futbol",
+                        "_id": "product_id",
+                        "title": "product_title",
+                        "closeDate": "product_closeDate",
                         "buyer": {
-                            "_id":"653e50ba54d16794592d4700",
-                            "username": "Pepe"
+                            "_id":"product_buyer_id",
+                            "username": "product_buyer_username"
                         }
                     }
                 ],
                 "bids": [
                     {
-                        "_id": "653e27ba54d16794592d4741",
-                        "amount": 550.0,
+                        "_id": "bid_id",
+                        "amount": 500.0,
+                        "timestamp": "bid_timestamp",
                         "product": {
-                            "_id": "653e27ba54d16794592d4751",
-                            "title": "Ordenador Portatil",
-                            "date": "2023-10-25T12:00:00",
-                            "buyer": {
-                                "_id": "653e27ba54d16794592d4731",
-                                "username": "Manolo"
-                            }
+                            "_id": "bid_product_id",
+                            "title": "bid_product_title"
                         }
                     }
                 ]
@@ -79,20 +88,29 @@ class CreateUser(BaseModel):
         json_encoders={ObjectId: str},
         json_schema_extra={
             "example": {
-                "username": "Javi Jordan",
+                "username": "username",
+                "location": {
+                    "lat": 36.749058,
+                    "lon": -4.516260
+                },
             }
         }
     )
 
 class UpdateUser(BaseModel):
     username: Optional[str] = None
+    location: Optional[Location] = None
 
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
         json_encoders={ObjectId: str},
         json_schema_extra={
             "example": {
-                "username": "Javi Jordan"
+                "username": "username",
+                "location": {
+                    "lat": 36.749058,
+                    "lon": -4.516260
+                }
             }
         }
     )
