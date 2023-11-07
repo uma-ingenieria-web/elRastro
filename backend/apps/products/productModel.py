@@ -15,6 +15,10 @@ class Bid(BaseModel):
     amount: float = Field(...)
     bidder: User = Field(...)
 
+class ProductBasicInfo(BaseModel):
+    id: PyObjectId = Field(alias="_id", default=None)
+    title: str = Field(...)
+
 class Product(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     owner: User = Field(...)
