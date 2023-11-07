@@ -315,10 +315,10 @@ def get_related_products(id: str):
         prod = db.Product.find_one({"_id": ObjectId(id)}, {"owner._id": 1})
         if prod == None:
             return []
-        user_products = list(db.User.find({"_id": prod["owner"]["_id"]}, {"products": 1}))
-        if len(user_products) == 0:
+        user_products = db.User.find_one({"_id": prod["owner"]["_id"]}, {"products": 1})
+        if user_products is None:
             return []
-        return user_products[0]["products"]
+        return user_products["products"]
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
