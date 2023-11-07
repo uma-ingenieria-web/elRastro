@@ -97,7 +97,7 @@ def create_product(product: Product):
                 "$push": {
                     "products": {
                         "_id": response["_id"],
-                        "name": response["title"],
+                        "title": response["title"],
                     }
                 }
             },  # Por aclarar
@@ -134,17 +134,17 @@ def update_product(id: str, new_product: Product):
 
             db.Bid.update_many(
                 {"product._id": ObjectId(id)},
-                {"$set": {"product.name": new_product.title}},
+                {"$set": {"product.title": new_product.title}},
             )
 
             db.User.update_one(
                 {"products._id": ObjectId(id)},
-                {"$set": {"products.$.name": new_product.title}},
+                {"$set": {"products.$.title": new_product.title}},
             )
 
             db.User.update_many(
                 {"bids.product._id": ObjectId(id)},
-                {"$set": {"bids.$.product.name": new_product.title}},
+                {"$set": {"bids.$.product.title": new_product.title}},
             )
 
             if update_result is not None:
