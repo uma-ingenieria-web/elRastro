@@ -91,8 +91,8 @@ def create_bid(bid: Bid):
                 "product": {
                     "_id": response["product"]["_id"],
                     "title": response["product"]["title"],
-                    "date": response["product"]["timestamp"],
-                    "buyer": response["product"]["buyer"]
+                    "date": product["timestamp"],
+                    "buyer": product["buyer"]
                 }
             }}}
         )
@@ -113,11 +113,39 @@ def update_bid(id: str, new_bid: Bid):
         if len(new_bid.model_dump(by_alias=True, exclude={"id"})) >= 1:
             new_bid.product.id = ObjectId(new_bid.product.id)
             new_bid.owner.id = ObjectId(new_bid.owner.id)
+            new_bid.bidder.id = ObjectId(new_bid.bidder.id)
             update_result = db.Bid.find_one_and_update(
                 {"_id": ObjectId(id)},
                 {"$set": new_bid.model_dump(by_alias=True, exclude={"id"})},
                 return_document=ReturnDocument.AFTER,
             )
+            
+            
+            
+            db.Product.find_one_and_update(
+                {"bids._id": ObjectId(id)},
+                {"$set": {
+                    "bids.$.amount": new_bid.amount,
+                    "bids.$.bidder": {
+                        "_id": new_bid.bidder.id,
+                        "username": new_bid.bidder.username
+                    }
+                }}
+            )
+            
+            db.User.find_one_and_update(
+                {"bids._id": ObjectId(id)},
+                {"$set": {
+                    "bids.$.amount": new_bid.amount,
+                    "bids.$.product": {
+                        "_id": new_bid.product.id,
+                        "title": new_bid.product.title,
+                        "date": new_bid.timestamp,
+                        "buyer": new_bid.owner.model_dump(by_alias=True)
+                    }
+                }}
+            )
+            
             if update_result is not None:
                 return update_result
             else:

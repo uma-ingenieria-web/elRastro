@@ -105,7 +105,7 @@ def create_product(product: Product):
                     "products": {
                         "_id": response["_id"],
                         "title": response["title"],
-                        "date": response["date"],
+                        "date": response["timestamp"],
                         "buyer": response["buyer"],
                     }
                 }
@@ -135,6 +135,7 @@ def update_product(id: str, new_product: Product):
         if len(new_product.model_dump(by_alias=True, exclude={"id"})) >= 1:
             new_product.id = ObjectId(new_product.id)
             new_product.owner.id = ObjectId(new_product.owner.id)
+            new_product.buyer.id = ObjectId(new_product.buyer.id)
             update_result = db.Product.find_one_and_update(
                 {"_id": ObjectId(id)},
                 {"$set": new_product.model_dump(by_alias=True, exclude={"id"})},
@@ -156,7 +157,8 @@ def update_product(id: str, new_product: Product):
                 {
                     "$set": {
                         "bids.$.product.title": new_product.title,
-                        "bids.$.product.buyer": new_product.buyer,
+                        "bids.$.product.buyer.id": new_product.buyer.id,
+                        "bids.$.product.buyer.username": new_product.buyer.username,
                         "bids.$.product.date": new_product.timestamp,
                     }
                 },

@@ -57,7 +57,11 @@ class User(BaseModel):
                         "product": {
                             "_id": "653e27ba54d16794592d4751",
                             "title": "Ordenador Portatil",
-                            "timestamp": "2023-10-25T12:00:00"
+                            "date": "2023-10-25T12:00:00",
+                            "buyer": {
+                                "_id": "653e27ba54d16794592d4731",
+                                "username": "Manolo"
+                            }
                         }
                     }
                 ]
