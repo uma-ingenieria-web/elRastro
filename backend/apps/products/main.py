@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException, Response, status
 from dotenv import load_dotenv
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
-from productModel import Bid, Product
+from productModel import Bid, Product, ProductBasicInfo
 from bson import ObjectId
 from bson.errors import InvalidId
 from errors import *
@@ -299,3 +299,26 @@ def get_bids_by_product(id: str):
 
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
+
+
+
+# Query between collections
+@app.get(
+    "/" + versionRoute + "/products/{id}/related/",
+    summary="Get the all the products from the user given a product id",
+    response_description="List of products from a product id of a the same user",
+    response_model=List[ProductBasicInfo],
+    responses={400: error_400, 422: error_422},
+)
+def get_related_products(id: str):
+    try:
+        prod = db.Product.find_one({"_id": ObjectId(id)}, {"owner._id": 1})
+        if prod == None:
+            return []
+        user_products = list(db.User.find({"_id": prod["owner"]["_id"]}, {"products": 1}))
+        if len(user_products) == 0:
+            return []
+        return user_products[0]["products"]
+    except InvalidId as e:
+        raise HTTPException(status_code=400, detail="Invalid ObjectId format")
+
