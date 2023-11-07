@@ -7,7 +7,7 @@ PyObjectId = Annotated[str, BeforeValidator(str)]
 
 class Product(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
-    name: str = Field(...)
+    title: str = Field(...)
 
 class Owner(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
@@ -36,7 +36,7 @@ class Bid(BaseModel):
                 "timestamp": "2023-10-25T12:00:00",
                 "product": {
                   "_id": "653e27ba54d16794592d4731",  
-                  "name": "T-shirt"  
+                  "title": "T-shirt"  
                 },
                 "owner": {
                   "_id": "653e27ba54d16794592d4741",
