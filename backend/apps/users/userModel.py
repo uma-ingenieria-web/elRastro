@@ -43,7 +43,7 @@ class User(BaseModel):
                 "products": [
                     {
                         "_id": "653e27ba54d16794592d4731",
-                        "name": "Balon de Futbol",
+                        "title": "Balon de Futbol",
                         "buyer": {
                             "_id":"653e50ba54d16794592d4700",
                             "username": "Pepe"
@@ -56,7 +56,7 @@ class User(BaseModel):
                         "amount": 550.0,
                         "product": {
                             "_id": "653e27ba54d16794592d4751",
-                            "name": "Ordenador Portatil",
+                            "title": "Ordenador Portatil",
                             "timestamp": "2023-10-25T12:00:00"
                         }
                     }
