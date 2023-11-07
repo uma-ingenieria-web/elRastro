@@ -7,7 +7,7 @@ from bidModel import Bid
 from productModel import Product
 from bson import ObjectId
 from bson.errors import InvalidId
-from errors import *
+import errors
 
 import os
 
@@ -56,7 +56,7 @@ def save_bid(bid: Bid):
     response_description="Create a new bid with the desired amount",
     response_model=Bid,
     status_code=status.HTTP_201_CREATED,
-    responses={422: error_422},
+    responses={422: errors.error_422},
 )
 def create_bid(bid: Bid):
     bid.product.id = ObjectId(bid.product.id)
@@ -103,7 +103,7 @@ def create_bid(bid: Bid):
     summary="Update bid",
     response_description="Update the values of a bid",
     response_model=Bid,
-    responses={404: error_404, 400: error_400, 422: error_422},
+    responses={404: errors.error_404, 400: errors.error_400, 422: errors.error_422},
 )
 def update_bid(id: str, new_bid: Bid):
     try:
@@ -138,9 +138,9 @@ def update_bid(id: str, new_bid: Bid):
             "description": "Bid deleted successfully",
             "headers": {"message": "Bid deleted successfully"},
         },
-        404: error_404,
-        400: error_400,
-        422: error_422,
+        404: errors.error_404,
+        400: errors.error_400,
+        422: errors.error_422,
     },
 )
 def delete_bid(id: str):
@@ -171,7 +171,7 @@ def delete_bid(id: str):
     response_description="Get all bids stored, can be sorted by date (order), between a minimum and maximum price (minPrice, maxPrice), by product (product) or by owner (username)",
     response_model=List[Bid],
     responses={
-        422: error_422,
+        422: errors.error_422,
     },
 )
 def get_bids(
@@ -208,9 +208,9 @@ def get_bids(
     summary="Get one bid",
     response_description="Get the bid with the same id",
     responses={
-        404: error_404,
-        400: error_400,
-        422: error_422,
+        404: errors.error_404,
+        400: errors.error_400,
+        422: errors.error_422,
     },
 )
 def get_bid(id):
@@ -261,10 +261,10 @@ def get_bids_by_username(username: str, bids: List[Bid]):
 
 @app.get(
     "/" + versionRoute + "/bids/{id}/products/",
-    summary="List all products of the owner of a bid ",
-    response_description="Get all products of the owner of a bid",
+    summary="List all products of a bid's owner",
+    response_description="Get all products of a bid's owner",
     response_model=List[Product],
-    responses={400: error_400, 422: error_422},
+    responses={400: errors.error_400, 422: errors.error_422},
 )
 def get_products_by_bid(id: str):
     try:
