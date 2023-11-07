@@ -39,10 +39,10 @@ services:
       context: ./backend/apps/carbon-footprint/
     ports:
       - 8004:8000
-  frontend:
-    build:
-      context: ./frontend/el-rastro/
-    environment:
-      NODE_ENV: production
-    ports:
-      - 8080:3000
+  # frontend:
+  #   build:
+  #     context: ./frontend/el-rastro/
+  #   environment:
+  #     NODE_ENV: production
+  #   ports:
+  #     - 8080:3000
