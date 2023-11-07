@@ -286,7 +286,7 @@ def get_bids_by_product(id: str):
     summary="Get the all the products from the user given a product id",
     response_description="List of products from a product id of a the same user",
     response_model=List[ProductBasicInfo],
-    responses={400: error_400, 422: error_422},
+    responses={400: errors.error_400, 422: errors.error_422},
 )
 def get_related_products(id: str):
     try:
