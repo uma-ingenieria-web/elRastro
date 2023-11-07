@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import FastAPI, HTTPException, Response, status
+from fastapi import FastAPI, HTTPException, Query, Response, status
 from dotenv import load_dotenv
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
@@ -8,6 +8,7 @@ from productModel import Product
 from bson import ObjectId
 from bson.errors import InvalidId
 import errors
+import re
 
 import os
 
@@ -89,9 +90,11 @@ def create_bid(bid: Bid):
                 "amount": response["amount"],
                 "product": {
                     "_id": response["product"]["_id"],
-                    "title": response["product"]["title"]
+                    "title": response["product"]["title"],
+                    "date": response["product"]["timestamp"],
+                    "buyer": response["product"]["buyer"]
                 }
-            }}} # Por aclarar
+            }}}
         )
         
         return response
@@ -168,37 +171,42 @@ def delete_bid(id: str):
 @app.get(
     "/" + versionRoute + "/bids",
     summary="List all bids",
-    response_description="Get all bids stored, can be sorted by date (order), between a minimum and maximum price (minPrice, maxPrice), by product (product) or by owner (username)",
+    response_description="Get all bids stored, can be sorted by date (order), between a minimum and maximum price (minPrice, maxPrice), by product (product), by owner (username) or by bidder (bidder)",
     response_model=List[Bid],
     responses={
         422: errors.error_422,
     },
 )
 def get_bids(
-    order: int = -1,
-    minPrice: float = None,
-    maxPrice: float = None,
-    product: str = "",
-    username: str = "",
+    order: int = Query(-1, description="1 for ascending, -1 for descending"),
+    minPrice: float = Query(None, description="Minimum price filter"),
+    maxPrice: float = Query(None, description="Maximum price filter"),
+    product: str = Query("", description="Product filter"),
+    username: str = Query("", description="Username filter"),
+    bidder: str = Query("", description="Bidder filter"),
 ):
+    filter_params = {}
+    
+    if minPrice is not None:
+        filter_params["amount"] = {"$gte": minPrice}
+    if maxPrice is not None:
+        filter_params.setdefault("amount", {})["$lte"] = maxPrice
+    if product:
+        regex_pattern = re.compile(f".*{re.escape(product)}.*", re.IGNORECASE)
+        filter_params["product.title"] = {"$regex": regex_pattern}
+    if username:
+        regex_pattern = re.compile(f".*{re.escape(username)}.*", re.IGNORECASE)
+        filter_params["owner.username"] = {"$regex": regex_pattern}
+    if bidder:
+        regex_pattern = re.compile(f".*{re.escape(bidder)}.*", re.IGNORECASE)
+        filter_params["bidder.username"] = {"$regex": regex_pattern}
+    
+    bids_cursor = db.Bid.find(filter_params).sort("timestamp", order)
     bids = []
-    bids_cursor = db.Bid.find()
     if bids_cursor is not None:
         for document in bids_cursor:
             bids.append(Bid(**document))
-
-    if minPrice or maxPrice:
-        bids = get_bids_by_price(minPrice, maxPrice, bids)
-
-    if product:
-        bids = get_bids_by_product(product, bids)
-
-    if username:
-        bids = get_bids_by_username(username, bids)
-
-    if order:
-        bids = get_bids_sorted_by_date(order, bids)
-
+    
     return bids
 
 
@@ -222,42 +230,6 @@ def get_bid(id):
 
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
-
-
-def get_bids_by_price(minPrice: float, maxPrice: float, bids: List[Bid]):
-    bids_by_price = []
-
-    for bid in bids:
-        if (not minPrice or bid.amount >= minPrice) and (
-            not maxPrice or bid.amount <= maxPrice
-        ):
-            bids_by_price.append(bid)
-    return bids_by_price
-
-
-def get_bids_sorted_by_date(order: int, bids: List[Bid]):
-    if order == 1:
-        bids.sort(key=lambda bid: bid.timestamp, reverse=True)
-    else:
-        bids.sort(key=lambda bid: bid.timestamp, reverse=False)
-    return bids
-
-
-def get_bids_by_product(product: str, bids: List[Bid]):
-    bids_by_product = []
-    for bid in bids:
-        if product in bid.product.name:
-            bids_by_product.append(bid)
-    return bids_by_product
-
-
-def get_bids_by_username(username: str, bids: List[Bid]):
-    bids_by_username = []
-    for bid in bids:
-        if username in bid.owner.username:
-            bids_by_username.append(bid)
-    return bids_by_username
-
 
 @app.get(
     "/" + versionRoute + "/bids/{id}/products/",

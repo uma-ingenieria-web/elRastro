@@ -1,12 +1,13 @@
 from typing import List
-from fastapi import FastAPI, HTTPException, Response, status
+from fastapi import FastAPI, HTTPException, Response, status, Query
 from dotenv import load_dotenv
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
 from productModel import Bid, Product
 from bson import ObjectId
 from bson.errors import InvalidId
-from errors import *
+import errors
+import re
 
 import os
 
@@ -46,33 +47,39 @@ def read_root():
     response_description="Get all products stored, can be sorted by closeDate, timestamp, username, by a range of initialPrice (minPrice and maxPrice))",
     response_model=List[Product],
     responses={
-        422: error_422,
+        422: errors.error_422,
     },
 )
 def get_products(
-    orderDate: int = -1,
-    orderTimestamp: int = -1,
-    username: str = "",
-    minPrice: float = None,
-    maxPrice: float = None,
+    orderDate: int = Query(-1, description="1 for ascending, -1 for descending"),
+    orderTimestamp: int = Query(-1, description="1 for ascending, -1 for descending"),
+    username: str = Query("", description="Username of the owner of the product"),
+    title: str = Query("", description="Title of the product"),
+    minPrice: float = Query(None, description="Minimum price of the product"),
+    maxPrice: float = Query(None, description="Maximum price of the product"),
 ):
+    filter_params = {}
+
+    if minPrice is not None:
+        filter_params["initialPrice"] = {"$gte": minPrice}
+    if maxPrice is not None:
+        filter_params.setdefault("initialPrice", {})["$lte"] = maxPrice
+    if username:
+        regex_pattern = re.compile(f".*{re.escape(username)}.*", re.IGNORECASE)
+        filter_params["owner.username"] = {"$regex": regex_pattern}
+    if title:
+        regex_pattern = re.compile(f".*{re.escape(title)}.*", re.IGNORECASE)
+        filter_params["title"] = {"$regex": regex_pattern}
+
+    products_cursor = (
+        db.Product.find(filter_params)
+        .sort("timestamp", orderTimestamp)
+        .sort("closeDate", orderDate)
+    )
     products = []
-    products_cursor = db.Product.find()
     if products_cursor is not None:
         for document in products_cursor:
             products.append(Product(**document))
-
-    if minPrice or maxPrice:
-        products = get_products_by_initialprice(minPrice, maxPrice, products)
-
-    if username:
-        products = get_products_by_username(username, products)
-
-    if orderDate:
-        products = get_products_sorted_by_closedate(orderDate, products)
-
-    if orderTimestamp:
-        products = get_products_sorted_by_timestamp(orderTimestamp, products)
 
     return products
 
@@ -85,8 +92,8 @@ def get_products(
     response_model=Product,
     status_code=status.HTTP_201_CREATED,
     responses={
-        422: error_422,
-    }
+        422: errors.error_422,
+    },
 )
 def create_product(product: Product):
     response = save_product(product.model_dump(by_alias=True, exclude={"id"}))
@@ -98,9 +105,11 @@ def create_product(product: Product):
                     "products": {
                         "_id": response["_id"],
                         "title": response["title"],
+                        "date": response["date"],
+                        "buyer": response["buyer"],
                     }
                 }
-            },  # Por aclarar
+            },
         )
 
         return response
@@ -119,7 +128,7 @@ def save_product(product: Product):
     summary="Update a product",
     response_description="Update the attributes of a product",
     response_model=Product,
-    responses={404: error_404, 400: error_400, 422: error_422},
+    responses={404: errors.error_404, 400: errors.error_400, 422: errors.error_422},
 )
 def update_product(id: str, new_product: Product):
     try:
@@ -144,7 +153,13 @@ def update_product(id: str, new_product: Product):
 
             db.User.update_many(
                 {"bids.product._id": ObjectId(id)},
-                {"$set": {"bids.$.product.title": new_product.title}},
+                {
+                    "$set": {
+                        "bids.$.product.title": new_product.title,
+                        "bids.$.product.buyer": new_product.buyer,
+                        "bids.$.product.date": new_product.timestamp,
+                    }
+                },
             )
 
             if update_result is not None:
@@ -174,9 +189,9 @@ def update_product(id: str, new_product: Product):
             "description": "Product deleted successfully",
             "headers": {"message": "Product deleted successfully"},
         },
-        404: error_404,
-        400: error_400,
-        422: error_422,
+        404: errors.error_404,
+        400: errors.error_400,
+        422: errors.error_422,
     },
 )
 def delete_product(id: str):
@@ -213,9 +228,9 @@ def delete_product(id: str):
     summary="Get one product",
     response_description="Get the product with the same id",
     responses={
-        404: error_404,
-        400: error_400,
-        422: error_422,
+        404: errors.error_404,
+        400: errors.error_400,
+        422: errors.error_422,
     },
 )
 def get_product(id):
@@ -229,49 +244,12 @@ def get_product(id):
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
 
-def get_products_sorted_by_closedate(order: int, products: List[Product]):
-    if order == 1:
-        products.sort(key=lambda prod: prod.closeDate, reverse=True)
-    else:
-        products.sort(key=lambda prod: prod.closeDate, reverse=False)
-    return products
-
-
-def get_products_sorted_by_timestamp(order: int, products: List[Product]):
-    if order == 1:
-        products.sort(key=lambda prod: prod.timestamp, reverse=True)
-    else:
-        products.sort(key=lambda prod: prod.timestamp, reverse=False)
-    return products
-
-
-def get_products_by_username(username: str, products: List[Product]):
-    products_by_username = []
-    for product in products:
-        if username in product.owner.username:
-            products_by_username.append(product)
-    return products_by_username
-
-
-def get_products_by_initialprice(
-    minPrice: float, maxPrice: float, products: List[Product]
-):
-    products_by_price = []
-
-    for product in products:
-        if (not minPrice or product.initialPrice >= minPrice) and (
-            not maxPrice or product.initialPrice <= maxPrice
-        ):
-            products_by_price.append(product)
-    return products_by_price
-
-
 @app.get(
     "/" + versionRoute + "/products/{id}/bids/",
     summary="List all bids of a product",
     response_description="Get all bids of a product",
     response_model=List[Product],
-    responses={400: error_400, 422: error_422},
+    responses={400: errors.error_400, 422: errors.error_422},
 )
 def get_bids_by_product(id: str):
     try:
