@@ -10,11 +10,9 @@ app = FastAPI()
 
 load_dotenv()
 
-# load_dotenv()
 uri = os.getenv('MONGODB_URI')
 app = FastAPI()
 
-          
 cloudinary.config( 
   cloud_name = "dnzyzkglp", 
   api_key = os.getenv("API_KEY"), 
@@ -23,8 +21,8 @@ cloudinary.config(
 
 versionRoute = "api/v1"
 
-@app.get("/" + versionRoute + "/user/{id}/photo",
-         description="Get url to photo from the id of a user",
+@app.get("/" + versionRoute + "/photo/{id}",
+         description="Get url to photo from the id of a user or product",
          responses={
             200: {
                 "description": "Return the url to the image.",
@@ -33,12 +31,12 @@ versionRoute = "api/v1"
                 }},
             }
         },
-         tags=["User"])
-def get_user_photo(id: str):
+         tags=["Photo"])
+def get_url_photo(id: str):
     image_url, options = cloudinary.utils.cloudinary_url(id, format="jpeg", secure=True)
     return image_url
 
-@app.post("/" + versionRoute + "/user/{id}/photo",
+@app.post("/" + versionRoute + "/photo/{id}",
         description="Upload a photo with an id",
         responses={
             200: {
@@ -48,7 +46,7 @@ def get_user_photo(id: str):
                 }},
             }
         },
-        tags=["User"])
+        tags=["Photo"])
 def post_photo(id: str, file: UploadFile = File()):
     response = cloudinary_uploader.upload(file.file, public_id=id, transformation=[{
         'width': 100,
