@@ -6,10 +6,15 @@ import datetime
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
+class UserBasicInfo(BaseModel):
+    id: PyObjectId = Field(alias="_id", default=None)
+    username: str = Field(...)
+
 class Product(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     name: str = Field(...)
     date: datetime.datetime = Field(...)
+    buyer: UserBasicInfo = Field(...)
 
 class ProductCollection(BaseModel):
     products: List[Product]
@@ -18,10 +23,6 @@ class Bid(BaseModel):
     id: str = Field(...)
     amount: float = Field(...)
     product: Product = Field(...)
-
-class UserBasicInfo(BaseModel):
-    id: PyObjectId = Field(alias="_id", default=None)
-    username: str = Field(...)
 
 class UserBasicInfoCollection(BaseModel):
     users: List[UserBasicInfo]

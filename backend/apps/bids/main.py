@@ -89,7 +89,7 @@ def create_bid(bid: Bid):
                 "amount": response["amount"],
                 "product": {
                     "_id": response["product"]["_id"],
-                    "name": response["product"]["name"]
+                    "title": response["product"]["title"]
                 }
             }}} # Por aclarar
         )
