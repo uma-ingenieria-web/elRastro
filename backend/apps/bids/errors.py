@@ -20,6 +20,6 @@ error_400 = {
 }
 
 error_404 = {
-    "description": "Bid not found",
-    "content": {"application/json": {"example": {"message": "Bid not found"}}},
+    "description": "Object not found",
+    "content": {"application/json": {"example": {"message": "Object not found"}}},
 }

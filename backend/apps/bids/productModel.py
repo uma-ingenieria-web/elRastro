@@ -11,24 +11,29 @@ class Location(BaseModel):
     lat: float = Field(...)
     lon: float = Field(...)
 
+
 class Buyer(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
     location: Location = Field(...)
-    
+
+
 class Owner(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
     location: Location = Field(...)
 
+
 class Bidder(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
+
 
 class Bid(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     amount: float = Field(...)
     bidder: Bidder = Field(...)
+
 
 class ProductBasicInfo(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)

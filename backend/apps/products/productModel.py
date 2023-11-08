@@ -11,24 +11,29 @@ class Location(BaseModel):
     lat: float = Field(...)
     lon: float = Field(...)
 
+
 class Buyer(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
     location: Location = Field(...)
-    
+
+
 class Owner(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
     location: Location = Field(...)
 
+
 class Bidder(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
+
 
 class Bid(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     amount: float = Field(...)
     bidder: Bidder = Field(...)
+
 
 class ProductBasicInfo(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
@@ -114,6 +119,33 @@ class Product(BaseModel):
                         },
                     }
                 ],
+            }
+        },
+    )
+
+
+class UserBasicInfo(BaseModel):
+    id: PyObjectId = Field(alias="_id", default=None)
+    username: str = Field(...)
+
+
+class ProductUserInfo(BaseModel):
+    id: PyObjectId = Field(alias="_id", default=None)
+    title: str = Field(...)
+    closeDate: datetime = Field(...)
+    buyer: Optional[UserBasicInfo] = Field(default=None)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_extra={
+            "example": {
+                "_id": "product_id",
+                "title": "title",
+                "closeDate": "closeDate",
+                "buyer": {
+                    "_id": "buyer_id",
+                    "username": "buyer_username",
+                },
             }
         },
     )
