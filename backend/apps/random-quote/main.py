@@ -13,7 +13,7 @@ API_KEY = os.getenv("API_KEY")
 
 versionRoute = "api/v1"
 
-base_url = "https://api.api-ninjas.com/v1/quotes?category="
+base_url = "https://api.api-ninjas.com/v1/quotes"
 headers = {"X-Api-Key":API_KEY}
 
 
@@ -38,7 +38,30 @@ def root():
             responses={400: errors.error_400})
 def get_quote(category: str):
     try:
-        req = requests.get(base_url + category, headers=headers)
+        req = requests.get(base_url + "?category=" + category, headers=headers)
         return {"quote": req.json()[0]["quote"]}
     except:
         raise HTTPException(status_code=400, detail="Invalid category")
+    
+
+# Get 'amount' of random quotes from random categories
+@app.get("/" + versionRoute + "/quotes",
+            summary="Get 'amount' of random quotes from random categories",
+            response_description="Returns 'amount' of random quotes from random categories",
+            status_code=status.HTTP_200_OK,
+            responses={400: errors.error_400_amount})
+def get_quotes(amount: int = None):
+    if amount == None:
+        raise HTTPException(status_code=400, detail="Must specify amount as a query parameter")
+
+    if amount < 1 or amount > 10:
+        raise HTTPException(status_code=400, detail="Amount must be a number between 1-10, inclusive")
+    
+    try:
+        req = requests.get(base_url + "?limit=" + str(amount), headers=headers)
+        quotes = []
+        for i in range(amount):
+            quotes.append(req.json()[i]["quote"])
+        return {"quotes": quotes}
+    except:
+        raise HTTPException(status_code=400, detail="Invalid amount")
