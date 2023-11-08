@@ -5,13 +5,14 @@ from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
 
 import os
+
 import userModel
+import errors
 
 app = FastAPI()
 
 load_dotenv()
 
-# load_dotenv()
 uri = os.getenv('MONGODB_URI')
 
 # Create a new client and connect to the server
@@ -22,10 +23,10 @@ db = client.elRastro
 
 versionRoute = "api/v1"
 
-
 @app.get(versionRoute + "/users/",
-         response_description="Returns all the users",
          summary="Find a user list",
+         response_description="Returns all the users",
+         status_code=status.HTTP_200_OK,
          tags=["User"])
 async def get_users(page: int = Query(1, ge=1), page_size: int = Query(10, le=20)):
     skip = (page - 1) * page_size
@@ -34,10 +35,11 @@ async def get_users(page: int = Query(1, ge=1), page_size: int = Query(10, le=20
 
 
 @app.get("/" + versionRoute + "/user/{id}",
+         summary="Find a user with a certain id",
          response_description="The user with the given id",
          response_model=userModel.UserBasicInfo,
-         summary="Find a user with a certain id",
          status_code=status.HTTP_200_OK,
+         responses={404: errors.error_404, 422: errors.error_422},
          tags=["User"])
 async def read_user(id: str):
     user = db.User.find_one({"_id": ObjectId(id)})
@@ -49,11 +51,11 @@ async def read_user(id: str):
 
 
 @app.get("/" + versionRoute + "/user/username/{username}/",
-         response_description="The user with the given username",
          summary="Find the user with the given username",
+         response_description="The user with the given username",
+         response_model=userModel.UserBasicInfo,
          status_code=status.HTTP_200_OK,
-         tags=["User"],
-         response_model=userModel.UserBasicInfo)
+         tags=["User"])
 async def read_user_username(username: str):
     user = db.User.find_one({"username": username})
 
@@ -65,9 +67,9 @@ async def read_user_username(username: str):
 
 
 @app.get("/" + versionRoute + "/user/{user_id}/products",
+         summary="Get the user products",
          response_description="Finds the user products sorted by date",
          response_model=userModel.ProductCollection,
-         summary="Get the user products",
          status_code=status.HTTP_200_OK,
          tags=["User"])
 async def get_user_products(user_id: str):
@@ -102,8 +104,9 @@ async def get_user_products(user_id: str):
 
 
 @app.post("/" + versionRoute + "/user",
+          summary="Create a user",
           status_code=status.HTTP_201_CREATED,
-          response_description="Create a user",
+          response_description="User created",
           tags=["User"])
 async def create_user(user: userModel.CreateUser = Body(...)):
     result = db.User.insert_one(user.model_dump(by_alias=True, exclude=["id"]))
@@ -114,10 +117,11 @@ async def create_user(user: userModel.CreateUser = Body(...)):
     
 
 @app.put("/" + versionRoute + "/user/{id}",
+         summary="Update user's field",
          status_code=status.HTTP_200_OK,
-         response_description="Update a user",
-         tags=["User"],
-         response_model=userModel.UserBasicInfo)
+         response_description="Update username of a user ",
+         response_model=userModel.UserBasicInfo,
+         tags=["User"])
 async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
     userOptions = {
         k: v for k, v in user.model_dump(by_alias=True).items() if v is not None
@@ -162,8 +166,10 @@ async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
 
 
 @app.delete("/" + versionRoute + "/user/{id}",
-            status_code=status.HTTP_204_NO_CONTENT,
+            summary="Delete a user",
             response_description="Delete a user",
+            status_code=status.HTTP_204_NO_CONTENT,
+            responses={404: errors.error_404},
             tags=["User"])
 async def delete_user(id: str):
     result = db.User.delete_one({"_id": ObjectId(id)})
@@ -174,10 +180,11 @@ async def delete_user(id: str):
 
 
 @app.get("/" + versionRoute + "/user/{username}/buyers",
+         summary="Get the user's products buyers",
          response_description="Finds the user's products buyers",
          response_model=userModel.UserBasicInfoCollection,
-         summary="Get the user's products buyers",
          status_code=status.HTTP_200_OK,
+         responses={404: errors.error_404},
          tags=["User"])
 async def get_user_buyers(username: str):
     user = db.User.aggregate([
