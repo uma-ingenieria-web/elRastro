@@ -22,6 +22,10 @@ class Product(BaseModel):
 class ProductId(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
 
+class ProductBasicInfo(BaseModel):
+    id: PyObjectId = Field(alias="_id", default=None)
+    title: str = Field(...)
+
 class ProductCollection(BaseModel):
     products: List[Product]
 
@@ -29,7 +33,7 @@ class Bid(BaseModel):
     id: str = Field(...)
     amount: float = Field(...)
     timestamp: datetime.datetime = Field(...)
-    product: Product = Field(...)
+    product: ProductBasicInfo = Field(...)
 
 class Location(BaseModel):
     lat: float = Field(...)
@@ -43,9 +47,9 @@ class User(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
     location: Location = Field(...)
-    rating: List[Rating]
-    products: List[Product]
-    bids: List[Bid]
+    rating: Optional[List[Rating]] = Field(None)
+    products: Optional[List[Product]] = Field(None)
+    bids: Optional[List[Bid]] = Field(None)
 
     model_config = ConfigDict(
         populate_by_name = True,
@@ -95,6 +99,7 @@ class User(BaseModel):
 class CreateUser(BaseModel):
     id: PyObjectId = Field(default=None, alias="_id")
     username: str = Field(...)
+    location: Location = Field(...)
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -112,8 +117,8 @@ class CreateUser(BaseModel):
     )
 
 class UpdateUser(BaseModel):
-    username: Optional[str] = None
-    location: Optional[Location] = None
+    username: Optional[str] = Field(None)
+    location: Optional[Location] = Field(None)
 
     model_config = ConfigDict(
         arbitrary_types_allowed=True,

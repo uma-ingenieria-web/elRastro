@@ -18,7 +18,7 @@ uri = os.getenv('MONGODB_URI')
 client = MongoClient(uri)
 
 # Set the desired db
-db = client.elRastro.User
+db = client.elRastro
 
 versionRoute = "api/v1"
 
@@ -29,7 +29,7 @@ versionRoute = "api/v1"
          tags=["User"])
 async def get_users(page: int = Query(1, ge=1), page_size: int = Query(10, le=20)):
     skip = (page - 1) * page_size
-    users = db.find().skip(skip).limit(page_size)
+    users = db.User.find().skip(skip).limit(page_size)
     return users
 
 
@@ -40,7 +40,7 @@ async def get_users(page: int = Query(1, ge=1), page_size: int = Query(10, le=20
          status_code=status.HTTP_200_OK,
          tags=["User"])
 async def read_user(id: str):
-    user = db.find_one({"_id": ObjectId(id)})
+    user = db.User.find_one({"_id": ObjectId(id)})
 
     if user is not None:
         return user
@@ -55,7 +55,7 @@ async def read_user(id: str):
          tags=["User"],
          response_model=userModel.UserBasicInfo)
 async def read_user_username(username: str):
-    user = db.find_one({"username": username})
+    user = db.User.find_one({"username": username})
 
     if user is not None:
         return user
@@ -71,7 +71,7 @@ async def read_user_username(username: str):
          status_code=status.HTTP_200_OK,
          tags=["User"])
 async def get_user_products(user_id: str):
-    user = db.aggregate([
+    user = db.User.aggregate([
         {
             "$match": {"_id": ObjectId(user_id)}
         },
@@ -106,8 +106,12 @@ async def get_user_products(user_id: str):
           response_description="Create a user",
           tags=["User"])
 async def create_user(user: userModel.CreateUser = Body(...)):
-    db.insert_one(user.model_dump(by_alias=True, exclude=["id"]))
-
+    result = db.User.insert_one(user.model_dump(by_alias=True, exclude=["id"]))
+    if result.inserted_id is not None:
+        return result.inserted_id
+    else:
+        raise HTTPException(status_code=404, detail=f"User could not be created")
+    
 
 @app.put("/" + versionRoute + "/user/{id}",
          status_code=status.HTTP_200_OK,
@@ -116,35 +120,39 @@ async def create_user(user: userModel.CreateUser = Body(...)):
          response_model=userModel.UserBasicInfo)
 async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
     userOptions = {
-        u: v for u, v in user.model_dump(by_alias=True).items() if v is not None
+        k: v for k, v in user.model_dump(by_alias=True).items() if v is not None
     }
-
+    print(userOptions)
     if len(userOptions) >= 1:
-        update_result = db.find_one_and_update(
+        update_result = db.User.find_one_and_update(
             {"_id": ObjectId(id)},
             {"$set": userOptions},
             return_document=ReturnDocument.AFTER,
         )
-        db.update_many(
+        db.User.update_many(
             {"products.buyer._id": ObjectId(id)},
             {"$set": {"products.buyer.username": user.username}}
         )
-        client.elRastro.Bid.update_many(
+        client.db.Product.update_many(
             {"owner._id": ObjectId(id)},
-            {"$set": {"owner.username": user.username}}
+            {"$set": {"owner.username": user.username, "owner.location": user.location}}
         )
-        client.elRastro.Product.update_many(
-            {"owner._id": ObjectId(id)},
-            {"$set": {"owner.username": user.username}}
-        )
-        client.elRastro.Product.update_many(
+        client.db.Product.update_many(
             {"buyer._id": ObjectId(id)},
             {"$set": {"buyer.username": user.username}}
         )
-        client.elRastro.Product.update_many(
+        client.db.Product.update_many(
             {"bids.bidder._id": ObjectId(id)},
-            {"$set": {"bids.biddder.username": user.username}}
-        ) 
+            {"$set": {"bids.bidder.username": user.username}}
+        )
+        client.db.Bid.update_many(
+            {"owner._id": ObjectId(id)},
+            {"$set": {"owner.username": user.username}}
+        )
+        client.db.Bid.update_many(
+            {"bidder._id": ObjectId(id)},
+            {"$set": {"bidder.username": user.username}}
+        )
         if update_result is not None:
             return update_result
         else:
@@ -158,7 +166,7 @@ async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
             response_description="Delete a user",
             tags=["User"])
 async def delete_user(id: str):
-    result = db.delete_one({"_id": ObjectId(id)})
+    result = db.User.delete_one({"_id": ObjectId(id)})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail=f"User {id} not found")
     else:
@@ -172,7 +180,7 @@ async def delete_user(id: str):
          status_code=status.HTTP_200_OK,
          tags=["User"])
 async def get_user_buyers(username: str):
-    user = db.aggregate([
+    user = db.User.aggregate([
         {
             "$match": {"username": username}
         },
