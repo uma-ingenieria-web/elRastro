@@ -144,7 +144,6 @@ async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
                     userOptions[f"{k}.{sub_key}"] = sub_value
             else:
                 userOptions[k] = v
-    print(userOptions)
     try:
         if len(userOptions) >= 1:
             update_result = db.User.find_one_and_update(
@@ -152,30 +151,7 @@ async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
                 {"$set": userOptions},
                 return_document=ReturnDocument.AFTER,
             )
-            db.User.update_many(
-                {"products.buyer._id": ObjectId(id)},
-                {"$set": {"products.buyer.username": user.username}}
-            )
-            # client.db.Product.update_many(
-            #     {"owner._id": ObjectId(id)},
-            #     {"$set": {"owner.username": user.username, "owner.location": user.location}}
-            # )
-            db.Product.update_many(
-                {"buyer._id": ObjectId(id)},
-                {"$set": {"buyer.username": user.username}}
-            )
-            db.Product.update_many(
-                {"bids.bidder._id": ObjectId(id)},
-                {"$set": {"bids.bidder.username": user.username}}
-            )
-            db.Bid.update_many(
-                {"owner._id": ObjectId(id)},
-                {"$set": {"owner.username": user.username}}
-            )
-            db.Bid.update_many(
-                {"bidder._id": ObjectId(id)},
-                {"$set": {"bidder.username": user.username}}
-            )
+            update_users(id, user)
             
             if update_result is not None:
                 return update_result
@@ -187,6 +163,45 @@ async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
         raise err
     except InvalidId:
         raise HTTPException(status_code=422, detail=f"User id is invalid")
+
+def update_users(id, user : userModel.UpdateUser):
+    if user.username:
+        db.User.update_many(
+                {"products.buyer._id": ObjectId(id)},
+                {"$set": {"products.buyer.username": user.username}}
+        )
+        db.Product.update_many(
+                {"buyer._id": ObjectId(id)},
+                {"$set": {"buyer.username": user.username}}
+        )
+        db.Product.update_many(
+            {"bids.bidder._id": ObjectId(id)},
+            {"$set": {"bids.bidder.username": user.username}}
+        )
+        db.Bid.update_many(
+            {"owner._id": ObjectId(id)},
+            {"$set": {"owner.username": user.username}}
+        )
+        db.Bid.update_many(
+            {"bidder._id": ObjectId(id)},
+            {"$set": {"bidder.username": user.username}}
+        )
+    if user.username or user.location:
+        update_query = {}
+        if user.username:
+            update_query["owner.username"] = user.username
+        if user.location:
+            update_query["owner.location.lat"] = user.location.lat
+            update_query["owner.location.lon"] = user.location.lon
+        db.Product.update_many(
+            {"owner._id": ObjectId(id)},
+            {"$set": {
+                "owner.username": user.username,
+                "owner.location.lat": user.location.lat,
+                "owner.location.lon": user.location.lon
+                }
+            }
+        )
 
 
 @app.delete("/" + versionRoute + "/user/{id}",
