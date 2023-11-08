@@ -134,9 +134,17 @@ async def create_user(user: userModel.CreateUser = Body(...)):
          response_model=userModel.UserBasicInfo,
          tags=["User"])
 async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
-    userOptions = {
-        k: v for k, v in user.model_dump(by_alias=True).items() if v is not None
-    }
+    userOptions = {}
+    model_dump = user.model_dump(by_alias=True)
+
+    for k, v in model_dump.items():
+        if v is not None:
+            if isinstance(v, dict):
+                for sub_key, sub_value in v.items():
+                    userOptions[f"{k}.{sub_key}"] = sub_value
+            else:
+                userOptions[k] = v
+    print(userOptions)
     try:
         if len(userOptions) >= 1:
             update_result = db.User.find_one_and_update(
@@ -148,23 +156,23 @@ async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
                 {"products.buyer._id": ObjectId(id)},
                 {"$set": {"products.buyer.username": user.username}}
             )
-            client.db.Product.update_many(
-                {"owner._id": ObjectId(id)},
-                {"$set": {"owner.username": user.username, "owner.location": user.location}}
-            )
-            client.db.Product.update_many(
+            # client.db.Product.update_many(
+            #     {"owner._id": ObjectId(id)},
+            #     {"$set": {"owner.username": user.username, "owner.location": user.location}}
+            # )
+            db.Product.update_many(
                 {"buyer._id": ObjectId(id)},
                 {"$set": {"buyer.username": user.username}}
             )
-            client.db.Product.update_many(
+            db.Product.update_many(
                 {"bids.bidder._id": ObjectId(id)},
                 {"$set": {"bids.bidder.username": user.username}}
             )
-            client.db.Bid.update_many(
+            db.Bid.update_many(
                 {"owner._id": ObjectId(id)},
                 {"$set": {"owner.username": user.username}}
             )
-            client.db.Bid.update_many(
+            db.Bid.update_many(
                 {"bidder._id": ObjectId(id)},
                 {"$set": {"bidder.username": user.username}}
             )
