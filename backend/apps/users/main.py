@@ -23,15 +23,16 @@ db = client.elRastro
 
 versionRoute = "api/v1"
 
-@app.get(versionRoute + "/users/",
+@app.get("/" + versionRoute + "/users/",
          summary="Find a user list",
          response_description="Returns all the users",
+         response_model=userModel.UserBasicInfoCollection,
          status_code=status.HTTP_200_OK,
          tags=["User"])
 async def get_users(page: int = Query(1, ge=1), page_size: int = Query(10, le=20)):
     skip = (page - 1) * page_size
-    users = db.User.find().skip(skip).limit(page_size)
-    return users
+    users = db.User.find(None, {"username": 1}).skip(skip).limit(page_size)
+    return {"users": list(users)}
 
 
 @app.get("/" + versionRoute + "/user/{id}",
@@ -96,6 +97,7 @@ async def get_user_products(user_id: str):
             }
         }
     ])
+
     if user is not None:
         user_products = user.next()["products"]
         return {"products": user_products}
@@ -110,6 +112,7 @@ async def get_user_products(user_id: str):
           tags=["User"])
 async def create_user(user: userModel.CreateUser = Body(...)):
     result = db.User.insert_one(user.model_dump(by_alias=True, exclude=["id"]))
+
     if result.inserted_id is not None:
         return result.inserted_id
     else:
@@ -157,6 +160,7 @@ async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
             {"bidder._id": ObjectId(id)},
             {"$set": {"bidder.username": user.username}}
         )
+
         if update_result is not None:
             return update_result
         else:
@@ -173,10 +177,11 @@ async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
             tags=["User"])
 async def delete_user(id: str):
     result = db.User.delete_one({"_id": ObjectId(id)})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail=f"User {id} not found")
-    else:
+   
+    if result.deleted_count != 0:
         return None
+    else:
+        raise HTTPException(status_code=404, detail=f"User {id} not found")
 
 
 @app.get("/" + versionRoute + "/user/{username}/buyers",
@@ -207,6 +212,7 @@ async def get_user_buyers(username: str):
             }
         }
     ])
+
     if user is not None:
         return {"users": user.next()["buyers"]}
     else:
