@@ -17,7 +17,10 @@ class Product(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     title: str = Field(...)
     closeDate: datetime.datetime = Field(...)
-    buyer: UserBasicInfo = Field(...)
+    buyer: Optional[UserBasicInfo] = Field(...)
+
+class ProductId(BaseModel):
+    id: PyObjectId = Field(alias="_id", default=None)
 
 class ProductCollection(BaseModel):
     products: List[Product]
@@ -32,11 +35,15 @@ class Location(BaseModel):
     lat: float = Field(...)
     lon: float = Field(...)
 
+class Rating(BaseModel):
+    value: float = Field(...)
+    product: ProductId = Field(...)
+
 class User(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
     location: Location = Field(...)
-    rating: float = Field(...)
+    rating: List[Rating]
     products: List[Product]
     bids: List[Bid]
 
@@ -51,7 +58,14 @@ class User(BaseModel):
                     "lat": 36.749058,
                     "lon": -4.516260
                 },
-                "rating": 5.0,
+                "ratings": [
+                    {
+                        "value": 5.0,
+                        "product": {
+                            "_id": "rating_product_id"
+                        }
+                    }
+                ],
                 "products": [
                     {
                         "_id": "product_id",
