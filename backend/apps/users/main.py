@@ -3,6 +3,7 @@ from fastapi import FastAPI, Body, HTTPException, status, Query
 from dotenv import load_dotenv
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
+from bson.errors import InvalidId
 
 import os
 
@@ -129,44 +130,48 @@ async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
     userOptions = {
         k: v for k, v in user.model_dump(by_alias=True).items() if v is not None
     }
-    print(userOptions)
-    if len(userOptions) >= 1:
-        update_result = db.User.find_one_and_update(
-            {"_id": ObjectId(id)},
-            {"$set": userOptions},
-            return_document=ReturnDocument.AFTER,
-        )
-        db.User.update_many(
-            {"products.buyer._id": ObjectId(id)},
-            {"$set": {"products.buyer.username": user.username}}
-        )
-        client.db.Product.update_many(
-            {"owner._id": ObjectId(id)},
-            {"$set": {"owner.username": user.username, "owner.location": user.location}}
-        )
-        client.db.Product.update_many(
-            {"buyer._id": ObjectId(id)},
-            {"$set": {"buyer.username": user.username}}
-        )
-        client.db.Product.update_many(
-            {"bids.bidder._id": ObjectId(id)},
-            {"$set": {"bids.bidder.username": user.username}}
-        )
-        client.db.Bid.update_many(
-            {"owner._id": ObjectId(id)},
-            {"$set": {"owner.username": user.username}}
-        )
-        client.db.Bid.update_many(
-            {"bidder._id": ObjectId(id)},
-            {"$set": {"bidder.username": user.username}}
-        )
-
-        if update_result is not None:
-            return update_result
+    try:
+        if len(userOptions) >= 1:
+            update_result = db.User.find_one_and_update(
+                {"_id": ObjectId(id)},
+                {"$set": userOptions},
+                return_document=ReturnDocument.AFTER,
+            )
+            db.User.update_many(
+                {"products.buyer._id": ObjectId(id)},
+                {"$set": {"products.buyer.username": user.username}}
+            )
+            client.db.Product.update_many(
+                {"owner._id": ObjectId(id)},
+                {"$set": {"owner.username": user.username, "owner.location": user.location}}
+            )
+            client.db.Product.update_many(
+                {"buyer._id": ObjectId(id)},
+                {"$set": {"buyer.username": user.username}}
+            )
+            client.db.Product.update_many(
+                {"bids.bidder._id": ObjectId(id)},
+                {"$set": {"bids.bidder.username": user.username}}
+            )
+            client.db.Bid.update_many(
+                {"owner._id": ObjectId(id)},
+                {"$set": {"owner.username": user.username}}
+            )
+            client.db.Bid.update_many(
+                {"bidder._id": ObjectId(id)},
+                {"$set": {"bidder.username": user.username}}
+            )
+            
+            if update_result is not None:
+                return update_result
+            else:
+                raise HTTPException(status_code=404, detail=f"User {id} not found")
         else:
-            raise HTTPException(status_code=404, detail=f"User {id} not found")
-    else:
-        raise HTTPException(status_code=400, detail=f"No fields specfied")
+            raise HTTPException(status_code=400, detail=f"No fields specfied")
+    except HTTPException as err:
+        raise err
+    except InvalidId:
+        raise HTTPException(status_code=422, detail=f"User id is invalid")
 
 
 @app.delete("/" + versionRoute + "/user/{id}",
