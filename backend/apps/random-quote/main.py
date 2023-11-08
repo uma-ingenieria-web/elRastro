@@ -17,14 +17,14 @@ base_url = "https://api.api-ninjas.com/v1/quotes?category="
 headers = {"X-Api-Key":API_KEY}
 
 
-# Get a random quote from the default, happiness category
+# Get a random quote from a random category
 @app.get("/" + versionRoute + "/quote",
-            summary="Get a random quote from happiness category",
-            response_description="Returns a random quote",
+            summary="Get a random quote from a random category",
+            response_description="Returns a random quote from a random category",
             status_code=status.HTTP_200_OK,
             responses={404: errors.error_404})
 def root():
-    req = requests.get(base_url + "happiness", headers=headers)
+    req = requests.get(base_url, headers=headers)
     if req.status_code != 200:
         raise HTTPException(404, "Quote not found")
     return {"quote": req.json()[0]["quote"]}
