@@ -80,6 +80,7 @@ def save_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
     response_model=Bid,
     status_code=status.HTTP_201_CREATED,
     responses={422: errors.error_422, 400: errors.error_400, 404: errors.error_404},
+    tags=["Bids"]
 )
 def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
     try:
@@ -137,11 +138,13 @@ def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
     summary="Update bid",
     response_description="Update the values of a bid",
     response_model=Bid,
+    status_code=status.HTTP_201_CREATED,
     responses={
         404: errors.error_404,
         400: errors.error_400,
         422: errors.error_422,
     },
+    tags=["Bids"]
 )
 def update_bid(id: str, new_bid: UpdateBid):
     try:
@@ -188,7 +191,7 @@ def update_bid(id: str, new_bid: UpdateBid):
     "/" + versionRoute + "/bids/{id}",
     summary="Delete a bid",
     response_description="Delete the bid from the database",
-    status_code=204,
+    status_code=status.HTTP_204_NO_CONTENT,
     responses={
         204: {
             "description": "Bid deleted successfully",
@@ -198,6 +201,7 @@ def update_bid(id: str, new_bid: UpdateBid):
         400: errors.error_400,
         422: errors.error_422,
     },
+    tags=["Bids"]
 )
 def delete_bid(id: str):
     try:
@@ -229,9 +233,11 @@ def delete_bid(id: str):
     summary="List all bids",
     response_description="Get all bids stored, can be sorted by date (order), between a minimum and maximum price (minPrice, maxPrice), by product (product), by owner (username) or by bidder (bidder)",
     response_model=List[Bid],
+    status_code=status.HTTP_200_OK,
     responses={
         422: errors.error_422,
     },
+    tags=["Bids"]
 )
 def get_bids(
     order: int = Query(-1, description="1 for ascending, -1 for descending"),
@@ -272,11 +278,13 @@ def get_bids(
     response_model=Bid,
     summary="Get one bid",
     response_description="Get the bid with the same id",
+    status_code=status.HTTP_200_OK,
     responses={
         404: errors.error_404,
         400: errors.error_400,
         422: errors.error_422,
     },
+    tags=["Bids"]
 )
 def get_bid(id):
     try:
@@ -295,7 +303,9 @@ def get_bid(id):
     summary="List all products of a bid's owner",
     response_description="Get all products of a bid's owner",
     response_model=List[Product],
+    status_code=status.HTTP_200_OK,
     responses={400: errors.error_400, 422: errors.error_422, 404: errors.error_404},
+    tags=["Bids"]
 )
 def get_products_by_bid(id: str):
     try:
