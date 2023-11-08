@@ -17,7 +17,7 @@ class Product(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     title: str = Field(...)
     closeDate: datetime.datetime = Field(...)
-    buyer: UserBasicInfo = Field(...)
+    buyer: Optional[UserBasicInfo] = Field(...)
 
 class ProductId(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)

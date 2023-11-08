@@ -16,6 +16,33 @@ class Owner(BaseModel):
 class Bidder(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
+    
+class BidBasicInfo(BaseModel):
+    id: PyObjectId = Field(alias="_id", default=None)
+    amount: float = Field(...)
+    timestamp: datetime = Field(default_factory=datetime.now)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_extra={
+            "example": {
+                "amount": 78.8,
+            }
+        }
+    )
+    
+class UpdateBid(BaseModel):
+    amount: float = Field(...)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_extra={
+            "example": {
+                "amount": 78.8,
+            }
+        }
+    )
+
 class Bid(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     amount: float = Field(...)
@@ -29,18 +56,18 @@ class Bid(BaseModel):
         json_schema_extra={
             "example": {
                 "bidder": {
-                    "_id": "653e27ba54d16794592d4741",
-                    "username": "Manolo"
+                    "_id": "bidder_id",
+                    "username": "bidder_username"
                 },
                 "amount": 78.8,
-                "timestamp": "2023-10-25T12:00:00",
+                "timestamp": "timestamp",
                 "product": {
-                  "_id": "653e27ba54d16794592d4731",  
-                  "title": "T-shirt"  
+                  "_id": "product_id",  
+                  "title": "product_title"  
                 },
                 "owner": {
-                  "_id": "653e27ba54d16794592d4741",
-                  "username": "Manolo"
+                  "_id": "owner_id",
+                  "username": "owner_username"
                 }
             }
         }

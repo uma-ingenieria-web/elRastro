@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException, Query, Response, status
 from dotenv import load_dotenv
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
-from bidModel import Bid
+from bidModel import Bid, UpdateBid, BidBasicInfo
 from productModel import Product
 from bson import ObjectId
 from bson.errors import InvalidId
@@ -44,38 +44,57 @@ versionRoute = "api/v1"
 def read_root():
     return {"API": "REST"}
 
-
-def save_bid(bid: Bid):
+# Auxiliary function to save a bid
+def save_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
+    
+    product = db.Product.find_one({"_id": ObjectId(idProduct)})
+    owner = db.User.find_one({"_id": ObjectId(product["owner"]["_id"])})
+    bidder = db.User.find_one({"_id": ObjectId(idBidder)})
+    
+    if product and owner and bidder:
+        bid["product"] = {
+            "_id": product["_id"],
+            "title": product["title"],
+        }
+        
+        bid["owner"] = {
+            "_id": owner["_id"],
+            "username": owner["username"]
+        }
+        
+        bid["bidder"] = {
+            "_id": bidder["_id"],
+            "username": bidder["username"]
+        }
+        
     new_bid = db.Bid.insert_one(bid)
     created_bid = db.Bid.find_one({"_id": new_bid.inserted_id})
     return created_bid
 
-
+# Create a new bid
 @app.post(
-    "/" + versionRoute + "/bids",
+    "/" + versionRoute + "/bids/{idProduct}/{idBidder}}",
     summary="Add new bid",
     response_description="Create a new bid with the desired amount",
     response_model=Bid,
     status_code=status.HTTP_201_CREATED,
     responses={422: errors.error_422},
 )
-def create_bid(bid: Bid):
-    bid.product.id = ObjectId(bid.product.id)
-    bid.owner.id = ObjectId(bid.owner.id)
-    bid.bidder.id = ObjectId(bid.bidder.id)
-    response = save_bid(bid.model_dump(by_alias=True, exclude={"id"}))
+def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
+    response = save_bid(bid.model_dump(by_alias=True, exclude={"id"}), idProduct, idBidder)
     
     if response:
         
-        product = db.Product.find_one({"_id": ObjectId(bid.product.id)})
+        product = db.Product.find_one({"_id": ObjectId(response["product"]["_id"])})
         
         if product:
             
             db.Product.find_one_and_update(
-                {"_id": ObjectId(bid.product.id)},
+                {"_id": ObjectId(response["product"]["_id"])},
                 {"$push": {"bids": {
                     "_id": response["_id"],
                     "amount": response["amount"],
+                    "timestamp": response["timestamp"],
                     "bidder": {
                         "_id": response["bidder"]["_id"],
                         "username": response["bidder"]["username"]
@@ -84,15 +103,14 @@ def create_bid(bid: Bid):
             )            
         
         db.User.find_one_and_update(
-            {"_id": ObjectId(bid.bidder.id)},
+            {"_id": ObjectId(response["bidder"]["_id"])},
             {"$push": {"bids": {
                 "_id": response["_id"],
                 "amount": response["amount"],
                 "product": {
                     "_id": response["product"]["_id"],
                     "title": response["product"]["title"],
-                    "date": product["timestamp"],
-                    "buyer": product["buyer"]
+                    "timestamp": product["timestamp"],
                 }
             }}}
         )
@@ -100,7 +118,7 @@ def create_bid(bid: Bid):
         return response
     raise HTTPException(status_code=400, detail="Something went wrong")
 
-
+# Update a bid
 @app.put(
     "/" + versionRoute + "/bids/{id}",
     summary="Update bid",
@@ -108,28 +126,19 @@ def create_bid(bid: Bid):
     response_model=Bid,
     responses={404: errors.error_404, 400: errors.error_400, 422: errors.error_422},
 )
-def update_bid(id: str, new_bid: Bid):
+def update_bid(id: str, new_bid: UpdateBid):
     try:
         if len(new_bid.model_dump(by_alias=True, exclude={"id"})) >= 1:
-            new_bid.product.id = ObjectId(new_bid.product.id)
-            new_bid.owner.id = ObjectId(new_bid.owner.id)
-            new_bid.bidder.id = ObjectId(new_bid.bidder.id)
             update_result = db.Bid.find_one_and_update(
                 {"_id": ObjectId(id)},
                 {"$set": new_bid.model_dump(by_alias=True, exclude={"id"})},
                 return_document=ReturnDocument.AFTER,
             )
             
-            
-            
             db.Product.find_one_and_update(
                 {"bids._id": ObjectId(id)},
                 {"$set": {
                     "bids.$.amount": new_bid.amount,
-                    "bids.$.bidder": {
-                        "_id": new_bid.bidder.id,
-                        "username": new_bid.bidder.username
-                    }
                 }}
             )
             
@@ -137,12 +146,7 @@ def update_bid(id: str, new_bid: Bid):
                 {"bids._id": ObjectId(id)},
                 {"$set": {
                     "bids.$.amount": new_bid.amount,
-                    "bids.$.product": {
-                        "_id": new_bid.product.id,
-                        "title": new_bid.product.title,
-                        "date": new_bid.timestamp,
-                        "buyer": new_bid.owner.model_dump(by_alias=True)
-                    }
+
                 }}
             )
             
@@ -158,7 +162,7 @@ def update_bid(id: str, new_bid: Bid):
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
-
+# Delete a bid
 @app.delete(
     "/" + versionRoute + "/bids/{id}",
     summary="Delete a bid",
@@ -195,7 +199,7 @@ def delete_bid(id: str):
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
-
+# Get all bids
 @app.get(
     "/" + versionRoute + "/bids",
     summary="List all bids",
@@ -237,7 +241,7 @@ def get_bids(
     
     return bids
 
-
+# Get one bid
 @app.get(
     "/" + versionRoute + "/bids/{id}",
     response_model=Bid,
@@ -259,6 +263,7 @@ def get_bid(id):
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
+# Get the products of a bid's owner
 @app.get(
     "/" + versionRoute + "/bids/{id}/products/",
     summary="List all products of a bid's owner",

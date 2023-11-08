@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException, Response, status, Query
 from dotenv import load_dotenv
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
-from productModel import Bid, Product, ProductBasicInfo
+from productModel import Bid, Product, ProductBasicInfo, UpdateProduct
 from bson import ObjectId
 from bson.errors import InvalidId
 import errors
@@ -95,18 +95,20 @@ def get_products(
         422: errors.error_422,
     },
 )
-def create_product(product: Product):
-    response = save_product(product.model_dump(by_alias=True, exclude={"id"}))
+def create_product(product: ProductBasicInfo, idOwner: str):
+    response = save_product(product.model_dump(by_alias=True, exclude={"id"}), idOwner)
+    
+    
     if response:
+        
         db.User.update_many(
-            {"_id": ObjectId(product.owner.id)},
+            {"_id": ObjectId(response["owner"]["_id"])},
             {
                 "$push": {
                     "products": {
                         "_id": response["_id"],
                         "title": response["title"],
-                        "date": response["timestamp"],
-                        "buyer": response["buyer"],
+                        "closeDate": response["closeDate"],
                     }
                 }
             },
@@ -115,8 +117,21 @@ def create_product(product: Product):
         return response
     raise HTTPException(status_code=400, detail="Something went wrong")
 
-
-def save_product(product: Product):
+# Auxiliary function to save a product
+def save_product(product: ProductBasicInfo, idOwner: str):
+    
+    owner = db.User.find_one({"_id": ObjectId(idOwner)})
+    
+    if owner:
+        product["owner"] = {
+            "_id": owner["_id"],
+            "username": owner["username"],
+            "location": {
+                "lat": owner["location"]["lat"],
+                "lon": owner["location"]["lon"]
+            }
+        }
+    
     new_product = db.Product.insert_one(product)
     created_product = db.Product.find_one({"_id": new_product.inserted_id})
     return created_product
@@ -130,12 +145,9 @@ def save_product(product: Product):
     response_model=Product,
     responses={404: errors.error_404, 400: errors.error_400, 422: errors.error_422},
 )
-def update_product(id: str, new_product: Product):
+def update_product(id: str, new_product: UpdateProduct):
     try:
         if len(new_product.model_dump(by_alias=True, exclude={"id"})) >= 1:
-            new_product.id = ObjectId(new_product.id)
-            new_product.owner.id = ObjectId(new_product.owner.id)
-            new_product.buyer.id = ObjectId(new_product.buyer.id)
             update_result = db.Product.find_one_and_update(
                 {"_id": ObjectId(id)},
                 {"$set": new_product.model_dump(by_alias=True, exclude={"id"})},
@@ -156,10 +168,7 @@ def update_product(id: str, new_product: Product):
                 {"bids.product._id": ObjectId(id)},
                 {
                     "$set": {
-                        "bids.$.product.title": new_product.title,
-                        "bids.$.product.buyer.id": new_product.buyer.id,
-                        "bids.$.product.buyer.username": new_product.buyer.username,
-                        "bids.$.product.date": new_product.timestamp,
+                        "bids.$.product.title": new_product.title
                     }
                 },
             )
@@ -223,7 +232,7 @@ def delete_product(id: str):
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
-
+# Get one product
 @app.get(
     "/" + versionRoute + "/products/{id}",
     response_model=Product,
@@ -244,43 +253,6 @@ def get_product(id):
 
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
-
-
-@app.get(
-    "/" + versionRoute + "/products/{id}/bids/",
-    summary="List all bids of a product",
-    response_description="Get all bids of a product",
-    response_model=List[Product],
-    responses={400: errors.error_400, 422: errors.error_422},
-)
-def get_bids_by_product(id: str):
-    try:
-        bids = []
-        bids_cursor = db.Product.aggregate(
-            [
-                {"$match": {"_id": ObjectId(id)}},
-                {
-                    "$lookup": {
-                        "from": "Bid",
-                        "localField": "bid.amount",
-                        "foreignField": "bid.amount",
-                        "as": "bids",
-                    }
-                },
-                {"$unwind": "$bids"},
-            ]
-        )
-        if bids_cursor is not None:
-            for document in bids_cursor:
-                bids.append(Bid(**document["bids"]))
-            return bids
-        else:
-            return []
-
-    except InvalidId as e:
-        raise HTTPException(status_code=400, detail="Invalid ObjectId format")
-
-
 
 # Query between collections
 @app.get(
