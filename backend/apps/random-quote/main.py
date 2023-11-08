@@ -23,3 +23,12 @@ headers = {"X-Api-Key":API_KEY}
 def root():
     req = requests.get(base_url + "happiness", headers=headers)
     return {"quote": req.json()[0]["quote"]}
+
+
+# Get a random quote from a category
+@app.get("/" + versionRoute + "/quote/{category}",
+            summary="Get a random quote from a category",
+            response_description="Returns a random quote from category")
+def get_quote(category: str):
+    req = requests.get(base_url + category, headers=headers)
+    return {"quote": req.json()[0]["quote"]}
