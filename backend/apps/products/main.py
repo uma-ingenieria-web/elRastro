@@ -29,9 +29,6 @@ except Exception as e:
 # Set the desired db
 db = client.elRastro
 
-# Show collections
-print(db.list_collection_names())
-
 versionRoute = "api/v1"
 
 
