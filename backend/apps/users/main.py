@@ -44,8 +44,10 @@ async def get_users(page: int = Query(1, ge=1), page_size: int = Query(10, le=20
          responses={404: errors.error_404, 422: errors.error_422},
          tags=["User"])
 async def read_user(id: str):
-    user = db.User.find_one({"_id": ObjectId(id)})
-
+    try:
+        user = db.User.find_one({"_id": ObjectId(id)})
+    except InvalidId:
+            raise HTTPException(status_code=422, detail=f"User id is invalid") 
     if user is not None:
         return user
     else:
@@ -57,6 +59,7 @@ async def read_user(id: str):
          response_description="The user with the given username",
          response_model=userModel.UserBasicInfo,
          status_code=status.HTTP_200_OK,
+         responses={400: errors.error_400, 404: errors.error_404},
          tags=["User"])
 async def read_user_username(username: str):
     user = db.User.find_one({"username": username})
@@ -73,32 +76,36 @@ async def read_user_username(username: str):
          response_description="Finds the user products sorted by date",
          response_model=userModel.ProductCollection,
          status_code=status.HTTP_200_OK,
+         responses={400: errors.error_400, 404: errors.error_404, 422: errors.error_422},
          tags=["User"])
-async def get_user_products(user_id: str):
-    user = db.User.aggregate([
-        {
-            "$match": {"_id": ObjectId(user_id)}
-        },
-        {
-            "$project": {
-                "_id": 0,
-                "products": 1,
-            }
-        },
-        {
-            "$unwind": "$products"
-        },
-        {
-            "$sort": {"products.date": -1}
-        },
-        {
-            "$group": {
-                "_id": "$_id",
-                "products": {"$push": "$products"}
-            }
-        }
-    ])
 
+async def get_user_products(user_id: str):
+    try:
+        user = db.User.aggregate([
+            {
+                "$match": {"_id": ObjectId(user_id)}
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "products": 1,
+                }
+            },
+            {
+                "$unwind": "$products"
+            },
+            {
+                "$sort": {"products.date": -1}
+            },
+            {
+                "$group": {
+                    "_id": "$_id",
+                    "products": {"$push": "$products"}
+                }
+            }
+        ])
+    except InvalidId:
+        raise HTTPException(status_code=422, detail=f"User id is invalid") 
     if user is not None:
         user_products = user.next()["products"]
         return {"products": user_products}
@@ -181,8 +188,10 @@ async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
             responses={404: errors.error_404},
             tags=["User"])
 async def delete_user(id: str):
-    result = db.User.delete_one({"_id": ObjectId(id)})
-   
+    try:
+        result = db.User.delete_one({"_id": ObjectId(id)})
+    except InvalidId:
+        raise HTTPException(status_code=422, detail=f"User id is invalid")
     if result.deleted_count != 0:
         return None
     else:
