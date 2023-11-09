@@ -5,21 +5,17 @@ from typing_extensions import Annotated, Optional
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
-
 class Product(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     title: str = Field(...)
-
 
 class Owner(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
 
-
 class Bidder(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
-
 
 class BidBasicInfo(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
@@ -35,7 +31,6 @@ class BidBasicInfo(BaseModel):
         },
     )
 
-
 class UpdateBid(BaseModel):
     amount: float = Field(...)
     model_config = ConfigDict(
@@ -47,7 +42,6 @@ class UpdateBid(BaseModel):
             }
         },
     )
-
 
 class Bid(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
@@ -69,30 +63,3 @@ class Bid(BaseModel):
             }
         },
     )
-
-
-# class UserBasicInfo(BaseModel):
-#     id: PyObjectId = Field(alias="_id", default=None)
-#     username: str = Field(...)
-
-# class ProductUserInfo(BaseModel):
-#     id: PyObjectId = Field(alias="_id", default=None)
-#     title: str = Field(...)
-#     description: str = Field(...)
-#     closeDate: datetime = Field(...)
-#     buyer: Optional[UserBasicInfo] = Field(default=None)
-#     model_config = ConfigDict(
-#         populate_by_name=True,
-#         arbitrary_types_allowed=True,
-#         json_schema_extra={
-#             "example": {
-#                 "_id": "product_id",
-#                 "title": "title",
-#                 "closeDate": "closeDate",
-#                 "buyer": {
-#                     "_id": "buyer_id",
-#                     "username": "buyer_username",
-#                 },
-#             }
-#         },
-#     )

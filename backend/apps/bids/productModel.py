@@ -6,28 +6,23 @@ from typing import List
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
-
 class Location(BaseModel):
     lat: float = Field(...)
     lon: float = Field(...)
-
 
 class Buyer(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
     location: Location = Field(...)
 
-
 class Owner(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
     location: Location = Field(...)
 
-
 class Bidder(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
-
 
 class Bid(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)

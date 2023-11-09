@@ -13,7 +13,6 @@ import errors
 app = FastAPI()
 
 load_dotenv()
-
 uri = os.getenv('MONGODB_URI')
 
 # Create a new client and connect to the server
@@ -23,6 +22,12 @@ client = MongoClient(uri)
 db = client.elRastro
 
 versionRoute = "api/v1"
+
+
+@app.get("/")
+def read_root():
+    return {"API": "REST"}
+
 
 @app.get("/" + versionRoute + "/users/",
          summary="Find a user list",
@@ -171,10 +176,6 @@ def update_users(id, user : userModel.UpdateUser):
                 {"$set": {"products.buyer.username": user.username}}
         )
         db.Product.update_many(
-                {"buyer._id": ObjectId(id)},
-                {"$set": {"buyer.username": user.username}}
-        )
-        db.Product.update_many(
             {"bids.bidder._id": ObjectId(id)},
             {"$set": {"bids.bidder.username": user.username}}
         )
@@ -199,6 +200,15 @@ def update_users(id, user : userModel.UpdateUser):
                 "owner.username": user.username,
                 "owner.location.lat": user.location.lat,
                 "owner.location.lon": user.location.lon
+                }
+            }
+        )
+        db.Product.update_many(
+            {"buyer._id": ObjectId(id)},
+            {"$set": {
+                "buyer.username": user.username,
+                "buyer.location.lat": user.location.lat,
+                "buyer.location.lon": user.location.lon
                 }
             }
         )

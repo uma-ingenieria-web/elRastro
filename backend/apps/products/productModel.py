@@ -6,34 +6,28 @@ from typing import List
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
-
 class Location(BaseModel):
     lat: float = Field(...)
     lon: float = Field(...)
-
 
 class Buyer(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
     location: Location = Field(...)
 
-
 class Owner(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
     location: Location = Field(...)
 
-
 class Bidder(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
-
 
 class Bid(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     amount: float = Field(...)
     bidder: Bidder = Field(...)
-
 
 class ProductBasicInfo(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
@@ -58,7 +52,6 @@ class ProductBasicInfo(BaseModel):
         },
     )
 
-
 class UpdateProduct(BaseModel):
     title: Optional[str] = Field(default=None)
     description: Optional[str] = Field(default=None)
@@ -76,7 +69,6 @@ class UpdateProduct(BaseModel):
             }
         },
     )
-
 
 class Product(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
@@ -124,11 +116,9 @@ class Product(BaseModel):
         },
     )
 
-
 class UserBasicInfo(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
-
 
 class ProductUserInfo(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)

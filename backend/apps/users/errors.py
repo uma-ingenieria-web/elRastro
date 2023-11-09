@@ -1,4 +1,3 @@
-
 error_400 = {
     "description": "Invalid ObjectId format",
     "content": {

@@ -12,12 +12,9 @@ import re
 
 import os
 
-load_dotenv()
-
 app = FastAPI()
 
 load_dotenv()
-
 # uri of the connection
 uri = os.getenv("MONGODB_URI")
 
