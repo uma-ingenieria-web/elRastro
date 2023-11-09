@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
 from bson.errors import InvalidId
+from pymongo.errors import DuplicateKeyError
 
 import os
 
@@ -115,14 +116,17 @@ async def get_user_products(user_id: str):
 
 @app.post("/" + versionRoute + "/user",
           summary="Create a user",
-          status_code=status.HTTP_201_CREATED,
           response_description="User created",
+          status_code=status.HTTP_201_CREATED,
+          responses={409: errors.error_409},
           tags=["User"])
 async def create_user(user: userModel.CreateUser = Body(...)):
-    result = db.User.insert_one(user.model_dump(by_alias=True, exclude=["id"]))
-
+    try:
+        result = db.User.insert_one(user.model_dump(by_alias=True, exclude=["id"]))
+    except DuplicateKeyError:
+        raise HTTPException(status_code=409, detail=f"Username already taken")
     if result.inserted_id is not None:
-        return result.inserted_id
+        return str(result.inserted_id)
     else:
         raise HTTPException(status_code=404, detail=f"User could not be created")
     
@@ -161,6 +165,8 @@ async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
             raise HTTPException(status_code=400, detail=f"No fields specfied")
     except HTTPException as err:
         raise err
+    except DuplicateKeyError:
+        raise HTTPException(status_code=409, detail=f"Username already taken")
     except InvalidId:
         raise HTTPException(status_code=422, detail=f"User id is invalid")
 

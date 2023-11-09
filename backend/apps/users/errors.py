@@ -11,6 +11,13 @@ error_404 = {
     "content": {"application/json": {"example": {"message": "User not found"}}},
 }
 
+error_409 = {
+    "description": "Username already taken",
+    "content": {
+        "application/json": {"example": {"message": "Username already taken"}}
+    },
+}
+
 error_422 = {
     "description": "Invalid data",
     "content": {
