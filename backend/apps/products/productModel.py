@@ -41,8 +41,8 @@ class ProductBasicInfo(BaseModel):
     title: str = Field(...)
     description: str = Field(...)
     initialPrice: float = Field(...)
+    initialDate: datetime = Field(default_factory=datetime.now)
     closeDate: datetime = Field(...)
-    timestamp: datetime = Field(default_factory=datetime.now)
     weight: float = Field(...)
     model_config = ConfigDict(
         populate_by_name=True,
@@ -97,6 +97,7 @@ class Product(BaseModel):
                 "title": "title",
                 "description": "description",
                 "initialPrice": 21.99,
+                "initialDate": "initialDate",
                 "closeDate": "closeDate",
                 "weight": 0.5,
                 "owner": {

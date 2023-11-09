@@ -48,8 +48,8 @@ def read_root():
     },
 )
 def get_products(
-    orderDate: int = Query(-1, description="1 for ascending, -1 for descending"),
-    orderTimestamp: int = Query(-1, description="1 for ascending, -1 for descending"),
+    orderCloseDate: int = Query(-1, description="1 for ascending, -1 for descending"),
+    orderInitialDate: int = Query(-1, description="1 for ascending, -1 for descending"),
     username: str = Query("", description="Username of the owner of the product"),
     title: str = Query("", description="Title of the product"),
     minPrice: float = Query(None, description="Minimum price of the product"),
@@ -68,11 +68,13 @@ def get_products(
         regex_pattern = re.compile(f".*{re.escape(title)}.*", re.IGNORECASE)
         filter_params["title"] = {"$regex": regex_pattern}
 
-    products_cursor = (
-        db.Product.find(filter_params)
-        .sort("timestamp", orderTimestamp)
-        .sort("closeDate", orderDate)
+    products_cursor = db.Product.aggregate(
+        [
+            {"$match": filter_params},
+            {"$sort": {"closeDate": orderCloseDate, "initialDate": orderInitialDate}},
+        ]
     )
+
     products = []
     if products_cursor is not None:
         for document in products_cursor:

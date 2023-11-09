@@ -45,7 +45,6 @@ def read_root():
 # Auxiliary function to save a bid
 def save_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
     product = db.Product.find_one({"_id": ObjectId(idProduct)})
-    owner = db.User.find_one({"_id": ObjectId(product["owner"]["_id"])})
     bidder = db.User.find_one({"_id": ObjectId(idBidder)})
 
     if product is None:
@@ -54,6 +53,8 @@ def save_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
     if bidder is None:
         raise HTTPException(status_code=404, detail="Bidder not found")
 
+    owner = db.User.find_one({"_id": ObjectId(product["owner"]["_id"])})
+    
     bid["product"] = {
         "_id": product["_id"],
         "title": product["title"],
@@ -77,7 +78,7 @@ def save_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
     response_model=Bid,
     status_code=status.HTTP_201_CREATED,
     responses={422: errors.error_422, 400: errors.error_400, 404: errors.error_404},
-    tags=["Bids"]
+    tags=["Bids"],
 )
 def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
     try:
@@ -113,10 +114,10 @@ def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
                         "bids": {
                             "_id": response["_id"],
                             "amount": response["amount"],
+                            "timestamp": response["timestamp"],
                             "product": {
                                 "_id": response["product"]["_id"],
                                 "title": response["product"]["title"],
-                                "timestamp": product["timestamp"],
                             },
                         }
                     }
@@ -141,7 +142,7 @@ def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
         400: errors.error_400,
         422: errors.error_422,
     },
-    tags=["Bids"]
+    tags=["Bids"],
 )
 def update_bid(id: str, new_bid: UpdateBid):
     try:
@@ -198,7 +199,7 @@ def update_bid(id: str, new_bid: UpdateBid):
         400: errors.error_400,
         422: errors.error_422,
     },
-    tags=["Bids"]
+    tags=["Bids"],
 )
 def delete_bid(id: str):
     try:
@@ -234,7 +235,7 @@ def delete_bid(id: str):
     responses={
         422: errors.error_422,
     },
-    tags=["Bids"]
+    tags=["Bids"],
 )
 def get_bids(
     order: int = Query(-1, description="1 for ascending, -1 for descending"),
@@ -281,7 +282,7 @@ def get_bids(
         400: errors.error_400,
         422: errors.error_422,
     },
-    tags=["Bids"]
+    tags=["Bids"],
 )
 def get_bid(id):
     try:
@@ -302,7 +303,7 @@ def get_bid(id):
     response_model=List[Product],
     status_code=status.HTTP_200_OK,
     responses={400: errors.error_400, 422: errors.error_422, 404: errors.error_404},
-    tags=["Bids"]
+    tags=["Bids"],
 )
 def get_products_by_bid(id: str):
     try:

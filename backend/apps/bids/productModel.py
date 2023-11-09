@@ -34,50 +34,6 @@ class Bid(BaseModel):
     amount: float = Field(...)
     bidder: Bidder = Field(...)
 
-
-class ProductBasicInfo(BaseModel):
-    id: PyObjectId = Field(alias="_id", default=None)
-    bids: List[Bid] = Field(default_factory=list)
-    title: str = Field(...)
-    description: str = Field(...)
-    initialPrice: float = Field(...)
-    closeDate: datetime = Field(...)
-    timestamp: datetime = Field(default_factory=datetime.now)
-    weight: float = Field(...)
-    model_config = ConfigDict(
-        populate_by_name=True,
-        arbitrary_types_allowed=True,
-        json_schema_extra={
-            "example": {
-                "title": "title",
-                "description": "description",
-                "initialPrice": 21.99,
-                "closeDate": "closeDate",
-                "weight": 0.5,
-            }
-        },
-    )
-
-
-class UpdateProduct(BaseModel):
-    title: Optional[str] = Field(default=None)
-    description: Optional[str] = Field(default=None)
-    initialPrice: Optional[float] = Field(default=None)
-    weight: Optional[float] = Field(default=None)
-    model_config = ConfigDict(
-        populate_by_name=True,
-        arbitrary_types_allowed=True,
-        json_schema_extra={
-            "example": {
-                "title": "title",
-                "description": "description",
-                "initialPrice": 21.99,
-                "weight": 0.5,
-            }
-        },
-    )
-
-
 class Product(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     title: str = Field(...)
@@ -97,6 +53,7 @@ class Product(BaseModel):
                 "title": "title",
                 "description": "description",
                 "initialPrice": 21.99,
+                "initialDate": "initialDate",
                 "closeDate": "closeDate",
                 "weight": 0.5,
                 "owner": {
