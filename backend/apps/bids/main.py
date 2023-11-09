@@ -62,7 +62,7 @@ def save_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
 
 # Create a new bid
 @app.post(
-    "/" + versionRoute + "/bids/{idProduct}/{idBidder}}",
+    "/" + versionRoute + "/bids/{idProduct}/{idBidder}",
     summary="Add new bid",
     response_description="Create a new bid with the desired amount",
     response_model=Bid,
