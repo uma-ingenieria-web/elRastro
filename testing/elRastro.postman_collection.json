@@ -1,0 +1,275 @@
+{
+	"info": {
+		"_postman_id": "cf1c91ac-5c4a-4c38-bf2a-e5ace0f7d1a0",
+		"name": "elRastro",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16454866"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "ListUsers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is ok\", ()=> pm.response.to.be.ok);\r",
+									"pm.test(\"Users array\", ()=> {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body.users).to.be.a('array');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}:{{user_port}}/{{api_version}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{user_port}}",
+							"path": [
+								"{{api_version}}",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is ok\", ()=> pm.response.to.be.ok);\r",
+									"pm.test(\"Users data\", ()=> {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body.username).to.be.eql(\"Javier Jordan\");\r",
+									"    pm.expect(body._id).to.be.eql(pm.collectionVariables.get(\"user_id\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}:{{user_port}}/{{api_version}}/user/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{user_port}}",
+							"path": [
+								"{{api_version}}",
+								"user",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is created\", ()=> pm.expect(pm.response.code).to.be.eql(201));\r",
+									"pm.collectionVariables.set(\"new_user_id\", pm.response.json());"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"new_user_username\", \"pm_example\")"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"location\": {\r\n        \"lat\": 36.749058,\r\n        \"lon\": -4.51626\r\n    },\r\n    \"username\": \"{{new_user_username}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}:{{user_port}}/{{api_version}}/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{user_port}}",
+							"path": [
+								"{{api_version}}",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Username",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is created\", ()=> pm.expect(pm.response.code).to.be.eql(201));\r",
+									"pm.test(\"Users data is updated\", ()=> {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body.username).to.be.eql(pm.collectionVariables.get(\"new_user_username\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"new_user_username\", \"pm_example_new\")"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{new_user_username}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}:{{user_port}}/{{api_version}}/user/{{new_user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{user_port}}",
+							"path": [
+								"{{api_version}}",
+								"user",
+								"{{new_user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is no content\", ()=> pm.expect(pm.response.code).to.be.eql(204));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}:{{user_port}}/{{api_version}}/user/{{new_user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{user_port}}",
+							"path": [
+								"{{api_version}}",
+								"user",
+								"{{new_user_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost"
+		},
+		{
+			"key": "user_port",
+			"value": "8000"
+		},
+		{
+			"key": "api_version",
+			"value": "api/v1"
+		},
+		{
+			"key": "user_id",
+			"value": "654b5c894da4bf53381f1b9f"
+		},
+		{
+			"key": "new_user_username",
+			"value": "pm_example",
+			"type": "string"
+		},
+		{
+			"key": "new_user_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
