@@ -126,7 +126,7 @@ def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
     summary="Update bid",
     response_description="Update the values of a bid",
     response_model=Bid,
-    status_code=status.HTTP_201_CREATED,
+    status_code=status.HTTP_200_OK,
     responses={
         404: errors.error_404,
         400: errors.error_400,

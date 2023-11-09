@@ -139,6 +139,7 @@ def save_product(product: ProductBasicInfo, idOwner: str):
     summary="Update a product",
     response_description="Update the attributes of a product",
     response_model=Product,
+    status_code=status.HTTP_200_OK,
     responses={404: errors.error_404, 400: errors.error_400, 422: errors.error_422},
 )
 def update_product(id: str, new_product: UpdateProduct):
