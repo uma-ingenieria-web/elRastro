@@ -138,7 +138,7 @@ async def create_user(user: userModel.CreateUser = Body(...)):
 
 @app.put("/" + versionRoute + "/user/{id}",
          summary="Update user's field",
-         status_code=status.HTTP_200_OK,
+         status_code=status.HTTP_201_CREATED,
          response_description="Update username of a user ",
          response_model=userModel.UserBasicInfo,
          tags=["User"])
@@ -178,8 +178,8 @@ async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
 def update_users(id, user : userModel.UpdateUser):
     if user.username:
         db.User.update_many(
-                {"products.buyer._id": ObjectId(id)},
-                {"$set": {"products.buyer.username": user.username}}
+            {"products.buyer._id": ObjectId(id)},
+            {"$set": {"products.buyer.username": user.username}}
         )
         db.Product.update_many(
             {"bids.bidder._id": ObjectId(id)},
@@ -194,29 +194,31 @@ def update_users(id, user : userModel.UpdateUser):
             {"$set": {"bidder.username": user.username}}
         )
     if user.username or user.location:
-        update_query = {}
-        if user.username:
-            update_query["owner.username"] = user.username
-        if user.location:
-            update_query["owner.location.lat"] = user.location.lat
-            update_query["owner.location.lon"] = user.location.lon
-        db.Product.update_many(
-            {"owner._id": ObjectId(id)},
-            {"$set": {
-                "owner.username": user.username,
-                "owner.location.lat": user.location.lat,
-                "owner.location.lon": user.location.lon
-                }
-            }
-        )
-        db.Product.update_many(
+        update_owner(id, user)
+        update_buyer(id, user)
+
+def update_buyer(id, user):
+    update_query_buyer = {}
+    if user.username:
+        update_query_buyer["buyer.username"] = user.username
+    if user.location:
+        update_query_buyer["buyer.location.lat"] = user.location.lat
+        update_query_buyer["buyer.location.lon"] = user.location.lon
+    db.Product.update_many(
             {"buyer._id": ObjectId(id)},
-            {"$set": {
-                "buyer.username": user.username,
-                "buyer.location.lat": user.location.lat,
-                "buyer.location.lon": user.location.lon
-                }
-            }
+            {"$set": update_query_buyer}
+        )
+
+def update_owner(id, user):
+    update_query_owner = {}
+    if user.username:
+        update_query_owner["owner.username"] = user.username
+    if user.location:
+        update_query_owner["owner.location.lat"] = user.location.lat
+        update_query_owner["owner.location.lon"] = user.location.lon
+    db.Product.update_many(
+            {"owner._id": ObjectId(id)},
+            {"$set": update_query_owner}
         )
 
 
