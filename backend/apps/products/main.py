@@ -78,7 +78,7 @@ def get_products(
 
 # Add a new product
 @app.post(
-    "/" + versionRoute + "/products",
+    "/" + versionRoute + "/products/{idOwner}",
     summary="Add new product",
     response_description="Create a new product by specifying its attributes",
     response_model=Product,
