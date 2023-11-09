@@ -21,6 +21,7 @@ cloudinary.config(
 
 versionRoute = "api/v1"
 
+
 @app.get("/" + versionRoute + "/photo/{id}",
          summary="Get url to photo from id",
          description="Get url to photo from the id of a user or product",
@@ -36,6 +37,7 @@ versionRoute = "api/v1"
 def get_url_photo(id: str):
     image_url, options = cloudinary.utils.cloudinary_url(id, format="jpeg", secure=True)
     return image_url
+
 
 @app.post("/" + versionRoute + "/photo/{id}",
         summary="Upload a photo",
