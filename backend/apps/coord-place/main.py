@@ -49,10 +49,10 @@ def get_all_places(lat: float = None, lon: float = None):
         raise HTTPException(404, "Not found")
 
 
-# Get the first country and city name from coordinates
+# Get the first country and city name of the opposite side of the world from coordinates
 @app.get("/" + versionRoute + "/reversegeocoding",
-            summary="Get country and city name of the other side of the wolrd by coordinates",
-            response_description="Returns the country and city name of the other side of the wolrd from coordinates",
+            summary="Get country and city name of the other side of the world by coordinates",
+            response_description="Returns the country and city name of the other side of the world from coordinates",
             status_code=status.HTTP_200_OK,
             responses={404: errors.error_404})
 def get_place_other_side(lat: float = None, lon: float = None):
@@ -73,7 +73,7 @@ def get_place_other_side(lat: float = None, lon: float = None):
         raise HTTPException(404, "Not found")
 
 
-# Get all the country and city names from coordinates
+# Get all the country and city names of the opposite side of the world from coordinates
 @app.get("/" + versionRoute + "/reversegeocoding",
             summary="Get all country and city names of the other side of the wolrd by coordinates",
             response_description="Returns the country and city names of the other side of the world from coordinates",
