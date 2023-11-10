@@ -101,7 +101,7 @@ async def get_user_products(user_id: str):
                 "$unwind": "$products"
             },
             {
-                "$sort": {"products.date": -1}
+                "$sort": {"products.closeDate": -1}
             },
             {
                 "$group": {
@@ -112,6 +112,7 @@ async def get_user_products(user_id: str):
         ])
     except InvalidId:
         raise HTTPException(status_code=422, detail=f"User id is invalid") 
+
     if user is not None:
         user_products = user.next()["products"]
         return {"products": user_products}
