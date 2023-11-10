@@ -287,7 +287,7 @@ def get_bid(id):
 
 # Get the products of a bid's owner
 @app.get(
-    "/" + versionRoute + "/bids/{id}/products/",
+    "/" + versionRoute + "/bids/{id_bid}/products/",
     summary="List all products of a bid's owner",
     response_description="Get all products of a bid's owner",
     response_model=List[Product],
@@ -295,18 +295,18 @@ def get_bid(id):
     responses={400: errors.error_400, 422: errors.error_422, 404: errors.error_404},
     tags=["Bids"],
 )
-def get_products_by_bid(id: str):
+def get_products_by_bid(id_bid: str):
     try:
         products = []
 
-        bid = db.Bid.find_one({"_id": ObjectId(id)})
+        bid = db.Bid.find_one({"_id": ObjectId(id_bid)})
 
         if bid is None:
             raise HTTPException(status_code=404, detail="Bid not found")
 
         products_cursor = db.Bid.aggregate(
             [
-                {"$match": {"_id": ObjectId(id)}},
+                {"$match": {"_id": ObjectId(id_bid)}},
                 {
                     "$lookup": {
                         "from": "Product",
