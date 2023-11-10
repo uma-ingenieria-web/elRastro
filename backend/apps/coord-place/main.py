@@ -34,7 +34,7 @@ def root():
     return {"API":"REST"}
 
 # Get the first country and city name from coordinates
-@app.get("/" + versionRoute + "/reversegeocoding",
+@app.get("/" + versionRoute + "/reversegeocoding/{lat}/{lon}",
             summary="Get a country and city name by coordinates",
             response_description="Returns the country and city name from coordinates",
             status_code=status.HTTP_200_OK,
@@ -50,7 +50,7 @@ def get_first_place(lat: float = None, lon: float = None):
 
 
 # Get all the country and city names from coordinates
-@app.get("/" + versionRoute + "/reversegeocoding",
+@app.get("/" + versionRoute + "/reversegeocoding/{lat}/{lon}",
             summary="Get all country and city names by coordinates",
             response_description="Returns the country and city names from coordinates",
             status_code=status.HTTP_200_OK,
@@ -66,7 +66,7 @@ def get_all_places(lat: float = None, lon: float = None):
 
 
 # Get the first country and city name of the opposite side of the world from coordinates
-@app.get("/" + versionRoute + "/reversegeocoding/opposite",
+@app.get("/" + versionRoute + "/reversegeocoding/{lat}/{lon}/opposite",
             summary="Get country and city name of the other side of the world by coordinates",
             response_description="Returns the country and city name of the other side of the world from coordinates",
             status_code=status.HTTP_200_OK,
@@ -83,7 +83,7 @@ def get_place_other_side(lat: float = None, lon: float = None):
 
 
 # Get all the country and city names of the opposite side of the world from coordinates
-@app.get("/" + versionRoute + "/reversegeocoding/opposite",
+@app.get("/" + versionRoute + "/reversegeocoding/{lat}/{lon}/opposite",
             summary="Get all country and city names of the other side of the wolrd by coordinates",
             response_description="Returns the country and city names of the other side of the world from coordinates",
             status_code=status.HTTP_200_OK,
