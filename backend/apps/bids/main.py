@@ -72,30 +72,39 @@ def save_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
 )
 def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
     try:
+        product = db.Product.find_one({"_id": ObjectId(idProduct)})
+        if product is not None and product["owner"]["_id"] == ObjectId(idBidder):
+            raise HTTPException(
+                status_code=400, detail="Owner cannot bid on his own product")
+
+        new_bid = bid.model_dump(by_alias=True, exclude={"id"})
+        
+        last_bid = db.Bid.find_one({"_id": ObjectId(product["bids"][-1]["_id"])})
+        if last_bid is not None and last_bid["amount"] >= new_bid["amount"]:
+            raise HTTPException(
+                status_code=400, detail="Bid must be higher than the last one")
+
         response = save_bid(
-            bid.model_dump(by_alias=True, exclude={"id"}), idProduct, idBidder
+            new_bid, idProduct, idBidder
         )
 
         if response:
-            product = db.Product.find_one({"_id": ObjectId(response["product"]["_id"])})
-
-            if product:
-                db.Product.find_one_and_update(
-                    {"_id": ObjectId(response["product"]["_id"])},
-                    {
-                        "$push": {
-                            "bids": {
-                                "_id": response["_id"],
-                                "amount": response["amount"],
-                                "timestamp": response["timestamp"],
-                                "bidder": {
-                                    "_id": response["bidder"]["_id"],
-                                    "username": response["bidder"]["username"],
-                                },
-                            }
+            db.Product.find_one_and_update(
+                {"_id": ObjectId(response["product"]["_id"])},
+                {
+                    "$push": {
+                        "bids": {
+                            "_id": response["_id"],
+                            "amount": response["amount"],
+                            "timestamp": response["timestamp"],
+                            "bidder": {
+                                "_id": response["bidder"]["_id"],
+                                "username": response["bidder"]["username"],
+                            },
                         }
-                    },
-                )
+                    }
+                },
+            )
 
             db.User.find_one_and_update(
                 {"_id": ObjectId(response["bidder"]["_id"])},
