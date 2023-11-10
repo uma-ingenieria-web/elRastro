@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "cf1c91ac-5c4a-4c38-bf2a-e5ace0f7d1a0",
+		"_postman_id": "66f9f958-a9e2-47ae-ad64-eccb2857062a",
 		"name": "elRastro",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16454866"
+		"_exporter_id": "31094444"
 	},
 	"item": [
 		{
@@ -226,6 +226,42 @@
 		{
 			"name": "Products",
 			"item": [
+				{
+					"name": "Get Related Products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is ok\", ()=> pm.response.to.be.ok);",
+									"pm.test(\"Products array\", ()=> {",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.users).to.be.a('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}:{{product_port}}/{{api_version}}/products/{{product_id}}/related",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{product_port}}",
+							"path": [
+								"{{api_version}}",
+								"products",
+								"{{product_id}}",
+								"related"
+							]
+						}
+					},
+					"response": []
+				},
 				{
 					"name": "ListProducts",
 					"event": [
