@@ -49,10 +49,34 @@ def get_all_places(lat: int = None, lon: int = None):
         raise HTTPException(404, "Not found")
 
 
+# Get the first country and city name from coordinates
+@app.get("/" + versionRoute + "/reversegeocoding",
+            summary="Get country and city name of the other side of the wolrd by coordinates",
+            response_description="Returns the country and city name of the other side of the wolrd from coordinates",
+            status_code=status.HTTP_200_OK,
+            responses={404: errors.error_404})
+def get_place_other_side(lat: int = None, lon: int = None):
+    if lat == None or lon == None:
+        raise HTTPException(status_code=400, detail="Incorrect input")
+    if lat > 0:
+        lat = lat - 90
+    else:
+        lat = lat + 90
+    if lon > 0:
+        lon = lon - 180
+    else:
+        lon = lon + 180
+    try:
+        req = requests.get(base_url + "?lat=" + str(lat) + "&lon=" + str(lon), headers=headers)
+        return {"country": req.json()[0]["country"], "city": req.json()[0]["name"]}
+    except:
+        raise HTTPException(404, "Not found")
+
+
 # Get all the country and city names from coordinates
 @app.get("/" + versionRoute + "/reversegeocoding",
             summary="Get all country and city names of the other side of the wolrd by coordinates",
-            response_description="Returns the country and city names of the other side of the wolrd from coordinates",
+            response_description="Returns the country and city names of the other side of the world from coordinates",
             status_code=status.HTTP_200_OK,
             responses={404: errors.error_404})
 def get_all_places_other_side(lat: int = None, lon: int = None):
