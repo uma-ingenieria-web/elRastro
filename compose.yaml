@@ -43,6 +43,14 @@ services:
       context: ./backend/apps/coord-place/
     ports:
       - 8004:8000
+  backend-micro-random-quote:
+    container_name: backend-random-quote
+    env_file:
+      - ./backend/apps/random-quote/.env
+    build:
+      context: ./backend/apps/random-quote/
+    ports:
+      - 8005:8000
   # backend-micro-carbon-footprint:
   #   container_name: backend-carbon-footprint
   #   env_file:
