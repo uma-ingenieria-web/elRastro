@@ -17,6 +17,18 @@ base_url = "https://api.api-ninjas.com/v1/reversegeocoding"
 headers = {"X-Api-Key":API_KEY}
 
 
+def opposite_side(lat, lon):
+    if lat > 0:
+        lat = lat - 90
+    else:
+        lat = lat + 90
+    if lon > 0:
+        lon = lon - 180
+    else:
+        lon = lon + 180
+    return (lat, lon)
+
+
 # Get the first country and city name from coordinates
 @app.get("/" + versionRoute + "/reversegeocoding",
             summary="Get a country and city name by coordinates",
@@ -58,14 +70,7 @@ def get_all_places(lat: float = None, lon: float = None):
 def get_place_other_side(lat: float = None, lon: float = None):
     if lat == None or lon == None:
         raise HTTPException(status_code=400, detail="Incorrect input")
-    if lat > 0:
-        lat = lat - 90
-    else:
-        lat = lat + 90
-    if lon > 0:
-        lon = lon - 180
-    else:
-        lon = lon + 180
+    lat, lon = opposite_side(lat, lon)
     try:
         req = requests.get(base_url + "?lat=" + str(lat) + "&lon=" + str(lon), headers=headers)
         return {"country": req.json()[0]["country"], "city": req.json()[0]["name"]}
@@ -82,14 +87,7 @@ def get_place_other_side(lat: float = None, lon: float = None):
 def get_all_places_other_side(lat: float = None, lon: float = None):
     if lat == None or lon == None:
         raise HTTPException(status_code=400, detail="Incorrect input")
-    if lat > 0:
-        lat = lat - 90
-    else:
-        lat = lat + 90
-    if lon > 0:
-        lon = lon - 180
-    else:
-        lon = lon + 180
+    lat, lon = opposite_side(lat, lon)
     try:
         req = requests.get(base_url + "?lat=" + str(lat) + "&lon=" + str(lon), headers=headers)
         return req.json()
