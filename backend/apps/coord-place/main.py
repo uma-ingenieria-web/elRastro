@@ -23,7 +23,7 @@ headers = {"X-Api-Key":API_KEY}
             response_description="Returns the country and city name from coordinates",
             status_code=status.HTTP_200_OK,
             responses={404: errors.error_404})
-def get_first_place(lat: int = None, lon: int = None):
+def get_first_place(lat: float = None, lon: float = None):
     if lat == None or lon == None:
         raise HTTPException(status_code=400, detail="Incorrect input")
     try:
@@ -39,7 +39,7 @@ def get_first_place(lat: int = None, lon: int = None):
             response_description="Returns the country and city names from coordinates",
             status_code=status.HTTP_200_OK,
             responses={404: errors.error_404})
-def get_all_places(lat: int = None, lon: int = None):
+def get_all_places(lat: float = None, lon: float = None):
     if lat == None or lon == None:
         raise HTTPException(status_code=400, detail="Incorrect input")
     try:
@@ -55,7 +55,7 @@ def get_all_places(lat: int = None, lon: int = None):
             response_description="Returns the country and city name of the other side of the wolrd from coordinates",
             status_code=status.HTTP_200_OK,
             responses={404: errors.error_404})
-def get_place_other_side(lat: int = None, lon: int = None):
+def get_place_other_side(lat: float = None, lon: float = None):
     if lat == None or lon == None:
         raise HTTPException(status_code=400, detail="Incorrect input")
     if lat > 0:
@@ -79,7 +79,7 @@ def get_place_other_side(lat: int = None, lon: int = None):
             response_description="Returns the country and city names of the other side of the world from coordinates",
             status_code=status.HTTP_200_OK,
             responses={404: errors.error_404})
-def get_all_places_other_side(lat: int = None, lon: int = None):
+def get_all_places_other_side(lat: float = None, lon: float = None):
     if lat == None or lon == None:
         raise HTTPException(status_code=400, detail="Incorrect input")
     if lat > 0:
