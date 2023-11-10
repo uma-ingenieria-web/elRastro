@@ -28,6 +28,10 @@ def opposite_side(lat, lon):
         lon = lon + 180
     return (lat, lon)
 
+# Get root
+@app.get("/", status_code=status.HTTP_200_OK)
+def root():
+    return {"API":"REST"}
 
 # Get the first country and city name from coordinates
 @app.get("/" + versionRoute + "/reversegeocoding",
