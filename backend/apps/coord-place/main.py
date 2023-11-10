@@ -1,7 +1,9 @@
 from dotenv import load_dotenv
 from fastapi import FastAPI
+import errors
 
 import os
+import requests
 
 app = FastAPI()
 
