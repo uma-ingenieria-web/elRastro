@@ -40,8 +40,11 @@ def root():
             status_code=status.HTTP_200_OK,
             responses={404: errors.error_404})
 def get_first_place(lat: float = None, lon: float = None):
-    if lat == None or lon == None:
-        raise HTTPException(status_code=400, detail="Incorrect input")
+    if not valid_lat(lat):
+        raise HTTPException(status_code=400, detail="Incorrect latitude input")
+    elif not valid_lon(lon):
+        raise HTTPException(status_code=400, detail="Incorrect longitude input")
+    
     try:
         req = requests.get(base_url + "?lat=" + str(lat) + "&lon=" + str(lon), headers=headers)
         return {"country": req.json()[0]["country"], "city": req.json()[0]["name"]}
@@ -56,8 +59,11 @@ def get_first_place(lat: float = None, lon: float = None):
             status_code=status.HTTP_200_OK,
             responses={404: errors.error_404})
 def get_all_places(lat: float = None, lon: float = None):
-    if lat == None or lon == None:
-        raise HTTPException(status_code=400, detail="Incorrect input")
+    if not valid_lat(lat):
+        raise HTTPException(status_code=400, detail="Incorrect latitude input")
+    elif not valid_lon(lon):
+        raise HTTPException(status_code=400, detail="Incorrect longitude input")
+    
     try:
         req = requests.get(base_url + "?lat=" + str(lat) + "&lon=" + str(lon), headers=headers)
         return req.json()
@@ -72,8 +78,11 @@ def get_all_places(lat: float = None, lon: float = None):
             status_code=status.HTTP_200_OK,
             responses={404: errors.error_404})
 def get_place_other_side(lat: float = None, lon: float = None):
-    if lat == None or lon == None:
-        raise HTTPException(status_code=400, detail="Incorrect input")
+    if not valid_lat(lat):
+        raise HTTPException(status_code=400, detail="Incorrect latitude input")
+    elif not valid_lon(lon):
+        raise HTTPException(status_code=400, detail="Incorrect longitude input")
+    
     lat, lon = opposite_side(lat, lon)
     try:
         req = requests.get(base_url + "?lat=" + str(lat) + "&lon=" + str(lon), headers=headers)
@@ -84,16 +93,28 @@ def get_place_other_side(lat: float = None, lon: float = None):
 
 # Get all the country and city names of the opposite side of the world from coordinates
 @app.get("/" + versionRoute + "/reversegeocoding/{lat}/{lon}/opposite",
-            summary="Get all country and city names of the other side of the wolrd by coordinates",
+            summary="Get all country and city names of the other side of the world by coordinates",
             response_description="Returns the country and city names of the other side of the world from coordinates",
             status_code=status.HTTP_200_OK,
             responses={404: errors.error_404})
 def get_all_places_other_side(lat: float = None, lon: float = None):
-    if lat == None or lon == None:
-        raise HTTPException(status_code=400, detail="Incorrect input")
+    if not valid_lat(lat):
+        raise HTTPException(status_code=400, detail="Incorrect latitude input")
+    elif not valid_lon(lon):
+        raise HTTPException(status_code=400, detail="Incorrect longitude input")
+    
     lat, lon = opposite_side(lat, lon)
     try:
         req = requests.get(base_url + "?lat=" + str(lat) + "&lon=" + str(lon), headers=headers)
         return req.json()
     except:
         raise HTTPException(404, "Not found")
+
+
+# Auxiliary function to check for a valid latitude
+def valid_lat(lat: float = None):
+    return (lat != None) and (-90 <= lat and lat <= 90)
+
+# Auxiliary function to check for a valid longitude
+def valid_lon(lon: float = None):
+    return (lon != None) and (-180 <= lon and lon <= 180)
