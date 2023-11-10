@@ -78,11 +78,12 @@ def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
                 status_code=400, detail="Owner cannot bid on his own product")
 
         new_bid = bid.model_dump(by_alias=True, exclude={"id"})
-        
-        last_bid = db.Bid.find_one({"_id": ObjectId(product["bids"][-1]["_id"])})
-        if last_bid is not None and last_bid["amount"] >= new_bid["amount"]:
-            raise HTTPException(
-                status_code=400, detail="Bid must be higher than the last one")
+
+        if len(product["bids"]) > 0:
+            last_bid = product["bids"][-1]
+            if last_bid is not None and last_bid["amount"] >= new_bid["amount"]:
+                raise HTTPException(
+                    status_code=400, detail="Bid must be higher than the last one")
 
         response = save_bid(
             new_bid, idProduct, idBidder
