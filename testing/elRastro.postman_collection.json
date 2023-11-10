@@ -509,7 +509,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"amount\": 278.8\r\n}",
+							"raw": "{\r\n  \"amount\": 500.8\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -543,7 +543,7 @@
 									"pm.test(\"Bid data\", ()=> {\r",
 									"    const body = pm.response.json();\r",
 									"    pm.expect(body._id).to.be.eql(pm.collectionVariables.get(\"new_bid_id\"));\r",
-									"    pm.expect(body.amount).to.be.eql(278.8);\r",
+									"    pm.expect(body.amount).to.be.eql(500.8);\r",
 									"    pm.expect(body.product._id).to.be.eql(pm.collectionVariables.get(\"product_id\"));\r",
 									"    pm.expect(body.product.title).to.be.eql(\"Leather Wallet\");\r",
 									"    pm.expect(body.bidder._id).to.be.eql(pm.collectionVariables.get(\"bidder_id\"));\r",
