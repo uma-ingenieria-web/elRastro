@@ -50,7 +50,7 @@ def get_all_places(lat: float = None, lon: float = None):
 
 
 # Get the first country and city name of the opposite side of the world from coordinates
-@app.get("/" + versionRoute + "/reversegeocoding",
+@app.get("/" + versionRoute + "/reversegeocoding/opposite",
             summary="Get country and city name of the other side of the world by coordinates",
             response_description="Returns the country and city name of the other side of the world from coordinates",
             status_code=status.HTTP_200_OK,
@@ -74,7 +74,7 @@ def get_place_other_side(lat: float = None, lon: float = None):
 
 
 # Get all the country and city names of the opposite side of the world from coordinates
-@app.get("/" + versionRoute + "/reversegeocoding",
+@app.get("/" + versionRoute + "/reversegeocoding/opposite",
             summary="Get all country and city names of the other side of the wolrd by coordinates",
             response_description="Returns the country and city names of the other side of the world from coordinates",
             status_code=status.HTTP_200_OK,
