@@ -47,9 +47,10 @@ def get_first_place(lat: float = None, lon: float = None):
     
     try:
         req = requests.get(base_url + "?lat=" + str(lat) + "&lon=" + str(lon), headers=headers)
-        return {"country": req.json()[0]["country"], "city": req.json()[0]["name"]}
+        req_json = req.json()
+        return {"country": req_json[0]["country"], "city": req.json()[0]["name"]}
     except:
-        raise HTTPException(404, "Not found")
+        raise HTTPException(404, "Location not found")
 
 
 # Get all the country and city names from coordinates
@@ -68,7 +69,7 @@ def get_all_places(lat: float = None, lon: float = None):
         req = requests.get(base_url + "?lat=" + str(lat) + "&lon=" + str(lon), headers=headers)
         return req.json()
     except:
-        raise HTTPException(404, "Not found")
+        raise HTTPException(404, "Location not found")
 
 
 # Get the first country and city name of the opposite side of the world from coordinates
@@ -86,9 +87,10 @@ def get_place_other_side(lat: float = None, lon: float = None):
     lat, lon = opposite_side(lat, lon)
     try:
         req = requests.get(base_url + "?lat=" + str(lat) + "&lon=" + str(lon), headers=headers)
-        return {"country": req.json()[0]["country"], "city": req.json()[0]["name"]}
+        req_json = req.json()
+        return {"country": req_json[0]["country"], "city": req_json[0]["name"]}
     except:
-        raise HTTPException(404, "Not found")
+        raise HTTPException(404, "Location not found")
 
 
 # Get all the country and city names of the opposite side of the world from coordinates
@@ -108,7 +110,7 @@ def get_all_places_other_side(lat: float = None, lon: float = None):
         req = requests.get(base_url + "?lat=" + str(lat) + "&lon=" + str(lon), headers=headers)
         return req.json()
     except:
-        raise HTTPException(404, "Not found")
+        raise HTTPException(404, "Location not found")
 
 
 # Auxiliary function to check for a valid latitude
