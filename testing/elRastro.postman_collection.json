@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "66f9f958-a9e2-47ae-ad64-eccb2857062a",
+		"_postman_id": "f63525ca-0a62-4130-ad72-535c09c5f8ef",
 		"name": "elRastro",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "31094444"
+		"_exporter_id": "30721845"
 	},
 	"item": [
 		{
@@ -685,6 +685,43 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get Products of bid's Product owner",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is ok\", ()=> pm.response.to.be.ok);\r",
+									"pm.test(\"Products array\", ()=> {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.be.a('array');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}:{{bid_port}}/{{api_version}}/bids/{{bid_id}}/products/",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{bid_port}}",
+							"path": [
+								"{{api_version}}",
+								"bids",
+								"{{bid_id}}",
+								"products",
+								""
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
@@ -770,7 +807,7 @@
 		},
 		{
 			"key": "bid_id",
-			"value": "654d2870735aff78c6c1be17"
+			"value": "654e8618bcc07417409b416c"
 		},
 		{
 			"key": "bid_product_id",
