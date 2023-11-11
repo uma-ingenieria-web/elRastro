@@ -298,8 +298,8 @@ def get_bid(id):
 # Get the products of a bid's owner
 @app.get(
     "/" + versionRoute + "/bids/{id_bid}/products/",
-    summary="List all products of a bid's owner",
-    response_description="Get all products of a bid's owner",
+    summary="List all products of bid's Product's owner",
+    response_description="Get all products of a user in which he's the owner of given bid id",
     response_model=List[Product],
     status_code=status.HTTP_200_OK,
     responses={400: errors.error_400, 422: errors.error_422, 404: errors.error_404},
