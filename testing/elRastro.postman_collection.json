@@ -236,7 +236,7 @@
 									"pm.test(\"Status code is ok\", ()=> pm.response.to.be.ok);",
 									"pm.test(\"Products array\", ()=> {",
 									"    const body = pm.response.json();",
-									"    pm.expect(body.users).to.be.a('array');",
+									"    pm.expect(body).to.be.a('array');",
 									"});"
 								],
 								"type": "text/javascript"
