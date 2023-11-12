@@ -243,7 +243,7 @@ def get_product(id):
         product = db.Product.find_one({"_id": ObjectId(id)})
         if product:
             return Product(**product)
-        raise HTTPException(404, "Bid not found")
+        raise HTTPException(404, "Product not found")
 
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
