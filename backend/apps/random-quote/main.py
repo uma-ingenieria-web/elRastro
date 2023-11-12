@@ -58,7 +58,9 @@ def get_quotes(amount: int = None):
         raise HTTPException(status_code=400, detail="Amount must be a number between 1-10, inclusive")
     
     try:
-        req = requests.get(base_url + "?limit=" + str(amount), headers=headers)
+        # Now getting more quotes is now a premium service
+        # req = requests.get(base_url + "?limit=" + str(amount), headers=headers)
+        req = requests.get(base_url + str(amount), headers=headers)
         quotes = []
         for i in range(amount):
             quotes.append(req.json()[i]["quote"])
