@@ -1,0 +1,825 @@
+{
+	"info": {
+		"_postman_id": "f63525ca-0a62-4130-ad72-535c09c5f8ef",
+		"name": "elRastro",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30721845"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "ListUsers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is ok\", ()=> pm.response.to.be.ok);\r",
+									"pm.test(\"Users array\", ()=> {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body.users).to.be.a('array');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}:{{user_port}}/{{api_version}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{user_port}}",
+							"path": [
+								"{{api_version}}",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is ok\", ()=> pm.response.to.be.ok);\r",
+									"pm.test(\"Users data\", ()=> {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body.username).to.be.eql(\"Javier Jordan\");\r",
+									"    pm.expect(body._id).to.be.eql(pm.collectionVariables.get(\"user_id\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}:{{user_port}}/{{api_version}}/user/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{user_port}}",
+							"path": [
+								"{{api_version}}",
+								"user",
+								"{{user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is created\", ()=> pm.expect(pm.response.code).to.be.eql(201));\r",
+									"pm.collectionVariables.set(\"new_user_id\", pm.response.json());"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"new_user_username\", \"pm_example\")"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"location\": {\r\n        \"lat\": 36.749058,\r\n        \"lon\": -4.51626\r\n    },\r\n    \"username\": \"{{new_user_username}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}:{{user_port}}/{{api_version}}/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{user_port}}",
+							"path": [
+								"{{api_version}}",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Username",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is created\", ()=> pm.expect(pm.response.code).to.be.eql(201));\r",
+									"pm.test(\"Users data is updated\", ()=> {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body.username).to.be.eql(pm.collectionVariables.get(\"new_user_username\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"new_user_username\", \"pm_example_new\")"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{new_user_username}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}:{{user_port}}/{{api_version}}/user/{{new_user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{user_port}}",
+							"path": [
+								"{{api_version}}",
+								"user",
+								"{{new_user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is no content\", ()=> pm.expect(pm.response.code).to.be.eql(204));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}:{{user_port}}/{{api_version}}/user/{{new_user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{user_port}}",
+							"path": [
+								"{{api_version}}",
+								"user",
+								"{{new_user_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get Related Products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is ok\", ()=> pm.response.to.be.ok);",
+									"pm.test(\"Products array\", ()=> {",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.be.a('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}:{{product_port}}/{{api_version}}/products/{{product_id}}/related",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{product_port}}",
+							"path": [
+								"{{api_version}}",
+								"products",
+								"{{product_id}}",
+								"related"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListProducts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is ok\", ()=> pm.response.to.be.ok);\r",
+									"pm.test(\"Products array\", ()=> {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.be.a('array');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}:{{product_port}}/{{api_version}}/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{product_port}}",
+							"path": [
+								"{{api_version}}",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is ok\", ()=> pm.response.to.be.ok);\r",
+									"pm.test(\"Product data\", ()=> {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body._id).to.be.eql(pm.collectionVariables.get(\"product_id\"));\r",
+									"    pm.expect(body.title).to.be.eql(\"Leather Wallet\");\r",
+									"    pm.expect(body.description).to.be.eql(\"Gently worn classic leather wallet – timeless style for a steal!\");\r",
+									"    pm.expect(body.initialPrice).to.be.eql(11.99);\r",
+									"    pm.expect(body.initialDate).to.be.eql(\"2023-11-09T19:27:38.794000\");\r",
+									"    pm.expect(body.closeDate).to.be.eql(\"2023-11-09T19:26:09.512000\");\r",
+									"    pm.expect(body.weight).to.be.eql(0.5);\r",
+									"    pm.expect(body.owner._id).to.be.eql(\"654b5d074da4bf53381f1ba1\");\r",
+									"    pm.expect(body.owner.username).to.be.eql(\"Guillermo Tell\");\r",
+									"    pm.expect(body.owner.location.lat).to.be.eql(-63.226512);\r",
+									"    pm.expect(body.owner.location.lon).to.be.eql(-12.83095);\r",
+									"    pm.expect(body.buyer).to.be.eql(null);\r",
+									"    pm.expect(body.bids).to.be.a('array');\r",
+									"    \r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}:{{product_port}}/{{api_version}}/products/{{product_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{product_port}}",
+							"path": [
+								"{{api_version}}",
+								"products",
+								"{{product_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"new_product_title\", \"pm_example\")\r",
+									"pm.collectionVariables.set(\"new_product_description\", \"pm_example\")\r",
+									"pm.collectionVariables.set(\"new_product_closeDate\", \"2023-11-09 19:52:08.492189\")"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is created\", ()=> pm.expect(pm.response.code).to.be.eql(201));\r",
+									"pm.collectionVariables.set(\"new_product_id\", pm.response.json()._id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"closeDate\": \"{{new_product_closeDate}}\",\r\n  \"description\": \"{{new_product_description}}\",\r\n  \"initialPrice\": 21.99,\r\n  \"title\": \"{{new_product_title}}\",\r\n  \"weight\": 0.5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}:{{product_port}}/{{api_version}}/products/{{owner_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{product_port}}",
+							"path": [
+								"{{api_version}}",
+								"products",
+								"{{owner_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"new_product_title\", \"pm_new_example\")\r",
+									"pm.collectionVariables.set(\"new_product_description\", \"pm_new_example\")"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is created\", ()=> pm.expect(pm.response.code).to.be.eql(200));\r",
+									"pm.test(\"Product data is updated\", ()=> {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body.title).to.be.eql(pm.collectionVariables.get(\"new_product_title\"));\r",
+									"    pm.expect(body.description).to.be.eql(pm.collectionVariables.get(\"new_product_description\"));\r",
+									"    pm.expect(body.initialPrice).to.be.eql(21.99);\r",
+									"    pm.expect(body.weight).to.be.eql(1.5);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"description\": \"{{new_product_description}}\",\r\n  \"initialPrice\": 21.99,\r\n  \"title\": \"{{new_product_title}}\",\r\n  \"weight\": 1.5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}:{{product_port}}/{{api_version}}/products/{{new_product_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{product_port}}",
+							"path": [
+								"{{api_version}}",
+								"products",
+								"{{new_product_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is no content\", ()=> pm.expect(pm.response.code).to.be.eql(204));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}:{{product_port}}/{{api_version}}/products/{{new_product_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{product_port}}",
+							"path": [
+								"{{api_version}}",
+								"products",
+								"{{new_product_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Bids",
+			"item": [
+				{
+					"name": "ListBids",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is ok\", ()=> pm.response.to.be.ok);\r",
+									"pm.test(\"Bids array\", ()=> {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.be.a('array');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}:{{bid_port}}/{{api_version}}/bids",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{bid_port}}",
+							"path": [
+								"{{api_version}}",
+								"bids"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Bid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is created\", ()=> pm.expect(pm.response.code).to.be.eql(201));\r",
+									"pm.collectionVariables.set(\"new_bid_id\", pm.response.json()._id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 500.8\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}:{{bid_port}}/{{api_version}}/bids/{{bid_product_id}}/{{bidder_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{bid_port}}",
+							"path": [
+								"{{api_version}}",
+								"bids",
+								"{{bid_product_id}}",
+								"{{bidder_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Bid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is ok\", ()=> pm.response.to.be.ok);\r",
+									"pm.test(\"Bid data\", ()=> {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body._id).to.be.eql(pm.collectionVariables.get(\"new_bid_id\"));\r",
+									"    pm.expect(body.amount).to.be.eql(500.8);\r",
+									"    pm.expect(body.product._id).to.be.eql(pm.collectionVariables.get(\"product_id\"));\r",
+									"    pm.expect(body.product.title).to.be.eql(\"Leather Wallet\");\r",
+									"    pm.expect(body.bidder._id).to.be.eql(pm.collectionVariables.get(\"bidder_id\"));\r",
+									"    pm.expect(body.bidder.username).to.be.eql(\"Javier Lanceta\");\r",
+									"    pm.expect(body.owner._id).to.be.eql(pm.collectionVariables.get(\"owner_id\"));\r",
+									"    pm.expect(body.owner.username).to.be.eql(\"Guillermo Tell\");\r",
+									"    \r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}:{{bid_port}}/{{api_version}}/bids/{{new_bid_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{bid_port}}",
+							"path": [
+								"{{api_version}}",
+								"bids",
+								"{{new_bid_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Bid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is created\", ()=> pm.expect(pm.response.code).to.be.eql(200));\r",
+									"pm.test(\"Bid data is updated\", ()=> {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body.amount).to.be.eql(200.8);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 200.8\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}:{{bid_port}}/{{api_version}}/bids/{{new_bid_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{bid_port}}",
+							"path": [
+								"{{api_version}}",
+								"bids",
+								"{{new_bid_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Bid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is no content\", ()=> pm.expect(pm.response.code).to.be.eql(204));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}:{{bid_port}}/{{api_version}}/bids/{{new_bid_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{bid_port}}",
+							"path": [
+								"{{api_version}}",
+								"bids",
+								"{{new_bid_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products of bid's Product owner",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is ok\", ()=> pm.response.to.be.ok);\r",
+									"pm.test(\"Products array\", ()=> {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.be.a('array');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}:{{bid_port}}/{{api_version}}/bids/{{bid_id}}/products/",
+							"host": [
+								"{{base_url}}"
+							],
+							"port": "{{bid_port}}",
+							"path": [
+								"{{api_version}}",
+								"bids",
+								"{{bid_id}}",
+								"products",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost"
+		},
+		{
+			"key": "user_port",
+			"value": "8000"
+		},
+		{
+			"key": "api_version",
+			"value": "api/v1"
+		},
+		{
+			"key": "user_id",
+			"value": "654b5c894da4bf53381f1b9f"
+		},
+		{
+			"key": "new_user_username",
+			"value": "pm_example",
+			"type": "string"
+		},
+		{
+			"key": "new_user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "product_port",
+			"value": "8002"
+		},
+		{
+			"key": "product_id",
+			"value": "654d249ed8d2421c3ace92a1"
+		},
+		{
+			"key": "owner_id",
+			"value": "654b5d074da4bf53381f1ba1"
+		},
+		{
+			"key": "new_product_title",
+			"value": ""
+		},
+		{
+			"key": "new_product_description",
+			"value": ""
+		},
+		{
+			"key": "new_product_closeDate",
+			"value": ""
+		},
+		{
+			"key": "new_product_id",
+			"value": ""
+		},
+		{
+			"key": "bid_port",
+			"value": "8001"
+		},
+		{
+			"key": "bid_id",
+			"value": "654e8618bcc07417409b416c"
+		},
+		{
+			"key": "bid_product_id",
+			"value": "654d249ed8d2421c3ace92a1"
+		},
+		{
+			"key": "bidder_id",
+			"value": "654b5d4a4da4bf53381f1ba3"
+		},
+		{
+			"key": "new_bid_id",
+			"value": ""
+		}
+	]
+}

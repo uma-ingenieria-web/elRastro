@@ -1,0 +1,68 @@
+version: "3.8"
+
+name: "el-rastro"
+
+services:
+  backend-micro-users:
+    container_name: backend-users
+    env_file:
+      - ./backend/apps/users/.env
+    build:
+      context: ./backend/apps/users/
+    ports:
+      - 8000:8000
+  backend-micro-bids:
+    container_name: backend-bids
+    env_file:
+      - ./backend/apps/bids/.env
+    build:
+      context: ./backend/apps/bids/
+    ports:
+      - 8001:8000
+  backend-micro-products:
+    container_name: backend-products
+    env_file:
+      - ./backend/apps/products/.env
+    build:
+      context: ./backend/apps/products/
+    ports:
+      - 8002:8000
+  backend-micro-image-storage:
+    container_name: backend-image-storage
+    env_file:
+      - ./backend/apps/image-storage/.env
+    build:
+      context: ./backend/apps/image-storage/
+    ports:
+      - 8003:8000
+  backend-micro-coord-place:
+    container_name: backend-coord-place
+    env_file:
+      - ./backend/apps/coord-place/.env
+    build:
+      context: ./backend/apps/coord-place/
+    ports:
+      - 8004:8000
+  backend-micro-random-quote:
+    container_name: backend-random-quote
+    env_file:
+      - ./backend/apps/random-quote/.env
+    build:
+      context: ./backend/apps/random-quote/
+    ports:
+      - 8005:8000
+  # backend-micro-carbon-footprint:
+  #   container_name: backend-carbon-footprint
+  #   env_file:
+  #     - ./backend/apps/carbon-footprint/.env
+  #   build:
+  #     context: ./backend/apps/carbon-footprint/
+  #   ports:
+  #     - 8005:8000
+  # frontend:
+  #   build:
+  #     context: ./frontend/el-rastro/
+  #   environment:
+  #     NODE_ENV: production
+  #   ports:
+  #     - 8080:3000

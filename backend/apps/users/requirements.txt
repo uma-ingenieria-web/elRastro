@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pymongo
+python-dotenv
+pydantic == 2.*
+cloudinary==1.36.0
