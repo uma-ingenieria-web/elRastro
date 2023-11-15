@@ -1,16 +1,9 @@
 import Image from 'next/image'
 
-export default function ProductMenu({
-  children,
-} : {
-  children: React.ReactNode
-}) {
+export default function ProductMenu() {
   return (
     <section>
     <h1>Products Menu</h1> 
-    <div>
-      {children}
-    </div>
    </section>
   )
 }
