@@ -51,6 +51,14 @@ services:
       context: ./backend/apps/random-quote/
     ports:
       - 8005:8000
+  backend-micro-messages:
+    container_name: backend-messages
+    env_file:
+      - ./backend/apps/messages/.env
+    build:
+      context: ./backend/apps/messages/
+    ports:
+      - 8006:8000
   # backend-micro-carbon-footprint:
   #   container_name: backend-carbon-footprint
   #   env_file:
