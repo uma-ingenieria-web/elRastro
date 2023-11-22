@@ -57,6 +57,7 @@ class UpdateProduct(BaseModel):
     description: Optional[str] = Field(default=None)
     initialPrice: Optional[float] = Field(default=None)
     weight: Optional[float] = Field(default=None)
+    buyer: Optional[Buyer] = Field(default=None)
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
@@ -66,6 +67,11 @@ class UpdateProduct(BaseModel):
                 "description": "description",
                 "initialPrice": 21.99,
                 "weight": 0.5,
+                "buyer": {
+                    "_id": "buyer_id",
+                    "username": "buyer_username",
+                    "location": {"lat": 0.0, "lon": 0.0},
+                },
             }
         },
     )

@@ -59,6 +59,14 @@ services:
       context: ./backend/apps/messages/
     ports:
       - 8006:8000
+  backend-micro-ratings:
+    container_name: backend-ratings
+    env_file:
+      - ./backend/apps/ratings/.env
+    build:
+      context: ./backend/apps/ratings/
+    ports:
+      - 8007:8000
   # backend-micro-carbon-footprint:
   #   container_name: backend-carbon-footprint
   #   env_file:
