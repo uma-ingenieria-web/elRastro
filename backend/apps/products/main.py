@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 from fastapi import FastAPI, HTTPException, Response, status, Query
 from dotenv import load_dotenv
@@ -117,6 +118,10 @@ def create_product(product: ProductBasicInfo, idOwner: str):
 
 # Auxiliary function to save a product
 def save_product(product: ProductBasicInfo, idOwner: str):
+    
+    if product["closeDate"] < datetime.now():
+        raise HTTPException(status_code=400, detail="Close date is in the past")
+    
     owner = db.User.find_one({"_id": ObjectId(idOwner)})
 
     if owner is None:
@@ -144,6 +149,29 @@ def save_product(product: ProductBasicInfo, idOwner: str):
 )
 def update_product(id: str, new_product: UpdateProduct):
     try:
+        
+        buyer = db.User.find_one({"_id": ObjectId(new_product.buyer.id)})
+        product = db.Product.find_one({"_id": ObjectId(id)})
+        
+        if buyer is None:
+            raise HTTPException(status_code=404, detail="Buyer not found")
+        
+        if new_product.buyer.location.lat != buyer["location"]["lat"] or new_product.buyer.location.lon != buyer["location"]["lon"]:
+            raise HTTPException(status_code=400, detail="Buyer location is not the same as the one stored in the database")
+        
+        if buyer["_id"] == product["owner"]["_id"]:
+            raise HTTPException(status_code=400, detail="Buyer can't be  the owner of the product")
+        
+        last_bid = db.Bid.find_one({"product._id": ObjectId(id)}, sort=[("timestamp", -1)])
+        
+        if last_bid is not None and last_bid["bidder"]["_id"] != buyer["_id"]:
+            raise HTTPException(status_code=400, detail="Buyer is not the last bidder of the product")
+        
+        if product["closeDate"] > datetime.now():
+            raise HTTPException(status_code=400, detail="Product is not closed yet")
+        
+        new_product.buyer.id = ObjectId(new_product.buyer.id)
+        
         if len(new_product.model_dump(by_alias=True, exclude={"id"})) >= 1:
             update_result = db.Product.find_one_and_update(
                 {"_id": ObjectId(id)},

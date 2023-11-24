@@ -51,6 +51,30 @@ services:
       context: ./backend/apps/random-quote/
     ports:
       - 8005:8000
+  backend-micro-messages:
+    container_name: backend-messages
+    env_file:
+      - ./backend/apps/messages/.env
+    build:
+      context: ./backend/apps/messages/
+    ports:
+      - 8006:8000
+  backend-micro-ratings:
+    container_name: backend-ratings
+    env_file:
+      - ./backend/apps/ratings/.env
+    build:
+      context: ./backend/apps/ratings/
+    ports:
+      - 8007:8000
+  backend-micro-chats:
+    container_name: backend-chats
+    env_file:
+      - ./backend/apps/chats/.env
+    build:
+      context: ./backend/apps/chats/
+    ports:
+      - 8008:8000
   # backend-micro-carbon-footprint:
   #   container_name: backend-carbon-footprint
   #   env_file:

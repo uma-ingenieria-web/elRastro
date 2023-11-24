@@ -3,6 +3,7 @@ from pydantic import BeforeValidator, BaseModel, ConfigDict, EmailStr, Field
 from typing_extensions import Annotated
 from typing import List, Optional
 import datetime
+from datetime import datetime
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
@@ -16,7 +17,7 @@ class UserBasicInfoCollection(BaseModel):
 class Product(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     title: str = Field(...)
-    closeDate: datetime.datetime = Field(...)
+    closeDate: datetime = Field(...)
     buyer: Optional[UserBasicInfo] = Field(None)
 
 class ProductId(BaseModel):
@@ -32,7 +33,7 @@ class ProductCollection(BaseModel):
 class Bid(BaseModel):
     id: str = Field(...)
     amount: float = Field(...)
-    timestamp: datetime.datetime = Field(...)
+    timestamp: datetime = Field(...)
     product: ProductBasicInfo = Field(...)
 
 class Location(BaseModel):
@@ -42,6 +43,8 @@ class Location(BaseModel):
 class Rating(BaseModel):
     value: float = Field(...)
     product: ProductId = Field(...)
+    timestamp: datetime = Field(...)
+    user: UserBasicInfo = Field(...)
 
 class User(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
@@ -67,6 +70,11 @@ class User(BaseModel):
                         "value": 5.0,
                         "product": {
                             "_id": "rating_product_id"
+                        },
+                        "timestamp": "rating_timestamp",
+                        "user": {
+                            "_id": "rating_user_id",
+                            "username": "rating_user_username"
                         }
                     }
                 ],
