@@ -16,11 +16,11 @@ export default async function ProfilePageId({ params }: { params: { id: string }
   if (process.env.NODE_ENV === 'development') {
     apiUrl = `http://localhost:8003/api/v1/photo/${id}`;
   } else {
-    apiUrl = `http://backend-micro/api/v1/photo/${id}`;
+    apiUrl = `http://backend-micro-image-storage/api/v1/photo/${id}`;
   }
 
   const result = await fetch(apiUrl);
-  const url = await result.json().then((data) => data);
+  const url = await result.json();
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <div className="bg-white rounded-lg shadow-lg p-8">
