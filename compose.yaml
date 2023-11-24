@@ -67,6 +67,14 @@ services:
       context: ./backend/apps/ratings/
     ports:
       - 8007:8000
+  backend-micro-chats:
+    container_name: backend-chats
+    env_file:
+      - ./backend/apps/chats/.env
+    build:
+      context: ./backend/apps/chats/
+    ports:
+      - 8008:8000
   # backend-micro-carbon-footprint:
   #   container_name: backend-carbon-footprint
   #   env_file:
