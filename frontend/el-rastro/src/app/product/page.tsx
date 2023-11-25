@@ -5,9 +5,9 @@ const OpenStreetMap = dynamic(() => import('../components/Map'), {
 
 export default function ProductMenu() {
   return (
-    <section>
-    <h1>Products Menu</h1> 
-    <OpenStreetMap />
-    </section>
+    <>
+      <h1>Products Menu</h1>
+      <OpenStreetMap />
+    </>
   )
 }
