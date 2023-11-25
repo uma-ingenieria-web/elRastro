@@ -173,13 +173,12 @@ def create_rating(product_id: str, user_id: str, rating: RatingBasicInfo):
 )
 def get_overall_rating(id: str):
     try:
-        
         pipeline = [
             {"$match": {"_id": ObjectId(id)}},
             {
                 "$project": {
                     "_id": 0,
-                    "ratings": 1,
+                    "ratings": {"$ifNull": ["$ratings", [{"value": 0}]]},
                 }
             },
             {"$unwind": "$ratings"},

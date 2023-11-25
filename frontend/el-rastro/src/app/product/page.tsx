@@ -12,9 +12,20 @@ if (process.env.NODE_ENV === "development") {
 }
 
 async function getProducts() {
-  const result = await fetch(apiUrl, { method: "GET" })
-  const products = await result.json()
-  return products
+  try {
+    const result = await fetch(apiUrl, { method: "GET" })
+    const products = await result.json()
+    return products
+  } catch (error) {
+    console.error("Error fetching products:", error)
+    return []
+  }
+}
+
+interface Owner {
+  id: string
+  username: string
+  image: string
 }
 
 interface Product {
@@ -26,21 +37,27 @@ interface Product {
   initialDate: Date
   closeDate: Date
   weight: number
+  owner: Owner
 }
 
 export default async function ProductMenu() {
   const products = await getProducts()
 
   return (
-    <section className="flex flex-col p-4 mt-12 justify-center">
+    <section className="flex flex-col p-4 mt-5 justify-center">
       <div className="flex items-center justify-center mb-10">
-        <h1 className="text-6xl font-bold">Products</h1>
+        <h1 className="text-6xl font-bold">Explore our products</h1>
       </div>
-      <section className="grid grid-cols-1 px-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 place-items-center place-content-center">
+      {/* Add a lateral hamburger menu to filter by my products or products i have bidded for */}
+      <div className="grid grid-cols-1 px-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 place-items-center place-content-center">
         {products.map((product: Product) => (
-          <ProductCard key={product.id} {...product} />
+          <ProductCard
+            image={"https://picsum.photos/800/400"}
+            key={product.id}
+            {...product}
+          />
         ))}
-      </section>
+      </div>
     </section>
   )
 }
