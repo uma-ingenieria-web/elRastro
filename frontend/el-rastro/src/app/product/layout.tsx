@@ -1,13 +1,16 @@
-export default function DashboardLayout({
-    children, // will be a page or nested layout
-  }: {
-    children: React.ReactNode
-  }) {
-    return (
-      <section>
-        {/* Include shared UI here e.g. a header or sidebar */}
-        <nav></nav>
+import Navbar from "../components/Navbar"
+
+export default function ProductLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <>
+      <Navbar />
+      <main>
         {children}
-      </section>
-    )
-  }
+      </main>
+    </>
+  )
+}
