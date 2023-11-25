@@ -14,11 +14,17 @@ if (process.env.NODE_ENV === "development") {
 
 async function getProducts() {
   try {
-    const result = await fetch(apiUrl, { method: "GET" })
+    const result = await fetch(apiUrl)
     const products = await result.json()
     return products
-  } catch (error) {
-    console.error("Error fetching products:", error)
+  } catch (error: any) {
+    if (error.cause?.code === "ECONNREFUSED") {
+      console.error(
+        "Error connecting to backend API. Is backend service working?"
+      )
+      return []
+    }
+    console.error("Error fetching products:", error.message)
     return []
   }
 }
@@ -49,7 +55,7 @@ export default async function ProductMenu() {
       <Filter />
       <section className="flex flex-col p-4 mt-5 justify-center">
         <div className="flex items-center justify-center mb-10">
-          <h1 className="text-6xl font-bold">Explore our products</h1>
+          <h1 className="text-4xl font-bold">Explore our products</h1>
         </div>
 
         <div className="grid grid-cols-1 px-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 place-items-center place-content-center">
