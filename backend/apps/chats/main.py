@@ -43,9 +43,23 @@ async def get_chats(page: int = Query(1, ge=1), page_size: int = Query(10, le=20
     messages = db.Chat.find(None).skip(skip).limit(page_size)
     
     return list(messages)
-    
 
 @app.get("/" + versionRoute + "/chat/{id}",
+         summary="Get the chat given by id",
+         response_description="The chat given by id",
+         response_model=Chat,
+         status_code=status.HTTP_200_OK,
+         responses={400: errors.error_400, 404: errors.error_404, 422: errors.error_422},
+         tags=["Chat"])
+async def get_chat(id: str):
+    chat = db.Chat.find_one({"_id": ObjectId(id)})
+    if chat is None:
+        raise HTTPException(status_code=404, detail=f"Chat could not be found")
+
+    return Chat(**chat)
+    
+
+@app.get("/" + versionRoute + "/chat/{id}/messages",
          summary="Get the conversation from the chat given id sorted by timestamp",
          response_description="The conversation from the given chat id sorted by timestamp",
          response_model=List[Message],
