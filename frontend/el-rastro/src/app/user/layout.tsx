@@ -1,3 +1,5 @@
+import Navbar from "../components/Navbar"
+
 export default function DashboardLayout({
     children, // will be a page or nested layout
   }: {
@@ -5,11 +7,11 @@ export default function DashboardLayout({
   }) {
     return (
       <>
-        <nav></nav>
-        <section>
+        <Navbar />
+        <main>
           {/* Include shared UI here e.g. a header or sidebar */}
           {children}
-        </section>
+        </main>
       </>
     )
   }
