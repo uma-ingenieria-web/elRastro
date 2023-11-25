@@ -6,6 +6,7 @@ from pymongo.mongo_client import MongoClient
 from bidModel import Bid, UpdateBid, BidBasicInfo
 from productModel import Product
 from bson import ObjectId
+from fastapi.middleware.cors import CORSMiddleware
 from bson.errors import InvalidId
 import errors
 import re
@@ -25,6 +26,19 @@ client = MongoClient(uri)
 db = client.elRastro
 
 versionRoute = "api/v1"
+
+origins = [
+    "http://localhost:3000",
+    "http://frontend:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
