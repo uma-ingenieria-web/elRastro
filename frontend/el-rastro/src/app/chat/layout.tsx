@@ -1,4 +1,3 @@
-import Navbar from "../components/Navbar"
 
 export default function ChatLayout({
   children,
@@ -7,7 +6,6 @@ export default function ChatLayout({
 }) {
   return (
     <>
-      <Navbar />
       <main>
         {children}
       </main>

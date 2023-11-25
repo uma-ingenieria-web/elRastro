@@ -1,4 +1,3 @@
-import Navbar from "../components/Navbar"
 
 export default function ProductLayout({
   children,
@@ -7,7 +6,6 @@ export default function ProductLayout({
 }) {
   return (
     <>
-      <Navbar />
       <main>
         {children}
       </main>

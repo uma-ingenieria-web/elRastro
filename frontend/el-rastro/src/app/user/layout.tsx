@@ -1,5 +1,3 @@
-import Navbar from "../components/Navbar"
-
 export default function UserLayout({
     children,
   }: {
@@ -7,7 +5,6 @@ export default function UserLayout({
   }) {
     return (
       <>
-        <Navbar />
         <main>
           {/* Include shared UI here e.g. a header or sidebar */}
           {children}
