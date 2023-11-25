@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState } from "react"
-import Product from '../product/[id]/page';
 
 function Filter() {
   const [isDropdownOpen, setDropdownOpen] = useState(false)
@@ -17,9 +16,9 @@ function Filter() {
 
   return (
     <>
-      <div className="text-center">
+      <div className="fixed top-3 left-3 text-center">
         <button
-          className="fixed top-3 left-3 bg-blue-500 text-white active:bg-blue-800 font-bold uppercase text-sm px-6 py-3 rounded-full shadow-md hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150"
+          className="bg-blue-500 text-white active:bg-blue-800 font-bold uppercase text-sm px-6 py-3 rounded-full shadow-md hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150"
           type="button"
           data-drawer-target="drawer-navigation"
           data-drawer-show="drawer-navigation"
