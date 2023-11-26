@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Response, status, Query
 from dotenv import load_dotenv
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
-from productModel import Product, ProductBasicInfo, ProductUserInfo, UpdateProduct
+from productModel import Product, ProductBasicInfo, ProductUserInfo, ProductsResponse, UpdateProduct
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi.middleware.cors import CORSMiddleware
@@ -65,10 +65,12 @@ def get_products(
 ):
     filter_params = {}
 
-    if minPrice is not None:
-        filter_params["initialPrice"] = {"$gte": minPrice}
-    if maxPrice is not None:
-        filter_params.setdefault("initialPrice", {})["$lte"] = maxPrice
+    if minPrice is not None or maxPrice is not None:
+        filter_params["bids"] = {"$exists": True, "$not": {"$size": 0}}
+        if minPrice is not None:
+            filter_params["bids"]["$elemMatch"] = {"amount": {"$gte": minPrice}}
+        if maxPrice is not None:
+            filter_params["bids"]["$elemMatch"] = {"amount": {"$lte": maxPrice}}
     if username:
         regex_pattern = re.compile(f".*{re.escape(username)}.*", re.IGNORECASE)
         filter_params["owner.username"] = {"$regex": regex_pattern}
@@ -132,13 +134,14 @@ def create_product(product: ProductBasicInfo, idOwner: str):
 
 # Auxiliary function to save a product
 def save_product(product: ProductBasicInfo, idOwner: str):
-    
     if product["closeDate"] < datetime.now():
         raise HTTPException(status_code=400, detail="Close date is in the past")
-    
+
     if product["closeDate"] < datetime.now() + timedelta(days=5):
-        raise HTTPException(status_code=400, detail="Close date is less than 5 days from now")
-    
+        raise HTTPException(
+            status_code=400, detail="Close date is less than 5 days from now"
+        )
+
     owner = db.User.find_one({"_id": ObjectId(idOwner)})
 
     if owner is None:
@@ -166,29 +169,40 @@ def save_product(product: ProductBasicInfo, idOwner: str):
 )
 def update_product(id: str, new_product: UpdateProduct):
     try:
-        
         buyer = db.User.find_one({"_id": ObjectId(new_product.buyer.id)})
         product = db.Product.find_one({"_id": ObjectId(id)})
-        
+
         if buyer is None:
             raise HTTPException(status_code=404, detail="Buyer not found")
-        
-        if new_product.buyer.location.lat != buyer["location"]["lat"] or new_product.buyer.location.lon != buyer["location"]["lon"]:
-            raise HTTPException(status_code=400, detail="Buyer location is not the same as the one stored in the database")
-        
+
+        if (
+            new_product.buyer.location.lat != buyer["location"]["lat"]
+            or new_product.buyer.location.lon != buyer["location"]["lon"]
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Buyer location is not the same as the one stored in the database",
+            )
+
         if buyer["_id"] == product["owner"]["_id"]:
-            raise HTTPException(status_code=400, detail="Buyer can't be  the owner of the product")
-        
-        last_bid = db.Bid.find_one({"product._id": ObjectId(id)}, sort=[("timestamp", -1)])
-        
+            raise HTTPException(
+                status_code=400, detail="Buyer can't be  the owner of the product"
+            )
+
+        last_bid = db.Bid.find_one(
+            {"product._id": ObjectId(id)}, sort=[("timestamp", -1)]
+        )
+
         if last_bid is not None and last_bid["bidder"]["_id"] != buyer["_id"]:
-            raise HTTPException(status_code=400, detail="Buyer is not the last bidder of the product")
-        
+            raise HTTPException(
+                status_code=400, detail="Buyer is not the last bidder of the product"
+            )
+
         if product["closeDate"] > datetime.now():
             raise HTTPException(status_code=400, detail="Product is not closed yet")
-        
+
         new_product.buyer.id = ObjectId(new_product.buyer.id)
-        
+
         if len(new_product.model_dump(by_alias=True, exclude={"id"})) >= 1:
             update_result = db.Product.find_one_and_update(
                 {"_id": ObjectId(id)},
@@ -311,5 +325,40 @@ def get_related_products(id: str):
         if user_products is None:
             return []
         return user_products["products"]
+    except InvalidId as e:
+        raise HTTPException(status_code=400, detail="Invalid ObjectId format")
+
+
+# Get the products that the user has bid on divided if the user has won or not or if the product is still open
+@app.get(
+    "/" + versionRoute + "/products/bids/{id}",
+    summary="Get the products that the user has bid on divided if the user has won or not or if the product is still open",
+    response_description="List of products that the user has bid on divided if the user has won or not or if the product is still open",
+    response_model=ProductsResponse,
+    responses={400: errors.error_400, 422: errors.error_422},
+)
+def get_products_bids(id: str):
+    try:
+        products = {"open": [], "won": [], "lost": []}
+        user = db.User.find_one({"_id": ObjectId(id)})
+        if user is None:
+            return products
+        for bid in user["bids"]:
+            product = db.Product.find_one({"_id": ObjectId(bid["product"]["_id"])})
+
+            if product["closeDate"] > datetime.now():
+                products["open"].append(product)
+            elif (
+                "buyer" in product
+                and product["buyer"] is not None
+                and str(product["buyer"]["_id"])
+                == str(user["_id"])
+            ):
+                products["won"].append(product)
+            else:
+                products["lost"].append(product)
+
+        return products
+
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")

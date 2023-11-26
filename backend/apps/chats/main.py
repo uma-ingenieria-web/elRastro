@@ -71,6 +71,27 @@ async def get_chat(id: str):
         raise HTTPException(status_code=404, detail=f"Chat could not be found")
 
     return Chat(**chat)
+
+@app.get("/" + versionRoute + "/myChats/{user_id}",
+         summary="Get the chats from the given user id",
+         response_description="The chats from the given user id",
+         response_model=List[Chat],
+         status_code=status.HTTP_200_OK,
+         responses={400: errors.error_400, 404: errors.error_404, 422: errors.error_422},
+         tags=["Chat"])
+async def get_myChats(user_id: str):
+    user = db.User.find_one({"_id": ObjectId(user_id)})
+    if user is None:
+        raise HTTPException(status_code=404, detail=f"User could not be found")
+
+    chats = db.Chat.find({
+        "$or": [
+            {"vendor._id": user["_id"]},
+            {"interested._id": user["_id"]}
+        ]
+    })
+
+    return list(chats)
     
 
 @app.get("/" + versionRoute + "/chat/{id}/messages",
