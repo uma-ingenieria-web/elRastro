@@ -75,6 +75,14 @@ services:
       context: ./backend/apps/chats/
     ports:
       - 8008:8000
+  backend-micro-auth:
+    container_name: backend-auth
+    env_file:
+      - ./backend/apps/auth/.env
+    build:
+      context: ./backend/apps/auth/
+    ports:
+      - 8009:8000
   # backend-micro-carbon-footprint:
   #   container_name: backend-carbon-footprint
   #   env_file:

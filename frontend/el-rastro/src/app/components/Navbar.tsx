@@ -27,9 +27,9 @@ const Navbar = () => {
                             <NavbarItem pathName="/chat" name="Chats" />
                             {session?.user ? (
                                 <div className="flex gap-x-2 items-center">
-                                    <Link href="/user/profile" className="text-black border-gray-800">
+                                    <Link href={`/user/profile/${(session.user as any).id}`} className="text-black border-gray-800">
                                         <button className="bg-gray-200 px-3 py-2 rounded text-black hover:bg-gray-300">
-                                            My profile
+                                            My profile - {session.user.name}
                                         </button>
                                     </Link>
                                     <button

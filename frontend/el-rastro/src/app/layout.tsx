@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.css" rel="stylesheet" />
-        </head>
+      </head>
       <body className={inter.className}>
         <Providers>
           <Navbar />

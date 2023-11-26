@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pymongo
+python-dotenv
+pydantic == 2.*
+PyJWT==2.8.0
