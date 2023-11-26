@@ -1,4 +1,3 @@
-
 export default function ProductLayout({
   children,
 }: {
@@ -6,8 +5,8 @@ export default function ProductLayout({
 }) {
   return (
     <>
-      <main className="bg-gradient-to-tr from-white to-slate-200">
-          {children}
+      <main className="bg-gradient-to-tr from-white to-slate-200 min-h-screen">
+        {children}
       </main>
     </>
   )
