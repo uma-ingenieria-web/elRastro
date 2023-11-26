@@ -45,7 +45,7 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
     try {
       let chatInfoURL = ""
       if (process.env.NODE_ENV === "development") {
-        chatInfoURL = `http://localhost:8008/api/v1/chat/${id}`
+        chatInfoURL = `http://localhost:8006/api/v1/chat/${id}`
       } else {
         chatInfoURL = `http://backend-micro-chats/api/v1/chat/${id}`
       }
@@ -55,7 +55,7 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
 
       let messagesInfoURL = ""
       if (process.env.NODE_ENV === "development") {
-        messagesInfoURL = `http://localhost:8008/api/v1/chat/${id}/messages`
+        messagesInfoURL = `http://localhost:8006/api/v1/chat/${id}/messages`
       } else {
         messagesInfoURL = `http://backend-micro-chats/api/v1/chat/${id}/messages`
       }
@@ -91,7 +91,7 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
 
       let sendMessageURL = ""
       if (process.env.NODE_ENV === "development") {
-        sendMessageURL = `http://localhost:8008/api/v1/chat/${id}/send?origin_id=${chatInfo?.vendor._id}`
+        sendMessageURL = `http://localhost:8006/api/v1/chat/${id}/send?origin_id=${chatInfo?.vendor._id}`
       } else {
         sendMessageURL = `http://backend-micro-chats/api/v1/chat/${id}/send?origin_id=${chatInfo?.vendor._id}`
       }

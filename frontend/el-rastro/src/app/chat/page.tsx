@@ -41,7 +41,7 @@ const ChatPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const chatsResponse = await fetch(`http://localhost:8008/api/v1/myChats/${userId}`);
+        const chatsResponse = await fetch(`http://localhost:8006/api/v1/myChats/${userId}`);
         const chatsData = await chatsResponse.json();
 
         // Obtener información adicional para cada chat
@@ -53,7 +53,7 @@ const ChatPage = () => {
             const userResponse = await fetch(`http://localhost:8000/api/v1/user/${chat.vendor._id}`);
             const userData = await userResponse.json();
 
-            const messagesResponse = await fetch(`http://localhost:8008/api/v1/chat/${chat._id}/messages`);
+            const messagesResponse = await fetch(`http://localhost:8006/api/v1/chat/${chat._id}/messages`);
             const messagesData = await messagesResponse.json();
             const lastMessage = messagesData[messagesData.length - 1];
 
