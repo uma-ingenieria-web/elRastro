@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic"
 import ProductCard from "../components/ProductCard"
 import Filter from "../components/Filter"
+
 const OpenStreetMap = dynamic(() => import("../components/Map"), {
   ssr: false,
 })
@@ -29,10 +30,16 @@ async function getProducts() {
   }
 }
 
-interface Owner {
+interface User {
   id: string
   username: string
   image: string
+}
+
+interface Bid {
+  id: string
+  amount: number
+  bidder: User
 }
 
 interface Product {
@@ -44,7 +51,8 @@ interface Product {
   initialDate: Date
   closeDate: Date
   weight: number
-  owner: Owner
+  owner: User
+  bids: Bid[]
 }
 
 export default async function ProductMenu() {

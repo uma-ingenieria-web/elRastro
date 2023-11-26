@@ -3,10 +3,16 @@
 import Link from "next/link"
 import React, { useState } from "react"
 
-interface Owner {
+interface User {
   id: string
   username: string
   image: string
+}
+
+interface Bid {
+  id: string
+  amount: number
+  bidder: User
 }
 
 interface Product {
@@ -18,8 +24,9 @@ interface Product {
   initialDate: Date
   closeDate: Date
   weight: number
+  owner: User
+  bids: Bid[]
   image: string
-  owner: Owner
 }
 
 function ProductCard(product: Product) {
@@ -91,7 +98,7 @@ function ProductCard(product: Product) {
         </div>
         <div className="flex justify-between items-end mt-3">
           <div className="text-3xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-            {product.initialPrice}€
+            {product.bids.length == 0 ? product.initialPrice : product.bids[product.bids.length - 1].amount}€
           </div>
           <div className="ml-4">
             {closed ? (
