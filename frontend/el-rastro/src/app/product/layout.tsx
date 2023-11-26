@@ -6,8 +6,8 @@ export default function ProductLayout({
 }) {
   return (
     <>
-      <main>
-        {children}
+      <main className="bg-gradient-to-tr from-white to-slate-200">
+          {children}
       </main>
     </>
   )

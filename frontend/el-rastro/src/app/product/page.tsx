@@ -53,9 +53,9 @@ export default async function ProductMenu() {
   return (
     <div className="flex">
       <Filter />
-      <section className="flex flex-col p-4 mt-5 justify-center">
+      <section className="flex flex-col p-4 mt-5 justify-center text-center">
         <div className="flex items-center justify-center mb-10">
-          <h1 className="text-4xl font-bold">Explore our products</h1>
+          <h1 className="text-4xl font-bold text-black">Explore our products</h1>
         </div>
 
         <div className="grid grid-cols-1 px-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 place-items-center place-content-center">
