@@ -15,8 +15,8 @@ function Filter() {
   }
 
   return (
-    <>
-      <div className="fixed top-3 left-3 text-center">
+    <div>
+      <div className="fixed z-10 top-3 left-3 text-center">
         <button
           className="bg-blue-500 text-white active:bg-blue-800 font-bold uppercase text-sm px-6 py-3 rounded-full shadow-md hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150"
           type="button"
@@ -149,7 +149,7 @@ function Filter() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
