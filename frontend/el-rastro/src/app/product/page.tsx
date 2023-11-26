@@ -17,9 +17,19 @@ if (process.env.NODE_ENV === "development") {
   apiUrl = `http://backend-micro-products/api/v1/products`
 }
 
-async function getProducts() {
+async function getProducts(
+  orderInitialDate: number,
+  orderCloseDate: number,
+  minPrice: number,
+  maxPrice: number,
+  title: string,
+  owner: string
+) {
   try {
-    const result = await fetch(apiUrl)
+    const result = await fetch(
+      apiUrl +
+        `?orderInitialDate=${orderInitialDate}&orderCloseDate=${orderCloseDate}&minPrice=${minPrice}&maxPrice=${maxPrice}&title=${title}&username=${owner}`
+    )
     const products = await result.json()
     return products
   } catch (error: any) {
@@ -63,12 +73,22 @@ export default function ProductMenu() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
 
-  // const algo = useContext(FilterContext)
+  const { activeMinPrice, activeMaxPrice, activeTitle, owner, orderCloseDate, orderInitialDate } =
+    useContext(FilterContext)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const products = await getProducts()
+        const products = await getProducts(
+          orderInitialDate,
+          orderCloseDate,
+          activeMinPrice,
+          activeMaxPrice,
+          activeTitle,
+          owner
+        )
+        console.log(apiUrl +
+          `?orderInitialDate=${orderInitialDate}&orderCloseDate=${orderCloseDate}&minPrice=${activeMinPrice}&maxPrice=${activeMaxPrice}&title=${activeTitle}&username=${owner}`)
         setProducts(products)
         setLoading(false)
       } finally {
@@ -76,14 +96,16 @@ export default function ProductMenu() {
       }
     }
     fetchData()
-  }, [])
+  }, [activeMinPrice, activeMaxPrice, activeTitle, owner, orderCloseDate, orderInitialDate])
 
   return (
     <div className="flex h-full flex-col items-center justify-center">
       {loading ? (
         <div className="h-[100vh] flex flex-col items-center justify-center">
           <h2 className="text-3xl font-bold text-black">Loading products...</h2>
-          <h3 className="text-2xl font-semibold dark:text-gray-400 text-black">Hang on there...</h3>
+          <h3 className="text-2xl font-semibold dark:text-gray-400 text-black">
+            Hang on there...
+          </h3>
 
           <div className="flex items-center justify-center w-32 h-32 border border-gray-200 rounded-full bg-gray-50 dark:bg-gray-800 dark:border-gray-700 mt-4">
             <div role="status">

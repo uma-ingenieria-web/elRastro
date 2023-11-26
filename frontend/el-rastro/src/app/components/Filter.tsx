@@ -1,10 +1,24 @@
 "use client"
 
-import React, { useState } from "react"
+import { FilterContext } from "@/context/FilterContext"
+import React, { useContext, useState } from "react"
 
 function Filter() {
   const [isDropdownOpen, setDropdownOpen] = useState(false)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
+
+  const {
+    minPrice,
+    maxPrice,
+    title,
+    setOwner,
+    orderCloseDate,
+    orderInitialDate,
+    handleTitleChange,
+    handleMinPriceChange,
+    handleMaxPriceChange,
+    handleActiveFilters
+  } = useContext(FilterContext)
 
   const toggleDrawer = () => {
     setDrawerOpen(!isDrawerOpen)
@@ -12,6 +26,11 @@ function Filter() {
 
   const toggleDropdown = () => {
     setDropdownOpen(!isDropdownOpen)
+  }
+
+  const applyFilters = (e : React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    handleActiveFilters(e)
+    toggleDrawer()
   }
 
   return (
@@ -41,7 +60,7 @@ function Filter() {
           id="drawer-navigation-label"
           className="text-base font-semibold text-gray-500 uppercase dark:text-gray-400"
         >
-          Menu
+          Filters
         </h5>
         <button
           type="button"
@@ -67,7 +86,63 @@ function Filter() {
         </button>
         <div className="py-4 overflow-y-auto">
           <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
+            {maxPrice != 0 && maxPrice != 0 && maxPrice < minPrice && (
+              <div
+                className="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+                role="alert"
+              >
+                <svg
+                  className="flex-shrink-0 inline w-4 h-4 me-3"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                </svg>
+                <span className="sr-only">Info</span>
+                <div>
+                  <span className="font-medium">
+                    Max price should be greater than min price
+                  </span>
+                </div>
+              </div>
+            )}
             <ul className="space-y-2 font-medium">
+              <li>
+                <span className="ml-[0.2rem] flex-1 text-left rtl:text-right whitespace-nowrap text-black">
+                  Look for products
+                </span>
+                <div className="flex flex-col items-center mt-2">
+                  <div className="relative w-full">
+                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                      <svg
+                        className="w-6 h-6 text-gray-800 dark:text-white"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      id="simple-search"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      placeholder="Search..."
+                      value={title}
+                      onChange={handleTitleChange}
+                    />
+                  </div>
+                </div>
+              </li>
               <li>
                 <button
                   type="button"
@@ -101,49 +176,91 @@ function Filter() {
                   } py-2 space-y-2`}
                 >
                   <li>
-                    <a
-                      href="#"
-                      className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                    >
+                    <p className="cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                       My products
-                    </a>
+                    </p>
                   </li>
                   <li>
-                    <a
-                      href="#"
-                      className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                    >
+                    <p className="cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                       My bids
-                    </a>
+                    </p>
                   </li>
                   <li>
-                    <a
-                      href="#"
-                      className="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                    >
+                    <p className="cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                       Products Won
-                    </a>
+                    </p>
                   </li>
                 </ul>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-                >
+                <div className="flex flex-row align-middle mt-5 items-center">
                   <svg
-                    className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                    className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
-                    viewBox="0 0 18 20"
+                    viewBox="0 0 18 21"
                   >
-                    <path d="M17 5.923A1 1 0 0 0 16 5h-3V4a4 4 0 1 0-8 0v1H2a1 1 0 0 0-1 .923L.086 17.846A2 2 0 0 0 2.08 20h13.84a2 2 0 0 0 1.994-2.153L17 5.923ZM7 9a1 1 0 0 1-2 0V7h2v2Zm0-5a2 2 0 1 1 4 0v1H7V4Zm6 5a1 1 0 1 1-2 0V7h2v2Z" />
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13.583 5.445h.01M8.86 16.71l-6.573-6.63a.993.993 0 0 1 0-1.4l7.329-7.394A.98.98 0 0 1 10.31 1l5.734.007A1.968 1.968 0 0 1 18 2.983v5.5a.994.994 0 0 1-.316.727l-7.439 7.5a.975.975 0 0 1-1.385.001Z"
+                    />
                   </svg>
-                  <span className="flex-1 ms-3 whitespace-nowrap">
-                    Products
+                  <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap text-black">
+                    Filter by price
                   </span>
-                </a>
+                </div>
+                <div className="flex flex-col space-y-1 mt-3 ml-6">
+                  <div className="flex flex-col">
+                    <span className="text-black text-left">Max price</span>
+                    <input
+                      type="money"
+                      placeholder="Max price"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 text-right"
+                      value={maxPrice == 0 ? "" : maxPrice}
+                      onChange={handleMaxPriceChange}
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-black text-left">Min price</span>
+                    <input
+                      type="money"
+                      placeholder="Min price"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 text-right"
+                      value={minPrice == 0 ? "" : minPrice}
+                      onChange={handleMinPriceChange}
+                    />
+                  </div>
+                </div>
+              </li>
+              <li className="mr-2 -ml-2">
+                <button
+                  type="button"
+                  onClick={applyFilters}
+                  className="mt-6 flex flex-row justify-between w-full p-2.5 ms-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                    />
+                  </svg>
+                  <span className="text-white font-bold text-lg">
+                    Apply filters
+                  </span>
+                </button>
               </li>
             </ul>
           </div>
