@@ -159,17 +159,17 @@ class ProductUserInfo(BaseModel):
 
 
 class ProductsResponse(BaseModel):
-    open: List[Product]
-    won: List[Product]
-    lost: List[Product]
+    open: list[Product]
+    won: list[Product]
+    lost: list[Product]
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
         json_schema_extra={
             "example": {
-                "open": "products open",
-                "won": "products won",
-                "lost": "products lost",
+                "open": "products_open",
+                "won": "products_won",
+                "lost": "products_lost",
             }
         },
     )

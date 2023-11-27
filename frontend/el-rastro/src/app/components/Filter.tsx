@@ -17,7 +17,8 @@ function Filter() {
     handleTitleChange,
     handleMinPriceChange,
     handleMaxPriceChange,
-    handleActiveFilters
+    handleActiveFilters,
+    handleClearFilters,
   } = useContext(FilterContext)
 
   const toggleDrawer = () => {
@@ -28,8 +29,13 @@ function Filter() {
     setDropdownOpen(!isDropdownOpen)
   }
 
-  const applyFilters = (e : React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const applyFilters = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     handleActiveFilters(e)
+    toggleDrawer()
+  }
+
+  const clearFilters = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    handleClearFilters()
     toggleDrawer()
   }
 
@@ -37,14 +43,25 @@ function Filter() {
     <div>
       <div className="fixed z-10 top-3 left-3 text-center">
         <button
-          className="bg-blue-500 text-white active:bg-blue-800 font-bold uppercase text-sm px-6 py-3 rounded-full shadow-md hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150"
+          className="bg-blue-500 text-white active:bg-blue-800 font-semibold uppercase text-sm px-6 py-3 rounded-full shadow-md hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150"
           type="button"
           data-drawer-target="drawer-navigation"
           data-drawer-show="drawer-navigation"
           aria-controls="drawer-navigation"
           onClick={toggleDrawer}
         >
-          Show Filters
+          <div className="flex flex-row items-center align-middle">
+            <svg
+              className="w-6 h-6 text-gray-800 dark:text-white sm:mr-3 mr-0"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 18"
+            >
+              <path d="M18.85 1.1A1.99 1.99 0 0 0 17.063 0H2.937a2 2 0 0 0-1.566 3.242L6.99 9.868 7 14a1 1 0 0 0 .4.8l4 3A1 1 0 0 0 13 17l.01-7.134 5.66-6.676a1.99 1.99 0 0 0 .18-2.09Z" />
+            </svg>
+            <span className="hidden sm:inline">Show Filters</span>
+          </div>
         </button>
       </div>
 
@@ -259,6 +276,32 @@ function Filter() {
                   </svg>
                   <span className="text-white font-bold text-lg">
                     Apply filters
+                  </span>
+                </button>
+              </li>
+              <li className="mr-2 -ml-2">
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="mt-6 flex flex-row justify-between w-full p-2.5 ms-2 text-sm font-medium text-white bg-red-700 rounded-lg border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                >
+                  <svg
+                    className="w-6 h-6 text-white-800 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 16 14"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 7 1 4l3-3m0 12h6.5a4.5 4.5 0 1 0 0-9H2"
+                    />
+                  </svg>
+                  <span className="text-white font-bold text-lg">
+                    Clear filter
                   </span>
                 </button>
               </li>

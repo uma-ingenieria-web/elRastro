@@ -27,6 +27,7 @@ export const FilterContext = createContext({
   handleActiveFilters: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {},
+  handleClearFilters: () => {},
 })
 
 export const FilterContextProvider = ({
@@ -67,13 +68,27 @@ export const FilterContextProvider = ({
   ) => {
     if (minPrice > 0) {
       setActiveMinPrice(minPrice)
+    } else {
+      setActiveMinPrice(Number.MIN_SAFE_INTEGER)
     }
+
     if (maxPrice > 0) {
       setActiveMaxPrice(maxPrice)
+    } else {
+      setActiveMaxPrice(Number.MAX_SAFE_INTEGER)
     }
-    if (title.length > 0) {
-      setActiveTitle(title)
-    }
+    setActiveTitle(title)
+  }
+
+  const handleClearFilters = () => {
+    setMinPrice(0)
+    setMaxPrice(0)
+    setTitle("")
+    setOrderInitialDate(-1)
+    setOrderCloseDate(-1)
+    setActiveMinPrice(Number.MIN_SAFE_INTEGER)
+    setActiveMaxPrice(Number.MAX_SAFE_INTEGER)
+    setActiveTitle("")
   }
 
   // TODO: implement
@@ -120,6 +135,7 @@ export const FilterContextProvider = ({
         handleMinPriceChange,
         handleMaxPriceChange,
         handleActiveFilters,
+        handleClearFilters,
       }}
     >
       {children}

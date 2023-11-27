@@ -4,7 +4,13 @@ from fastapi import FastAPI, HTTPException, Response, status, Query
 from dotenv import load_dotenv
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
-from productModel import Product, ProductBasicInfo, ProductUserInfo, ProductsResponse, UpdateProduct
+from productModel import (
+    Product,
+    ProductBasicInfo,
+    ProductUserInfo,
+    ProductsResponse,
+    UpdateProduct,
+)
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi.middleware.cors import CORSMiddleware
@@ -66,11 +72,24 @@ def get_products(
     filter_params = {}
 
     if minPrice is not None or maxPrice is not None:
-        filter_params["bids"] = {"$exists": True, "$not": {"$size": 0}}
+        price_conditions = {}
+
         if minPrice is not None:
-            filter_params["bids"]["$elemMatch"] = {"amount": {"$gte": minPrice}}
+            price_conditions["$gte"] = minPrice
+
         if maxPrice is not None:
-            filter_params["bids"]["$elemMatch"] = {"amount": {"$lte": maxPrice}}
+            price_conditions["$lte"] = maxPrice
+
+        filter_params["$or"] = [
+            {"bids": {"$exists": False}},  # No bids
+            {
+                "$and": [
+                    {"bids": {"$elemMatch": {"amount": price_conditions}}},
+                    {"bids": {"$not": {"$size": 0}}},
+                ]
+            },  # Bids with amount conditions
+            {"bids": {"$size": 0}, "initialPrice": price_conditions},
+        ]
     if username:
         regex_pattern = re.compile(f".*{re.escape(username)}.*", re.IGNORECASE)
         filter_params["owner.username"] = {"$regex": regex_pattern}
@@ -343,20 +362,26 @@ def get_products_bids(id: str):
         user = db.User.find_one({"_id": ObjectId(id)})
         if user is None:
             return products
+
+        seen_products = set()
+
         for bid in user["bids"]:
             product = db.Product.find_one({"_id": ObjectId(bid["product"]["_id"])})
 
-            if product["closeDate"] > datetime.now():
+            if product["closeDate"] > datetime.now() and product not in seen_products:
                 products["open"].append(product)
+                seen_products.add(product["_id"])
             elif (
                 "buyer" in product
                 and product["buyer"] is not None
-                and str(product["buyer"]["_id"])
-                == str(user["_id"])
+                and str(product["buyer"]["_id"]) == str(user["_id"])
+                and product["_id"] not in seen_products
             ):
                 products["won"].append(product)
-            else:
+                seen_products.add(product["_id"])
+            elif product["_id"] not in seen_products:
                 products["lost"].append(product)
+                seen_products.add(product["_id"])
 
         return products
 
