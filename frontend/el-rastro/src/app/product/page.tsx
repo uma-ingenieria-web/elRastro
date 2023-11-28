@@ -1,15 +1,10 @@
 "use client"
 
-import dynamic from "next/dynamic"
 import ProductCard from "../components/ProductCard"
 import Filter from "../components/Filter"
 import { useContext, useEffect, useState } from "react"
 import { FilterContext } from "@/context/FilterContext"
 import NoProducts from "../components/NoProducts"
-
-const OpenStreetMap = dynamic(() => import("../components/Map"), {
-  ssr: false,
-})
 
 let apiUrl = ""
 if (process.env.NODE_ENV === "development") {
@@ -46,19 +41,19 @@ async function getProducts(
 }
 
 interface User {
-  id: string
+  _id: string
   username: string
   image: string
 }
 
 interface Bid {
-  id: string
+  _id: string
   amount: number
   bidder: User
 }
 
 interface Product {
-  id: string
+  _id: string
   title: string
   description: string
   price: number
@@ -94,6 +89,7 @@ export default function ProductMenu() {
           activeTitle,
           owner
         )
+        console.log(products)
         setProducts(products)
       } finally {
         setLoading(false)
@@ -159,7 +155,7 @@ export default function ProductMenu() {
                   {products.map((product: Product) => (
                     <ProductCard
                       image={"https://picsum.photos/800/400"}
-                      key={product.id}
+                      key={product._id}
                       {...product}
                     />
                   ))}

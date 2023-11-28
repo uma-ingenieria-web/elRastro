@@ -4,19 +4,19 @@ import Link from "next/link"
 import React, { useState } from "react"
 
 interface User {
-  id: string
+  _id: string
   username: string
   image: string
 }
 
 interface Bid {
-  id: string
+  _id: string
   amount: number
   bidder: User
 }
 
 interface Product {
-  id: string
+  _id: string
   title: string
   description: string
   price: number
@@ -44,6 +44,7 @@ function ProductCard(product: Product) {
   const handleHoverLeave = () => {
     setShowPopup(false)
   }
+
 
   return (
     <div className="w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
