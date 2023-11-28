@@ -7,7 +7,6 @@ export default function ProductLayout({
 }) {
   return (
     <>
-      <Navbar />
       <main>
         {children}
       </main>
