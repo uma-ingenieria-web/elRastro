@@ -1,5 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { useSession } from "next-auth/react";
 
 interface ChatWithDetails {
     _id: string;
@@ -7,6 +9,7 @@ interface ChatWithDetails {
         _id: string;
         title: string;
     };
+    image: string;
     user: {
         _id: string;
         username: string;
@@ -31,8 +34,9 @@ function formatDate(timestamp: string) {
     return new Date(timestamp).toLocaleString('en-US', options);
 }
 
-function ChatCard({ _id, product, user, lastMessage }: ChatWithDetails) {
-    const isCurrentUser = user._id === lastMessage.origin;
+function ChatCard({ _id, product, image, user, lastMessage }: ChatWithDetails) {
+    const { data: session } = useSession();
+    const isCurrentUser = (session?.user as any).id === lastMessage.origin;
 
     return (
         <div className="flex justify-center mt-5">
@@ -43,11 +47,13 @@ function ChatCard({ _id, product, user, lastMessage }: ChatWithDetails) {
                     </div>
                 </div>
                 <div className="flex flex-col items-start mb-4">
-                    <img
-                        src="https://picsum.photos/800/400"
-                        alt="Product"
-                        className="rounded-full w-20 h-20 border-2 border-gray-300 mb-4"
-                    />
+                    <Link href={`../products/${product._id}`} className="cursor-pointer">
+                        <Image
+                            src={image}
+                            alt="Product image"
+                            className="rounded-full w-20 h-20 border-2 border-gray-300 mb-4"
+                        />
+                    </Link>
                     <div className="text-left text-base flex-1 overflow-hidden">
                         {isCurrentUser ? (
                             <p><strong>You:</strong> {lastMessage.text}</p>

@@ -1,4 +1,5 @@
 "use client";
+import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
 
 interface Message {
@@ -43,37 +44,15 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
 
   const fetchData = async () => {
     try {
-      let chatInfoURL = "";
-      let messagesInfoURL = "";
-      let productInfoURL = "";
-
-      if (process.env.NODE_ENV === "development") {
-        chatInfoURL = `http://localhost:8006/api/v1/chat/${id}`;
-      } else {
-        chatInfoURL = `http://backend-micro-chats/api/v1/chat/${id}`;
-      }
-
-      const result = await fetch(chatInfoURL);
+      const result = await fetch(`http://localhost:8006/api/v1/chat/${id}`);
       const chatData = await result.json();
       setChatInfo(chatData);
 
-      if (process.env.NODE_ENV === "development") {
-        messagesInfoURL = `http://localhost:8006/api/v1/chat/${id}/messages`;
-      } else {
-        messagesInfoURL = `http://backend-micro-chats/api/v1/chat/${id}/messages`;
-      }
-
-      const messagesResult = await fetch(messagesInfoURL);
+      const messagesResult = await fetch(`http://localhost:8006/api/v1/chat/${id}/messages`);
       const messagesData = await messagesResult.json();
       setMessages(messagesData);
 
-      if (process.env.NODE_ENV === "development") {
-        productInfoURL = `http://localhost:8002/api/v1/products/${chatData.product._id}`;
-      } else {
-        productInfoURL = `http://backend-micro-products/api/v1/products/${chatData.product._id}`;
-      }
-
-      const productResult = await fetch(productInfoURL);
+      const productResult = await fetch(`http://localhost:8002/api/v1/products/${chatData.product._id}`);
       const productData = await productResult.json();
       setProductInfo(productData);
 
@@ -93,14 +72,7 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
         return;
       }
 
-      let sendMessageURL = "";
-      if (process.env.NODE_ENV === "development") {
-        sendMessageURL = `http://localhost:8006/api/v1/chat/${id}/send?origin_id=${chatInfo?.vendor._id}`;
-      } else {
-        sendMessageURL = `http://backend-micro-chats/api/v1/chat/${id}/send?origin_id=${chatInfo?.vendor._id}`;
-      }
-
-      const response = await fetch(sendMessageURL, {
+      const response = await fetch(`http://localhost:8006/api/v1/chat/${id}/send?origin_id=${chatInfo?.vendor._id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -129,7 +101,11 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
       <div className="w-full max-w-4xl border border-gray-300 rounded overflow-hidden flex flex-col h-120">
         {productInfo && (
           <div className="p-4 border-b border-gray-300 bg-gray-200">
-            <h2 className="text-lg font-semibold">Conversation: <strong>{productInfo.title}</strong></h2>
+            <h2 className="text-lg font-semibold">Conversation: 
+              <Link href={`../products/${chatInfo?.product._id}`} className="cursor-pointer">
+                <strong>{productInfo.title}</strong>
+              </Link>
+            </h2>
           </div>
         )}
         <div className="flex flex-col h-full relative">
