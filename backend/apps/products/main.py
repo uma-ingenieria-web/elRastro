@@ -188,25 +188,27 @@ def save_product(product: ProductBasicInfo, idOwner: str):
 )
 def update_product(id: str, new_product: UpdateProduct):
     try:
-        buyer = db.User.find_one({"_id": ObjectId(new_product.buyer.id)})
+        buyer = None
+
+        if new_product.buyer is not None:
+            buyer = db.User.find_one({"_id": ObjectId(new_product.buyer.id)})
+            if buyer is None:
+                raise HTTPException(status_code=404, detail="Buyer not found")
+            if (
+                new_product.buyer.location.lat != buyer["location"]["lat"]
+                or new_product.buyer.location.lon != buyer["location"]["lon"]
+            ):
+                raise HTTPException(
+                    status_code=400,
+                    detail="Buyer location is not the same as the one stored in the database",
+                )
+
+            if buyer["_id"] == product["owner"]["_id"]:
+                raise HTTPException(
+                    status_code=400, detail="Buyer can't be  the owner of the product"
+                )
+
         product = db.Product.find_one({"_id": ObjectId(id)})
-
-        if buyer is None:
-            raise HTTPException(status_code=404, detail="Buyer not found")
-
-        if (
-            new_product.buyer.location.lat != buyer["location"]["lat"]
-            or new_product.buyer.location.lon != buyer["location"]["lon"]
-        ):
-            raise HTTPException(
-                status_code=400,
-                detail="Buyer location is not the same as the one stored in the database",
-            )
-
-        if buyer["_id"] == product["owner"]["_id"]:
-            raise HTTPException(
-                status_code=400, detail="Buyer can't be  the owner of the product"
-            )
 
         last_bid = db.Bid.find_one(
             {"product._id": ObjectId(id)}, sort=[("timestamp", -1)]
@@ -217,10 +219,11 @@ def update_product(id: str, new_product: UpdateProduct):
                 status_code=400, detail="Buyer is not the last bidder of the product"
             )
 
-        if product["closeDate"] > datetime.now():
+        if buyer is not None and product["closeDate"] > datetime.now():
             raise HTTPException(status_code=400, detail="Product is not closed yet")
-
-        new_product.buyer.id = ObjectId(new_product.buyer.id)
+        
+        if buyer is not None:
+            new_product.buyer.id = ObjectId(new_product.buyer.id)
 
         if len(new_product.model_dump(by_alias=True, exclude={"id"})) >= 1:
             update_result = db.Product.find_one_and_update(

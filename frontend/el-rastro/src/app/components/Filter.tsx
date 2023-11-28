@@ -41,9 +41,9 @@ function Filter() {
 
   return (
     <div>
-      <div className="fixed z-10 top-3 left-3 text-center">
+      <div className="fixed z-10 bottom-3 left-3 text-center">
         <button
-          className="bg-blue-500 text-white active:bg-blue-800 font-semibold uppercase text-sm px-6 py-3 rounded-full shadow-md hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150"
+          className="bg-blue-500 text-white active:bg-blue-800 font-semibold uppercase text-md sm:text-sm px-6 py-3 rounded-full shadow-md hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150"
           type="button"
           data-drawer-target="drawer-navigation"
           data-drawer-show="drawer-navigation"
@@ -101,7 +101,7 @@ function Filter() {
           </svg>
           <span className="sr-only">Close menu</span>
         </button>
-        <div className="py-4 overflow-y-auto">
+        <div className="py-4 overflow-y-auto text-lg h-[calc(100vh-4rem)]">
           <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
             {maxPrice != 0 && maxPrice != 0 && maxPrice < minPrice && (
               <div
@@ -125,7 +125,7 @@ function Filter() {
                 </div>
               </div>
             )}
-            <ul className="space-y-2 font-medium">
+            <ul className="space-y-2 h-full font-medium">
               <li>
                 <span className="ml-[0.2rem] flex-1 text-left rtl:text-right whitespace-nowrap text-black">
                   Look for products
@@ -253,6 +253,9 @@ function Filter() {
                   </div>
                 </div>
               </li>
+              <li>
+                
+              </li>
               <li className="mr-2 -ml-2">
                 <button
                   type="button"
@@ -279,7 +282,7 @@ function Filter() {
                   </span>
                 </button>
               </li>
-              <li className="mr-2 -ml-2">
+              <li className="mr-2 -ml-2 ">
                 <button
                   type="button"
                   onClick={clearFilters}
