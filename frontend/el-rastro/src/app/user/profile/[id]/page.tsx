@@ -30,7 +30,7 @@ export default async function ProfilePageId({ params }: { params: { id: string }
     for(let i = 0; i < ratings.length; i++) {
         total += ratings[i].value;
     }
-    const rating = ratings.length ? total / ratings.length : 0;
+    const rating = ratings.length ? total / ratings.length : "Not rated";
     return (
       <div className="flex justify-center items-center h-screen bg-gray-100">
         <div className="bg-white rounded-lg shadow-lg p-8">
