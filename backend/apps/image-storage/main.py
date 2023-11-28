@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 import cloudinary
 import cloudinary.uploader as cloudinary_uploader
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
@@ -13,6 +14,14 @@ load_dotenv()
 uri = os.getenv('MONGODB_URI')
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 cloudinary.config( 
   cloud_name = "dnzyzkglp", 
   api_key = os.getenv("API_KEY"), 
@@ -20,6 +29,13 @@ cloudinary.config(
 )
 
 versionRoute = "api/v1"
+
+origins = [
+    "http://localhost:3000",
+    "http://frontend:3000",
+]
+
+
 
 
 @app.get("/" + versionRoute + "/photo/{id}",

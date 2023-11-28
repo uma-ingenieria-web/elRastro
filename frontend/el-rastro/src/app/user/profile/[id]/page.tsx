@@ -1,5 +1,8 @@
+"use client"
+
 import { redirect } from 'next/navigation';
-import Image from 'next/image'
+import Image from 'next/image';
+import ImageWithFallback from '@/app/components/ImageFallback';
 
 interface UserProfileProps {
   name: string;
@@ -9,10 +12,11 @@ interface UserProfileProps {
 
 export default async function ProfilePageId({ params }: { params: { id: string } }) {
   const { id } = params;
+  let apiUrl = '';
   const name = "User";
   const bio = "bio";
 
-  let apiUrl = '';
+
   if (process.env.NODE_ENV === 'development') {
     apiUrl = `http://localhost:8003/api/v1/photo/${id}`;
   } else {
@@ -27,7 +31,7 @@ export default async function ProfilePageId({ params }: { params: { id: string }
         <div className="bg-white rounded-lg shadow-lg p-8">
           <div className="flex justify-center">
             <div className="w-32 h-32 rounded-full overflow-hidden">
-              <Image src={url} alt={`Photo from user ${name}`} width={200} height={200} />
+              <ImageWithFallback src={url} alt={`Photo of ${name}`} />
             </div>
           </div>
           <div className="text-center mt-4">
@@ -47,7 +51,6 @@ export default async function ProfilePageId({ params }: { params: { id: string }
         "Error connecting to backend API. Is backend service working?"
       )
     }
-    redirect('/');
   }
 }
 
