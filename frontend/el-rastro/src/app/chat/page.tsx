@@ -41,19 +41,43 @@ const ChatPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const chatsResponse = await fetch(`http://localhost:8006/api/v1/myChats/${userId}`);
+        let chatsInfoURL = ""
+        if (process.env.NODE_ENV === "development") {
+          chatsInfoURL = `http://localhost:8006/api/v1/myChats/${userId}`
+        } else {
+          chatsInfoURL = `http://backend-micro-chats/api/v1/myChats/${userId}`
+        }
+        const chatsResponse = await fetch(chatsInfoURL);
         const chatsData = await chatsResponse.json();
 
         // Obtener información adicional para cada chat
         const chatsWithDetails = await Promise.all(
           chatsData.map(async (chat: Chat) => {
-            const productResponse = await fetch(`http://localhost:8002/api/v1/products/${chat.product._id}`);
+            let productInfoURL = ""
+            if (process.env.NODE_ENV === "development") {
+              productInfoURL = `http://localhost:8002/api/v1/products/${chat.product._id}`
+            } else {
+              productInfoURL = `http://backend-micro-products/api/v1/products/${chat.product._id}`
+            }
+            const productResponse = await fetch(productInfoURL);
             const productData = await productResponse.json();
-
-            const userResponse = await fetch(`http://localhost:8000/api/v1/user/${chat.vendor._id}`);
+            
+            let userInfoURL = ""
+            if (process.env.NODE_ENV === "development") {
+              userInfoURL = `http://localhost:8000/api/v1/user/${chat.vendor._id}`
+            } else {
+              userInfoURL = `http://backend-micro-users/api/v1/user/${chat.vendor._id}`
+            }
+            const userResponse = await fetch(userInfoURL);
             const userData = await userResponse.json();
 
-            const messagesResponse = await fetch(`http://localhost:8006/api/v1/chat/${chat._id}/messages`);
+            let messagesInfoURL = ""
+            if (process.env.NODE_ENV === "development") {
+              messagesInfoURL = `http://localhost:8006/api/v1/chat/${chat._id}/messages`
+            } else {
+              messagesInfoURL = `http://backend-micro-chats/api/v1/chat/${chat._id}/messages`
+            }
+            const messagesResponse = await fetch(messagesInfoURL);
             const messagesData = await messagesResponse.json();
             const lastMessage = messagesData[messagesData.length - 1];
 
