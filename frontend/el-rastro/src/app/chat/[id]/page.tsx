@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef} from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface Message {
   chat: {
@@ -43,32 +43,36 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
 
   const fetchData = async () => {
     try {
-      let chatInfoURL = ""
+      let chatInfoURL = "";
+      let messagesInfoURL = "";
+      let productInfoURL = "";
+
       if (process.env.NODE_ENV === "development") {
-        chatInfoURL = `http://localhost:8006/api/v1/chat/${id}`
+        chatInfoURL = `http://localhost:8006/api/v1/chat/${id}`;
       } else {
-        chatInfoURL = `http://backend-micro-chats/api/v1/chat/${id}`
+        chatInfoURL = `http://backend-micro-chats/api/v1/chat/${id}`;
       }
+
       const result = await fetch(chatInfoURL);
       const chatData = await result.json();
       setChatInfo(chatData);
 
-      let messagesInfoURL = ""
       if (process.env.NODE_ENV === "development") {
-        messagesInfoURL = `http://localhost:8006/api/v1/chat/${id}/messages`
+        messagesInfoURL = `http://localhost:8006/api/v1/chat/${id}/messages`;
       } else {
-        messagesInfoURL = `http://backend-micro-chats/api/v1/chat/${id}/messages`
+        messagesInfoURL = `http://backend-micro-chats/api/v1/chat/${id}/messages`;
       }
+
       const messagesResult = await fetch(messagesInfoURL);
       const messagesData = await messagesResult.json();
       setMessages(messagesData);
 
-      let productInfoURL = ""
       if (process.env.NODE_ENV === "development") {
-        productInfoURL = `http://localhost:8002/api/v1/products/${chatData.product._id}`
+        productInfoURL = `http://localhost:8002/api/v1/products/${chatData.product._id}`;
       } else {
-        productInfoURL = `http://backend-micro-products/api/v1/products/${chatData.product._id}`
+        productInfoURL = `http://backend-micro-products/api/v1/products/${chatData.product._id}`;
       }
+
       const productResult = await fetch(productInfoURL);
       const productData = await productResult.json();
       setProductInfo(productData);
@@ -89,12 +93,13 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
         return;
       }
 
-      let sendMessageURL = ""
+      let sendMessageURL = "";
       if (process.env.NODE_ENV === "development") {
-        sendMessageURL = `http://localhost:8006/api/v1/chat/${id}/send?origin_id=${chatInfo?.vendor._id}`
+        sendMessageURL = `http://localhost:8006/api/v1/chat/${id}/send?origin_id=${chatInfo?.vendor._id}`;
       } else {
-        sendMessageURL = `http://backend-micro-chats/api/v1/chat/${id}/send?origin_id=${chatInfo?.vendor._id}`
+        sendMessageURL = `http://backend-micro-chats/api/v1/chat/${id}/send?origin_id=${chatInfo?.vendor._id}`;
       }
+
       const response = await fetch(sendMessageURL, {
         method: 'POST',
         headers: {
@@ -120,59 +125,43 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div style={{ width: '500px', border: '1px solid #ccc', borderRadius: '8px', overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '600px' }}>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-4xl border border-gray-300 rounded overflow-hidden flex flex-col h-120">
         {productInfo && (
-          <div style={{ padding: '10px', borderBottom: '1px solid #ccc', backgroundColor: '#f5f5f5' }}>
-            <h2 style={{ fontSize: '1.2em' }}>Conversation: <strong>{productInfo.title}</strong></h2>
+          <div className="p-4 border-b border-gray-300 bg-gray-200">
+            <h2 className="text-lg font-semibold">Conversation: <strong>{productInfo.title}</strong></h2>
           </div>
         )}
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px', fontWeight: 'bold' }}>
-            <div style={{ width: '50%', textAlign: 'center' }}>VENDOR</div>
-            <div style={{ width: '50%', textAlign: 'center' }}>INTERESTED</div>
+        <div className="flex flex-col h-full relative">
+          <div className="flex justify-between p-2 font-bold">
+            <div className="w-1/2 text-center">VENDOR</div>
+            <div className="w-1/2 text-center">INTERESTED</div>
           </div>
           <div
             ref={messagesContainerRef}
-            style={{ overflowY: 'auto', flex: '1', position: 'relative', maxHeight: '80%', marginBottom: '50px' }}
+            className="overflow-y-auto flex-1 relative max-h-96 mb-2"
           >
-            <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse' }}>
+            <table className="w-full table-fixed border-collapse">
               <tbody>
                 {messages.map((message, index) => (
                   <tr key={index}>
-                    <td style={{ textAlign: 'left', padding: '5px', wordWrap: 'break-word' }}>
+                    <td className="text-left p-2 break-all">
                       {message.origin._id === chatInfo?.vendor._id && (
                         <div
-                          style={{
-                            background: '#C8C8C8',
-                            border: '1px solid #ccc',
-                            borderRadius: '8px',
-                            padding: '5px',
-                            marginBottom: '5px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                          }}
+                          className="bg-gray-400 border border-gray-300 rounded p-2 mb-2 flex flex-col"
                         >
                           <div>{message.text}</div>
-                          <div style={{ fontSize: '0.8em', color: '#888' }}>{formatMessageDate(message.timestamp)}</div>
+                          <div className="text-sm text-gray-600">{formatMessageDate(message.timestamp)}</div>
                         </div>
                       )}
                     </td>
-                    <td style={{ textAlign: 'right', padding: '5px', wordWrap: 'break-word' }}>
+                    <td className="text-right p-2 break-all">
                       {message.origin._id === chatInfo?.interested._id && (
                         <div
-                          style={{
-                            background: '#ECECEC',
-                            border: '1px solid #ccc',
-                            borderRadius: '8px',
-                            padding: '5px',
-                            marginBottom: '5px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                          }}
+                          className="bg-gray-300 border border-gray-300 rounded p-2 mb-2 flex flex-col"
                         >
                           <div>{message.text}</div>
-                          <div style={{ fontSize: '0.8em', color: '#888' }}>{formatMessageDate(message.timestamp)}</div>
+                          <div className="text-sm text-gray-600">{formatMessageDate(message.timestamp)}</div>
                         </div>
                       )}
                     </td>
@@ -181,18 +170,7 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
               </tbody>
             </table>
           </div>
-          <div style={{
-            padding: '10px',
-            borderTop: '1px solid #ccc',
-            backgroundColor: '#f5f5f5',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            position: 'sticky',
-            bottom: '0',
-            width: '100%',
-            zIndex: 1,
-          }}>
+          <div className="p-4 border-t border-gray-300 bg-gray-200 flex items-center justify-between sticky bottom-0 w-full">
             <input
               type="text"
               value={newMessageText}
@@ -207,19 +185,12 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
                 }
               }}
               placeholder="Type your message..."
-              style={{ flex: 1, marginRight: '10px' }}
+              className="flex-1 mr-4"
             />
             <button
               onClick={handleSendMessage}
               disabled={isSendButtonDisabled}
-              style={{
-                padding: '5px 10px',
-                backgroundColor: '#4CAF50',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-              }}
+              className="px-4 py-2 bg-green-500 text-white rounded cursor-pointer"
             >
               Send
             </button>
