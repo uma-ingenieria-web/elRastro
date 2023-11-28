@@ -48,7 +48,7 @@ function ProductCard(product: Product) {
 
   return (
     <div className="w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-      <Link href="#">
+      <Link href={"/product/" + product._id}>
         <img
           className="mb-3 rounded-t-lg"
           src={product.image}
@@ -57,7 +57,7 @@ function ProductCard(product: Product) {
       </Link>
       <div className="px-5 pb-5">
         <div className="flex flex-row justify-between items-center md:items-start mt-2">
-          <Link href="#">
+          <Link href={"/product/" + product._id}>
             <h5 className="text-3xl sm:text-2xl pr-3 font-semibold tracking-tight text-gray-900 dark:text-white mb-2">
               {product.title}
             </h5>
