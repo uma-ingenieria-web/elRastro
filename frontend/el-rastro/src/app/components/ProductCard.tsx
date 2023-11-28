@@ -55,13 +55,13 @@ function ProductCard(product: Product) {
         />
       </Link>
       <div className="px-5 pb-5">
-        <div className="flex flex-col justify-between items-center md:items-start mt-2">
+        <div className="flex flex-row justify-between items-center md:items-start mt-2">
           <Link href="#">
-            <h5 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white mb-2">
+            <h5 className="text-3xl sm:text-2xl pr-3 font-semibold tracking-tight text-gray-900 dark:text-white mb-2">
               {product.title}
             </h5>
           </Link>
-          <Link href="#">
+          <Link href="#" className="flex-shrink-0 relative group">
             <div
               className="relative group"
               onMouseEnter={handleHoverEnter}
@@ -70,27 +70,46 @@ function ProductCard(product: Product) {
               {product.owner.image && (
                 <div className="flex items-center">
                   <img
-                    className="inline-block h-10 w-10 rounded-full cursor-pointer transition-transform transform group-hover:scale-110"
+                    className="inline-block h-16 w-16 sm:h-10 sm:w-10 rounded-full cursor-pointer transition-transform transform group-hover:scale-110"
                     src={product.owner.image}
                     alt="user image"
                   />
-                  <p className="ml-2 text-gray-900 dark:text-white font-normal text-lg">
-                    {product.owner.username}
-                  </p>
                 </div>
               )}
               {showPopup && (
-                <div className="hidden md:block absolute bg-white p-2 rounded shadow top-full left-0 mt-2">
-                  <p className="text-gray-900 text-center dark:text-white">
-                    Go to profile
-                  </p>
+                <div
+                  data-popover
+                  id="popover-user-profile"
+                  role="tooltip"
+                  className="absolute z-10 inline-block w-64 text-sm text-gray-500 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-gray-400 dark:bg-gray-800 dark:border-gray-600 transition-opacity duration-300 opacity-100 left-auto right-0"
+                >
+                  <div className="p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <Link href="#">
+                        <img
+                          className="w-10 h-10 rounded-full"
+                          src={product.owner.image}
+                          alt="owner's avatar"
+                        />
+                      </Link>
+                      <p className="text-base font-semibold leading-none text-gray-900 dark:text-white">
+                        {product.owner.username}
+                      </p>
+                      <div></div>
+                    </div>
+                      <p className="mt-5 text-sm">
+                        Number of products sold:{" "}
+                        {/* Add number of products sold */}
+                      </p>
+                      <div className="flex text-sm">{/* Add rating */}</div>
+                  </div>
                 </div>
               )}
             </div>
           </Link>
         </div>
         <div className="flex items-center justify-between mt-2">
-          <p className="mt-2 text-sm text-gray-700 dark:text-gray-400">
+          <p className="mt-2 text-lg sm:text:md text-gray-700 dark:text-gray-400">
             {product.description.length > 30
               ? product.description.substring(0, 30) + "..."
               : product.description}
@@ -98,11 +117,14 @@ function ProductCard(product: Product) {
         </div>
         <div className="flex justify-between items-end mt-3">
           <div className="text-3xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-            {product.bids.length == 0 ? product.initialPrice : product.bids[product.bids.length - 1].amount}€
+            {product.bids.length == 0
+              ? product.initialPrice
+              : product.bids[product.bids.length - 1].amount}
+            €
           </div>
           <div className="ml-4">
             {closed ? (
-              <button className="text-black bg-gray-300 hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
+              <button className="text-black bg-gray-300 hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-500 font-medium rounded-lg text-lg sm:text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
                 Closed
               </button>
             ) : (

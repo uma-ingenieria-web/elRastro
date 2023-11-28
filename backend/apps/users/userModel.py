@@ -49,6 +49,7 @@ class Rating(BaseModel):
 class User(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
     username: str = Field(...)
+    email: str = Field(None)
     location: Location = Field(...)
     rating: Optional[List[Rating]] = Field(None)
     products: Optional[List[Product]] = Field(None)
@@ -61,6 +62,7 @@ class User(BaseModel):
         json_schema_extra = {
             "example": {
                 "username": "username",
+                "email": "ejemplo@gmail.com",
                 "location": {
                     "lat": 36.749058,
                     "lon": -4.516260
@@ -107,6 +109,7 @@ class User(BaseModel):
 class CreateUser(BaseModel):
     id: PyObjectId = Field(default=None, alias="_id")
     username: str = Field(...)
+    email: str = Field(...)
     location: Location = Field(...)
 
     model_config = ConfigDict(
