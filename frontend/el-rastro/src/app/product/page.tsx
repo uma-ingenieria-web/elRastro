@@ -89,7 +89,6 @@ export default function ProductMenu() {
           activeTitle,
           owner
         )
-        console.log(products)
         setProducts(products)
       } finally {
         setLoading(false)
