@@ -28,6 +28,10 @@ export const FilterContext = createContext({
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {},
   handleClearFilters: () => {},
+  activeOrderInitialDate: -1,
+  activeOrderCloseDate: -1,
+  setActiveOrderInitialDate: (orderInitialDate: number) => {},
+  setActiveOrderCloseDate: (orderCloseDate: number) => {},
 })
 
 export const FilterContextProvider = ({
@@ -41,6 +45,8 @@ export const FilterContextProvider = ({
   const [title, setTitle] = useState("")
   const [orderInitialDate, setOrderInitialDate] = useState(-1)
   const [orderCloseDate, setOrderCloseDate] = useState(-1)
+  const [activeOrderInitialDate, setActiveOrderInitialDate] = useState(-1)
+  const [activeOrderCloseDate, setActiveOrderCloseDate] = useState(-1)
   const [activeTitle, setActiveTitle] = useState("")
   const [activeMinPrice, setActiveMinPrice] = useState(Number.MIN_SAFE_INTEGER)
   const [activeMaxPrice, setActiveMaxPrice] = useState(Number.MAX_SAFE_INTEGER)
@@ -89,6 +95,10 @@ export const FilterContextProvider = ({
     setActiveMinPrice(Number.MIN_SAFE_INTEGER)
     setActiveMaxPrice(Number.MAX_SAFE_INTEGER)
     setActiveTitle("")
+    setOrderInitialDate(-1)
+    setOrderCloseDate(-1)
+    setActiveOrderInitialDate(-1)
+    setActiveOrderCloseDate(-1)
   }
 
   // TODO: implement
@@ -136,6 +146,10 @@ export const FilterContextProvider = ({
         handleMaxPriceChange,
         handleActiveFilters,
         handleClearFilters,
+        activeOrderInitialDate,
+        activeOrderCloseDate,
+        setActiveOrderInitialDate,
+        setActiveOrderCloseDate,
       }}
     >
       {children}
