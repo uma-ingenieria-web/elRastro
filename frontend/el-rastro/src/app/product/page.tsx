@@ -5,6 +5,7 @@ import Filter from "../components/Filter"
 import { useContext, useEffect, useState } from "react"
 import { FilterContext } from "@/context/FilterContext"
 import NoProducts from "../components/NoProducts"
+import { Product } from "@/app/product.types";
 
 let apiUrl = ""
 if (process.env.NODE_ENV === "development") {
@@ -38,31 +39,6 @@ async function getProducts(
     console.error("Error fetching products:", error.message)
     return []
   }
-}
-
-interface User {
-  _id: string
-  username: string
-  image: string
-}
-
-interface Bid {
-  _id: string
-  amount: number
-  bidder: User
-}
-
-interface Product {
-  _id: string
-  title: string
-  description: string
-  price: number
-  initialPrice: number
-  initialDate: Date
-  closeDate: Date
-  weight: number
-  owner: User
-  bids: Bid[]
 }
 
 export default function ProductMenu() {

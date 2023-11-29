@@ -102,7 +102,7 @@ function Filter() {
           <span className="sr-only">Close menu</span>
         </button>
         <div className="py-4 overflow-y-auto text-lg h-[calc(100vh-4rem)]">
-          <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
+          <div className="h-full text-center px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
             {maxPrice != 0 && maxPrice != 0 && maxPrice < minPrice && (
               <div
                 className="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"

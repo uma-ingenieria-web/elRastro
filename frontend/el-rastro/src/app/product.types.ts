@@ -10,6 +10,19 @@ interface BidInterface {
     bidder: UserInterface;
 }
 
+interface Product {
+    _id: string;
+    title: string;
+    description: string;
+    price: number;
+    initialPrice: number;
+    initialDate: Date;
+    closeDate: Date;
+    weight: number;
+    owner: UserInterface;
+    bids: BidInterface[];
+}
+
 interface ProductInterface {
     _id: string;
     title: string;
@@ -24,4 +37,4 @@ interface ProductInterface {
     image: string;
 }
 
-export type { ProductInterface, BidInterface, UserInterface };
+export type { ProductInterface, BidInterface, UserInterface, Product };

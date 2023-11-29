@@ -2,34 +2,9 @@
 
 import Link from "next/link"
 import React, { useState } from "react"
+import { ProductInterface } from "@/app/product.types";
 
-interface User {
-  _id: string
-  username: string
-  image: string
-}
-
-interface Bid {
-  _id: string
-  amount: number
-  bidder: User
-}
-
-interface Product {
-  _id: string
-  title: string
-  description: string
-  price: number
-  initialPrice: number
-  initialDate: Date
-  closeDate: Date
-  weight: number
-  owner: User
-  bids: Bid[]
-  image: string
-}
-
-function ProductCard(product: Product) {
+function ProductCard(product: ProductInterface) {
   const formattedCloseDate = new Date(product.closeDate).toLocaleDateString()
   const closed = new Date(product.closeDate) < new Date()
 
@@ -43,8 +18,7 @@ function ProductCard(product: Product) {
 
   const handleHoverLeave = () => {
     setShowPopup(false)
-  }
-
+  } 
 
   return (
     <div className="w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
@@ -86,13 +60,11 @@ function ProductCard(product: Product) {
                 >
                   <div className="p-3">
                     <div className="flex items-center justify-between mb-2">
-                      <Link href="#">
                         <img
                           className="w-10 h-10 rounded-full"
                           src={product.owner.image}
                           alt="owner's avatar"
                         />
-                      </Link>
                       <p className="text-base font-semibold leading-none text-gray-900 dark:text-white">
                         {product.owner.username}
                       </p>
