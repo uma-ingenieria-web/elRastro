@@ -2,6 +2,8 @@
 
 import { FilterContext } from "@/context/FilterContext"
 import React, { useContext, useState } from "react"
+import { MdOutlineDateRange } from "react-icons/md"
+import { GoSearch } from "react-icons/go"
 
 function Filter() {
   const [isDropdownOpen, setDropdownOpen] = useState(false)
@@ -53,11 +55,25 @@ function Filter() {
     setOrderCloseDate(orderCloseDate == 1 ? -1 : 1)
   }
 
+  const handleKeyPressInitialDate = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter") {
+      setOrderInitialDate(orderInitialDate == 1 ? -1 : 1)
+    }
+  }
+
+  const handleKeyPressCloseDate = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter") {
+      setOrderCloseDate(orderCloseDate == 1 ? -1 : 1)
+    }
+  }
+
   return (
     <div>
       <div className="fixed z-10 bottom-3 left-3 text-center">
         <button
-          className={`bg-blue-500 text-white ${isDrawerOpen ? "hidden" : ""} active:bg-blue-800 font-semibold uppercase text-md sm:text-sm px-6 py-3 rounded-full shadow-md hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150`}
+          className={`bg-blue-500 text-white ${
+            isDrawerOpen ? "hidden" : ""
+          } active:bg-blue-800 font-semibold uppercase text-md sm:text-sm px-6 py-3 rounded-full shadow-md hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150`}
           type="button"
           data-drawer-target="drawer-navigation"
           data-drawer-show="drawer-navigation"
@@ -81,15 +97,16 @@ function Filter() {
 
       <div
         id="drawer-navigation"
-        className={`flex flex-col justify-between h-full fixed top-0 left-0 z-40 w-64 p-4 overflow-y-auto transition-transform ${
+        className={`flex flex-col justify-between h-full fixed top-0 left-0 z-40 w-80 p-4 overflow-y-auto transition-transform ${
           isDrawerOpen ? "" : "-translate-x-full"
         } bg-white dark:bg-gray-800`}
         tabIndex={-1}
         aria-labelledby="drawer-navigation-label"
       >
         <h5
+          tabIndex={0}
           id="drawer-navigation-label"
-          className="text-base font-semibold text-gray-500 uppercase dark:text-gray-400"
+          className="text-lg font-semibold text-gray-500 uppercase dark:text-gray-400"
         >
           Filters
         </h5>
@@ -119,10 +136,16 @@ function Filter() {
           <div className="h-full text-center px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
             <ul className="space-y-2 h-full font-medium">
               <li>
-                <span className="ml-[0.2rem] flex-1 text-left rtl:text-right whitespace-nowrap text-black">
-                  Look for products
-                </span>
-                <div className="flex flex-col items-center mt-2">
+                <div className="ms-2 flex flex-row">
+                  <GoSearch className="w-6 h-6" />
+                  <span
+                    tabIndex={0}
+                    className="text-xl flex-1 ms-3 font-medium text-left rtl:text-right whitespace-nowrap"
+                  >
+                    Look for products
+                  </span>
+                </div>
+                <div className="flex flex-col items-center mt-2 ps-3">
                   <div className="relative w-full">
                     <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                       <svg
@@ -144,7 +167,7 @@ function Filter() {
                     <input
                       type="text"
                       id="simple-search"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-12 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       placeholder="Search..."
                       value={title}
                       onChange={handleTitleChange}
@@ -173,7 +196,7 @@ function Filter() {
                       d={isDropdownOpen ? "M15 11l-7-7-7 7" : "M15 11l-7-7-7 7"}
                     />
                   </svg>
-                  <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
+                  <span className="text-xl flex-1 ms-3 font-medium text-left rtl:text-right whitespace-nowrap">
                     Products
                   </span>
                 </button>
@@ -185,26 +208,35 @@ function Filter() {
                   } py-2 space-y-2`}
                 >
                   <li>
-                    <p className="cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                    <p
+                      tabIndex={0}
+                      className="text-xl cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                    >
                       My products
                     </p>
                   </li>
                   <li>
-                    <p className="cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                    <p
+                      tabIndex={0}
+                      className="text-xl cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                    >
                       My bids
                     </p>
                   </li>
                   <li>
-                    <p className="cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                    <p
+                      tabIndex={0}
+                      className="text-xl cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                    >
                       Products Won
                     </p>
                   </li>
                 </ul>
               </li>
               <li>
-                <div className="flex flex-row align-middle mt-5 items-center">
+                <div className="flex flex-row align-middle mt-3 items-center">
                   <svg
-                    className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                    className="ms-2 flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
@@ -218,14 +250,17 @@ function Filter() {
                       d="M13.583 5.445h.01M8.86 16.71l-6.573-6.63a.993.993 0 0 1 0-1.4l7.329-7.394A.98.98 0 0 1 10.31 1l5.734.007A1.968 1.968 0 0 1 18 2.983v5.5a.994.994 0 0 1-.316.727l-7.439 7.5a.975.975 0 0 1-1.385.001Z"
                     />
                   </svg>
-                  <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap text-black">
+                  <span
+                    tabIndex={0}
+                    className="text-xl ms-3 flex-1 text-left rtl:text-right whitespace-nowrap text-black"
+                  >
                     Filter by price
                   </span>
                 </div>
                 <div className="flex flex-col space-y-1 mt-3 ml-6">
                   {maxPrice != 0 && maxPrice != 0 && maxPrice < minPrice && (
                     <div
-                      className="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+                      className="-ms-5 flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
                       role="alert"
                     >
                       <svg
@@ -239,13 +274,13 @@ function Filter() {
                       </svg>
                       <span className="sr-only">Info</span>
                       <div>
-                        <span className="font-medium">
+                        <span tabIndex={0} className="font-medium">
                           Maximal price must be greater than minimal price
                         </span>
                       </div>
                     </div>
                   )}
-                  <div className="flex flex-col">
+                  <div tabIndex={0} className="flex flex-col">
                     <span className="text-black text-left">Max price</span>
                     <input
                       type="money"
@@ -256,7 +291,9 @@ function Filter() {
                     />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-black text-left">Min price</span>
+                    <span tabIndex={0} className="text-black text-left">
+                      Min price
+                    </span>
                     <input
                       type="money"
                       placeholder="Min price"
@@ -269,18 +306,25 @@ function Filter() {
               </li>
               <li></li>
               <li className="mr-2 -ml-2 flex flex-col">
-                <span className="flex-1 ms-5 mb-3 text-left rtl:text-right whitespace-nowrap">
-                  Order by
-                </span>
+                <div className="ms-2 flex flex-row align-text-bottom mt-5">
+                  <MdOutlineDateRange className="ms-2 w-6 h-6" />
+                  <span
+                    tabIndex={0}
+                    className="text-xl flex-1 font-medium ms-3 mb-4 text-left rtl:text-right whitespace-nowrap"
+                  >
+                    Order by
+                  </span>
+                </div>
                 <label className="ml-8 relative inline-flex items-center mb-5 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={orderInitialDate == 1}
                     onChange={handleOrderInitialDate}
+                    onKeyDown={handleKeyPressInitialDate}
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                  <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                  <span className="ms-5 text-sm font-semibold text-gray-900 dark:text-gray-300">
                     Initial Date
                   </span>
                 </label>
@@ -290,9 +334,10 @@ function Filter() {
                     checked={orderCloseDate == 1}
                     className="sr-only peer"
                     onChange={handleOrderCloseDate}
+                    onKeyDown={handleKeyPressCloseDate}
                   />
                   <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                  <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                  <span className="ms-5 text-sm font-semibold text-gray-900 dark:text-gray-300">
                     Close Date
                   </span>
                 </label>

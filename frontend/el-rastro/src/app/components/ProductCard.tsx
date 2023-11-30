@@ -32,7 +32,13 @@ function ProductCard(product: ProductInterface) {
       <div className="px-5 pb-5">
         <div className="flex flex-row justify-between items-center md:items-start mt-2">
           <Link href={"/product/" + product._id}>
-            <h5 className="text-3xl sm:text-2xl pr-3 font-semibold tracking-tight text-gray-900 dark:text-white mb-2">
+            <h5
+              className={`text-3xl sm:text-2xl pr-3 font-semibold tracking-tight text-gray-900 dark:text-white mb-2 ${
+                product.title.split(" ")[0].length > 10
+                  ? "max-w-full overflow-hidden overflow-ellipsis"
+                  : ""
+              }`}
+            >
               {product.title}
             </h5>
           </Link>

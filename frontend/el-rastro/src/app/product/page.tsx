@@ -5,7 +5,8 @@ import Filter from "../components/Filter"
 import { useContext, useEffect, useState } from "react"
 import { FilterContext } from "@/context/FilterContext"
 import NoProducts from "../components/NoProducts"
-import { Product } from "@/app/product.types";
+import { Product } from "@/app/product.types"
+import FilterPill from "../components/FilterPill"
 
 let apiUrl = ""
 if (process.env.NODE_ENV === "development") {
@@ -121,12 +122,59 @@ export default function ProductMenu() {
               <Filter />
               <section className="flex flex-col p-4 mt-5 justify-center text-center">
                 <div className="flex items-center justify-center mb-10">
-                  <h1 className="text-4xl font-bold text-black">
+                  <h1 className="text-5xl font-bold text-black">
                     Explore our products
                   </h1>
                 </div>
-
-                <div className="grid grid-cols-1 px-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 place-items-center place-content-center">
+                {activeMaxPrice != Number.MAX_SAFE_INTEGER ||
+                activeMinPrice != Number.MIN_SAFE_INTEGER ||
+                activeTitle != "" ||
+                activeOrderInitialDate != -1 ||
+                activeOrderCloseDate != -1 ? (
+                  <div className="flex flex-wrap items-center text-sm ms-6 mb-6">
+                    <p className="font-bold text-xl pb-2 pr-6">
+                      Applied filters:
+                    </p>
+                    {activeTitle != "" ? (
+                      <FilterPill filter={`Title: ${activeTitle}`} />
+                    ) : (
+                      <></>
+                    )}
+                    {activeMaxPrice != Number.MAX_SAFE_INTEGER ? (
+                      <FilterPill filter={`Max price: ${activeMaxPrice}€`} />
+                    ) : (
+                      <></>
+                    )}
+                    {activeMinPrice != Number.MIN_SAFE_INTEGER ? (
+                      <FilterPill filter={`Min price: ${activeMinPrice}€`} />
+                    ) : (
+                      <></>
+                    )}
+                    {activeOrderInitialDate != -1 ? (
+                      <FilterPill filter="Sorted by initial date" />
+                    ) : (
+                      <></>
+                    )}
+                    {activeOrderCloseDate != -1 ? (
+                      <FilterPill filter="Sorted by close date" />
+                    ) : (
+                      <></>
+                    )}
+                  </div>
+                ) : (
+                  <> </>
+                )}
+                <div
+                  className={`grid px-5 ${
+                    products.length === 1
+                      ? "grid-cols-1"
+                      : products.length === 2
+                      ? "grid-cols-1 sm:grid-cols-2"
+                      : products.length === 3
+                      ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
+                      : "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                  } gap-4 place-items-center place-content-center`}
+                >
                   {products.map((product: Product) => (
                     <ProductCard
                       image={"https://picsum.photos/800/400"}
