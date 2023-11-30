@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import React, { useState } from "react"
-import { ProductInterface } from "@/app/product.types";
+import { ProductInterface } from "@/app/product.types"
 
 function ProductCard(product: ProductInterface) {
   const formattedCloseDate = new Date(product.closeDate).toLocaleDateString()
@@ -18,7 +18,7 @@ function ProductCard(product: ProductInterface) {
 
   const handleHoverLeave = () => {
     setShowPopup(false)
-  } 
+  }
 
   return (
     <div className="w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
@@ -60,21 +60,21 @@ function ProductCard(product: ProductInterface) {
                 >
                   <div className="p-3">
                     <div className="flex items-center justify-between mb-2">
-                        <img
-                          className="w-10 h-10 rounded-full"
-                          src={product.owner.image}
-                          alt="owner's avatar"
-                        />
+                      <img
+                        className="w-10 h-10 rounded-full"
+                        src={product.owner.image}
+                        alt="owner's avatar"
+                      />
                       <p className="text-base font-semibold leading-none text-gray-900 dark:text-white">
                         {product.owner.username}
                       </p>
                       <div></div>
                     </div>
-                      <p className="mt-5 text-sm">
-                        Number of products sold:{" "}
-                        {/* Add number of products sold */}
-                      </p>
-                      <div className="flex text-sm">{/* Add rating */}</div>
+                    <p className="mt-5 text-sm">
+                      Number of products sold:{" "}
+                      {/* Add number of products sold */}
+                    </p>
+                    <div className="flex text-sm">{/* Add rating */}</div>
                   </div>
                 </div>
               )}
@@ -101,9 +101,11 @@ function ProductCard(product: ProductInterface) {
                 Closed
               </button>
             ) : (
-              <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                Bid
-              </button>
+              <Link href={`/product/${product._id}`}>
+                <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                  Show more
+                </button>
+              </Link>
             )}
           </div>
         </div>

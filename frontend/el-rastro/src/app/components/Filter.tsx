@@ -41,14 +41,14 @@ function Filter() {
     toggleDrawer()
   }
 
-  const handleOrderInitialDate = (
-    e: React.MouseEvent<HTMLInputElement, MouseEvent>
+  const handleOrderInitialDate: React.ChangeEventHandler<HTMLInputElement> = (
+    e
   ) => {
     setOrderInitialDate(orderInitialDate == 1 ? -1 : 1)
   }
 
-  const handleOrderCloseDate = (
-    e: React.MouseEvent<HTMLInputElement, MouseEvent>
+  const handleOrderCloseDate: React.ChangeEventHandler<HTMLInputElement> = (
+    e
   ) => {
     setOrderCloseDate(orderCloseDate == 1 ? -1 : 1)
   }
@@ -57,7 +57,7 @@ function Filter() {
     <div>
       <div className="fixed z-10 bottom-3 left-3 text-center">
         <button
-          className="bg-blue-500 text-white active:bg-blue-800 font-semibold uppercase text-md sm:text-sm px-6 py-3 rounded-full shadow-md hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150"
+          className={`bg-blue-500 text-white ${isDrawerOpen ? "hidden" : ""} active:bg-blue-800 font-semibold uppercase text-md sm:text-sm px-6 py-3 rounded-full shadow-md hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150`}
           type="button"
           data-drawer-target="drawer-navigation"
           data-drawer-show="drawer-navigation"
@@ -81,7 +81,7 @@ function Filter() {
 
       <div
         id="drawer-navigation"
-        className={`fixed top-0 left-0 z-40 w-64 h-screen p-4 overflow-y-auto transition-transform ${
+        className={`flex flex-col justify-between h-full fixed top-0 left-0 z-40 w-64 p-4 overflow-y-auto transition-transform ${
           isDrawerOpen ? "" : "-translate-x-full"
         } bg-white dark:bg-gray-800`}
         tabIndex={-1}
@@ -115,30 +115,8 @@ function Filter() {
           </svg>
           <span className="sr-only">Close menu</span>
         </button>
-        <div className="py-4 overflow-y-auto text-lg h-[calc(100vh-4rem)]">
+        <div className="h-calc[100vh-5rem] flex-1 py-4 overflow-y-auto text-lg">
           <div className="h-full text-center px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
-            {maxPrice != 0 && maxPrice != 0 && maxPrice < minPrice && (
-              <div
-                className="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
-                role="alert"
-              >
-                <svg
-                  className="flex-shrink-0 inline w-4 h-4 me-3"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-                </svg>
-                <span className="sr-only">Info</span>
-                <div>
-                  <span className="font-medium">
-                    Max price should be greater than min price
-                  </span>
-                </div>
-              </div>
-            )}
             <ul className="space-y-2 h-full font-medium">
               <li>
                 <span className="ml-[0.2rem] flex-1 text-left rtl:text-right whitespace-nowrap text-black">
@@ -245,6 +223,28 @@ function Filter() {
                   </span>
                 </div>
                 <div className="flex flex-col space-y-1 mt-3 ml-6">
+                  {maxPrice != 0 && maxPrice != 0 && maxPrice < minPrice && (
+                    <div
+                      className="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+                      role="alert"
+                    >
+                      <svg
+                        className="flex-shrink-0 inline w-4 h-4 me-3"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                      </svg>
+                      <span className="sr-only">Info</span>
+                      <div>
+                        <span className="font-medium">
+                          Maximal price must be greater than minimal price
+                        </span>
+                      </div>
+                    </div>
+                  )}
                   <div className="flex flex-col">
                     <span className="text-black text-left">Max price</span>
                     <input
@@ -276,7 +276,7 @@ function Filter() {
                   <input
                     type="checkbox"
                     checked={orderInitialDate == 1}
-                    onClick={handleOrderInitialDate}
+                    onChange={handleOrderInitialDate}
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
@@ -289,7 +289,7 @@ function Filter() {
                     type="checkbox"
                     checked={orderCloseDate == 1}
                     className="sr-only peer"
-                    onClick={handleOrderCloseDate}
+                    onChange={handleOrderCloseDate}
                   />
                   <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                   <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
@@ -297,11 +297,11 @@ function Filter() {
                   </span>
                 </label>
               </li>
-              <li className="mr-2 -ml-2">
+              <li className="mr-2 -ml-2 mt-auto">
                 <button
                   type="button"
                   onClick={applyFilters}
-                  className="mt-6 flex flex-row justify-between w-full p-2.5 ms-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  className="mt-2 flex flex-row justify-between w-full p-2.5 ms-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
                   <svg
                     className="w-6 h-6"

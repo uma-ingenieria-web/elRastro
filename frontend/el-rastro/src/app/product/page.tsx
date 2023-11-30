@@ -50,16 +50,16 @@ export default function ProductMenu() {
     activeMaxPrice,
     activeTitle,
     owner,
-    orderCloseDate,
-    orderInitialDate,
+    activeOrderInitialDate,
+    activeOrderCloseDate,
   } = useContext(FilterContext)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const products = await getProducts(
-          orderInitialDate,
-          orderCloseDate,
+          activeOrderInitialDate,
+          activeOrderCloseDate,
           activeMinPrice,
           activeMaxPrice,
           activeTitle,
@@ -76,8 +76,8 @@ export default function ProductMenu() {
     activeMaxPrice,
     activeTitle,
     owner,
-    orderCloseDate,
-    orderInitialDate,
+    activeOrderInitialDate,
+    activeOrderCloseDate,
   ])
 
   return (

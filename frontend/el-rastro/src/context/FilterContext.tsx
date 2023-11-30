@@ -84,6 +84,9 @@ export const FilterContextProvider = ({
       setActiveMaxPrice(Number.MAX_SAFE_INTEGER)
     }
     setActiveTitle(title)
+
+    setActiveOrderInitialDate(orderInitialDate)
+    setActiveOrderCloseDate(orderCloseDate)
   }
 
   const handleClearFilters = () => {
