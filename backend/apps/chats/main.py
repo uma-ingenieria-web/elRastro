@@ -111,6 +111,25 @@ async def get_conversation_sorted_by_timestamp(id: str):
 
     return list(conversation)
 
+@app.get("/" + versionRoute + "/chat/{id}/lastMessage",
+         summary="Get the last message from the chat given id",
+         response_description="The last message from the given chat id",
+         response_model=Message,
+         status_code=status.HTTP_200_OK,
+         responses={400: errors.error_400, 404: errors.error_404, 422: errors.error_422},
+         tags=["Message"])
+async def get_last_message(id: str):
+    chat = db.Chat.find_one({"_id": ObjectId(id)})
+    if chat is None:
+        raise HTTPException(status_code=404, detail=f"Chat could not be found")
+
+    # Obtén la conversación ordenada por timestamp descendente
+    conversation = db.Message.find({"chat._id": ObjectId(id)}).sort("timestamp", -1).limit(1)
+
+    last_message = list(conversation)[0]
+    
+    return last_message
+
 @app.post("/" + versionRoute + "/chat/{product_id}",
     summary="Create a chat",
     response_description="The created chat",

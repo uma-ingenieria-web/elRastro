@@ -39,8 +39,6 @@ const ChatPage = () => {
   const { data: session } = useSession();
   const [chats, setChats] = useState<ChatsWithDetails[]>([]);
 
-const userId = '654b5d2c4da4bf53381f1ba2';
-
 useEffect(() => {
   const fetchData = async () => {
     try {
@@ -56,24 +54,22 @@ useEffect(() => {
             const imageData = await imageResponse.json();
             
             let userData;
-            if ((session?.user as any).id != chat.vendor._id) {
+            if ((session?.user as any).id == chat.interested._id) {
               const userResponse = await fetch(`http://localhost:8000/api/v1/user/${chat.vendor._id}`);
               userData = await userResponse.json();
             } else {
               userData = {_id: "0", username: "Anonymous"};
             }
             
-            // Hacer en el backend un endpoint que me devuelva el ultimo mensaje de una conversacion
-            const messagesResponse = await fetch(`http://localhost:8006/api/v1/chat/${chat._id}/messages`);
-            const messagesData = await messagesResponse.json();
-            const lastMessage = messagesData[messagesData.length - 1];
+            const messageResponse = await fetch(`http://localhost:8006/api/v1/chat/${chat._id}/lastMessage`);
+            const lastMessageData = await messageResponse.json();
 
             return {
               _id: chat._id,
               product: productData,
               image: imageData,
               user: userData,
-              lastMessage: lastMessage,
+              lastMessage: lastMessageData,
             };
           })
         );
@@ -85,7 +81,7 @@ useEffect(() => {
     };
 
     fetchData();
-  }, [userId]);
+  }, [(session?.user as any).id]);
 
   return (
     <section className="flex flex-col p-4 mt-5 justify-center">
