@@ -1,6 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
+import { useSession } from "next-auth/react";
 
 interface Message {
   chat: {
@@ -29,11 +30,18 @@ interface ProductInfo {
   title: string;
 }
 
+interface UserInfo {
+  _id: string;
+  username: string;
+}
+
 export default function ChatPageId({ params }: { params: { id: string } }) {
+  const { data: session } = useSession();
   const { id } = params;
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatInfo, setChatInfo] = useState<ChatInfo | null>(null);
   const [productInfo, setProductInfo] = useState<ProductInfo | null>(null);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [newMessageText, setNewMessageText] = useState('');
   const [isSendButtonDisabled, setIsSendButtonDisabled] = useState(true);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
@@ -56,6 +64,15 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
       const productData = await productResult.json();
       setProductInfo(productData);
 
+      let userData;
+      if ((session?.user as any).id == chatData.interested._id) {
+        const userResponse = await fetch(`http://localhost:8000/api/v1/user/${chatData.vendor._id}`);
+        userData = await userResponse.json();
+      } else {
+        userData = { _id: "0", username: "Anonymous" };
+      }
+      setUserInfo(userData);
+
       setNewMessageText('');
       setIsSendButtonDisabled(true);
       if (messagesContainerRef.current) {
@@ -72,7 +89,7 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
         return;
       }
 
-      const response = await fetch(`http://localhost:8006/api/v1/chat/${id}/send?origin_id=${chatInfo?.vendor._id}`, {
+      const response = await fetch(`http://localhost:8006/api/v1/chat/${id}/send?origin_id=${(session?.user as any).id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,8 +118,8 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
       <div className="w-full max-w-4xl border border-gray-300 rounded overflow-hidden flex flex-col h-120">
         {productInfo && (
           <div className="p-4 border-b border-gray-300 bg-gray-200">
-            <h2 className="text-lg font-semibold">Conversation: 
-              <Link href={`../products/${chatInfo?.product._id}`} className="cursor-pointer">
+            <h2 className="text-lg font-semibold">Conversation: {' '}
+              <Link href={`../products/${chatInfo?.product._id}`} className="cursor-pointer hover:underline">
                 <strong>{productInfo.title}</strong>
               </Link>
             </h2>
@@ -110,8 +127,16 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
         )}
         <div className="flex flex-col h-full relative">
           <div className="flex justify-between p-2 font-bold">
-            <div className="w-1/2 text-center">VENDOR</div>
-            <div className="w-1/2 text-center">INTERESTED</div>
+            <div className="w-1/2 text-center">You</div>
+            {userInfo?.username !== 'Anonymous' ? (
+              <div className="w-1/2 text-center">
+                <Link href={`../../user/profile/${userInfo?._id}`} className="cursor-pointer hover:underline">
+                  {userInfo?.username}
+                </Link>
+              </div>
+            ) : (
+              <div className="w-1/2 text-center">{userInfo?.username}</div>
+            )}
           </div>
           <div
             ref={messagesContainerRef}
@@ -122,7 +147,7 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
                 {messages.map((message, index) => (
                   <tr key={index}>
                     <td className="text-left p-2 break-all">
-                      {message.origin._id === chatInfo?.vendor._id && (
+                      {message.origin._id === (session?.user as any).id && (
                         <div
                           className="bg-gray-400 border border-gray-300 rounded p-2 mb-2 flex flex-col"
                         >
@@ -132,7 +157,7 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
                       )}
                     </td>
                     <td className="text-right p-2 break-all">
-                      {message.origin._id === chatInfo?.interested._id && (
+                      {message.origin._id !== (session?.user as any).id && (
                         <div
                           className="bg-gray-300 border border-gray-300 rounded p-2 mb-2 flex flex-col"
                         >
