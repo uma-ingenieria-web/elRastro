@@ -1,17 +1,26 @@
 "use client"
 
-function FilterPill({ filter }: { filter: string }) {
+interface FilterPillProps {
+  filter: string
+  clearFilter: () => void
+}
+
+function FilterPill(props: FilterPillProps) {
+  
+  const handleClearFilter = () => {
+    props.clearFilter()
+  }
+
   return (
     <button
       type="button"
-      className="flex items-center text-white bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm pl-5 pr-3 py-2.5 mr-2 mb-2 dark:bg-blue-600  dark:focus:ring-blue-800"
-      disabled
+      className="flex items-center text-white bg-blue-700 font-medium rounded-full text-sm pl-5 pr-3 py-2.5 mr-2 mb-2 focus:cursor-default hover:cursor-default"
     >
-      <span className="mr-2">{filter}</span>
-      <button className="flex items-center">
+      <span className="mr-2">{props.filter}</span>
+      <div className="flex items-center" onClick={handleClearFilter}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4"
+          className="h-4 w-4 hover:cursor-pointer"
           viewBox="0 0 20 20"
           fill="currentColor"
         >
@@ -21,9 +30,9 @@ function FilterPill({ filter }: { filter: string }) {
             clipRule="evenodd"
           />
         </svg>
-      </button>
+      </div>
     </button>
-  );
+  )
 }
 
-export default FilterPill;
+export default FilterPill

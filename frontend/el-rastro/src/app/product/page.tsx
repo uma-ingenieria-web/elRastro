@@ -53,6 +53,11 @@ export default function ProductMenu() {
     owner,
     activeOrderInitialDate,
     activeOrderCloseDate,
+    setActiveMaxPrice,
+    setActiveMinPrice,
+    handleActiveTitle,
+    setActiveOrderInitialDate,
+    setActiveOrderCloseDate,
   } = useContext(FilterContext)
 
   useEffect(() => {
@@ -136,27 +141,27 @@ export default function ProductMenu() {
                       Applied filters:
                     </p>
                     {activeTitle != "" ? (
-                      <FilterPill filter={`Title: ${activeTitle}`} />
+                      <FilterPill filter={`Title: ${activeTitle}`} clearFilter={() => handleActiveTitle("")} />
                     ) : (
                       <></>
                     )}
                     {activeMaxPrice != Number.MAX_SAFE_INTEGER ? (
-                      <FilterPill filter={`Max price: ${activeMaxPrice}€`} />
+                      <FilterPill filter={`Max price: ${activeMaxPrice}€`} clearFilter={() => setActiveMaxPrice(Number.MAX_SAFE_INTEGER)} />
                     ) : (
                       <></>
                     )}
                     {activeMinPrice != Number.MIN_SAFE_INTEGER ? (
-                      <FilterPill filter={`Min price: ${activeMinPrice}€`} />
+                      <FilterPill filter={`Min price: ${activeMinPrice}€`} clearFilter={() => setActiveMinPrice(Number.MIN_SAFE_INTEGER)} />
                     ) : (
                       <></>
                     )}
                     {activeOrderInitialDate != -1 ? (
-                      <FilterPill filter="Sorted by initial date" />
+                      <FilterPill filter="Sorted by initial date" clearFilter={() => setActiveOrderInitialDate(-1)} />
                     ) : (
                       <></>
                     )}
                     {activeOrderCloseDate != -1 ? (
-                      <FilterPill filter="Sorted by close date" />
+                      <FilterPill filter="Sorted by close date" clearFilter={() => setActiveOrderCloseDate(-1)} />
                     ) : (
                       <></>
                     )}
