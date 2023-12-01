@@ -32,6 +32,11 @@ export const FilterContext = createContext({
   activeOrderCloseDate: -1,
   setActiveOrderInitialDate: (orderInitialDate: number) => {},
   setActiveOrderCloseDate: (orderCloseDate: number) => {},
+  handleClearTitle: () => {},
+  handleClearMinPrice: () => {},
+  handleClearMaxPrice: () => {},
+  handleClearOrderInitialDate: () => {},
+  handleClearOrderCloseDate: () => {},
 })
 
 export const FilterContextProvider = ({
@@ -123,6 +128,31 @@ export const FilterContextProvider = ({
     setActiveTitle(title)
   }
 
+  const handleClearTitle = () => {
+    setActiveTitle("")
+    setTitle("")
+  }
+
+  const handleClearMinPrice = () => {
+    setActiveMinPrice(Number.MIN_SAFE_INTEGER)
+    setMinPrice(0)
+  }
+
+  const handleClearMaxPrice = () => {
+    setActiveMaxPrice(Number.MAX_SAFE_INTEGER)
+    setMaxPrice(0)
+  }
+
+  const handleClearOrderInitialDate = () => {
+    setActiveOrderInitialDate(-1)
+    setOrderInitialDate(-1)
+  }
+
+  const handleClearOrderCloseDate = () => {
+    setActiveOrderCloseDate(-1)
+    setOrderCloseDate(-1)
+  }
+
   return (
     <FilterContext.Provider
       value={{
@@ -153,6 +183,11 @@ export const FilterContextProvider = ({
         activeOrderCloseDate,
         setActiveOrderInitialDate,
         setActiveOrderCloseDate,
+        handleClearTitle,
+        handleClearMinPrice,
+        handleClearMaxPrice,
+        handleClearOrderInitialDate,
+        handleClearOrderCloseDate,
       }}
     >
       {children}

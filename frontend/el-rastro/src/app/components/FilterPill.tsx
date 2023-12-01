@@ -14,7 +14,7 @@ function FilterPill(props: FilterPillProps) {
   return (
     <button
       type="button"
-      className="flex items-center text-white bg-blue-700 font-medium rounded-full text-sm pl-5 pr-3 py-2.5 mr-2 mb-2 focus:cursor-default hover:cursor-default"
+      className="flex items-center text-white bg-blue-700 font-medium rounded-full text-sm pl-5 pr-3 py-2.5 mr-2 mb-2 focus:cursor-default hover:cursor-default hover:scale-105 transform transition-all duration-300 ease-in-out"
     >
       <span className="mr-2">{props.filter}</span>
       <div className="flex items-center" onClick={handleClearFilter}>

@@ -53,11 +53,11 @@ export default function ProductMenu() {
     owner,
     activeOrderInitialDate,
     activeOrderCloseDate,
-    setActiveMaxPrice,
-    setActiveMinPrice,
-    handleActiveTitle,
-    setActiveOrderInitialDate,
-    setActiveOrderCloseDate,
+    handleClearTitle,
+    handleClearMinPrice,
+    handleClearMaxPrice,
+    handleClearOrderInitialDate,
+    handleClearOrderCloseDate,
   } = useContext(FilterContext)
 
   useEffect(() => {
@@ -141,27 +141,42 @@ export default function ProductMenu() {
                       Applied filters:
                     </p>
                     {activeTitle != "" ? (
-                      <FilterPill filter={`Title: ${activeTitle}`} clearFilter={() => handleActiveTitle("")} />
+                      <FilterPill
+                        filter={`Title: ${activeTitle}`}
+                        clearFilter={handleClearTitle}
+                      />
                     ) : (
                       <></>
                     )}
                     {activeMaxPrice != Number.MAX_SAFE_INTEGER ? (
-                      <FilterPill filter={`Max price: ${activeMaxPrice}€`} clearFilter={() => setActiveMaxPrice(Number.MAX_SAFE_INTEGER)} />
+                      <FilterPill
+                        filter={`Max price: ${activeMaxPrice}€`}
+                        clearFilter={handleClearMaxPrice}
+                      />
                     ) : (
                       <></>
                     )}
                     {activeMinPrice != Number.MIN_SAFE_INTEGER ? (
-                      <FilterPill filter={`Min price: ${activeMinPrice}€`} clearFilter={() => setActiveMinPrice(Number.MIN_SAFE_INTEGER)} />
+                      <FilterPill
+                        filter={`Min price: ${activeMinPrice}€`}
+                        clearFilter={handleClearMinPrice}
+                      />
                     ) : (
                       <></>
                     )}
                     {activeOrderInitialDate != -1 ? (
-                      <FilterPill filter="Sorted by initial date" clearFilter={() => setActiveOrderInitialDate(-1)} />
+                      <FilterPill
+                        filter="Sorted by initial date"
+                        clearFilter={handleClearOrderInitialDate}
+                      />
                     ) : (
                       <></>
                     )}
                     {activeOrderCloseDate != -1 ? (
-                      <FilterPill filter="Sorted by close date" clearFilter={() => setActiveOrderCloseDate(-1)} />
+                      <FilterPill
+                        filter="Sorted by close date"
+                        clearFilter={handleClearOrderCloseDate}
+                      />
                     ) : (
                       <></>
                     )}
