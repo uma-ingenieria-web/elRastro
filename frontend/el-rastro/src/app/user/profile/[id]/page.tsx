@@ -12,20 +12,23 @@ interface UserProfileProps {
 
 export default async function ProfilePageId({ params }: { params: { id: string } }) {
   const { id } = params;
-  let apiUrl = '';
+  let photoApiURL = '';
+  let userApiURL = '';
   let urlRating = '';
-  const name = "User";
-  const bio = "bio";
+  let name = "User Not Found";
   if (process.env.NODE_ENV === 'development') {
-    apiUrl = `http://localhost:8003/api/v1/photo/${id}`;
+    photoApiURL = `http://localhost:8003/api/v1/photo/${id}`;
+    userApiURL = `http://localhost:8000/api/v1/user/${id}`;
     urlRating = `http://localhost:8007/api/v2/users/${id}/ratings`;
   } else {
-    apiUrl = `http://backend-micro-image-storage/api/v1/photo/${id}`;
+    photoApiURL = `http://backend-micro-image-storage/api/v1/photo/${id}`;
   }
 
   try {
-    const result = await fetch(apiUrl);
-    const url = await result.json();
+    const result = await fetch(userApiURL);
+    name = (await result.json())?.username;
+    const photo_result = await fetch(photoApiURL);
+    const url = await photo_result.json();
     const res = await fetch(urlRating);
     const ratings = await res.json();
     let total = 0;
@@ -43,7 +46,6 @@ export default async function ProfilePageId({ params }: { params: { id: string }
           </div>
           <div className="text-center mt-4">
             <h1 className="text-2xl font-bold text-black">{name}</h1>
-            <p className="text-2m text-black">{bio}</p>
           </div>
           <div className="text-center mt-4">
             <p className="text-2m font-bold text-black">Avg. rating: {rating}</p>
