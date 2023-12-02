@@ -17,7 +17,9 @@ interface ChatWithDetails {
     lastMessage: {
         _id: string;
         timestamp: string;
-        origin: string;
+        origin: {
+            _id: string;
+        };
         text: string;
     };
 }
@@ -36,7 +38,7 @@ function formatDate(timestamp: string) {
 
 function ChatCard({ _id, product, image, user, lastMessage }: ChatWithDetails) {
     const { data: session } = useSession();
-    const isCurrentUser = (session?.user as any).id === lastMessage.origin;
+    let isCurrentUser = (session?.user as any).id === lastMessage.origin._id;
 
     return (
         <div className="flex justify-center mt-5">
@@ -47,18 +49,20 @@ function ChatCard({ _id, product, image, user, lastMessage }: ChatWithDetails) {
                     </div>
                 </div>
                 <div className="flex flex-col items-start mb-4">
-                    <Link href={`../products/${product._id}`} className="cursor-pointer">
+                    <Link href={`../product/${product._id}`} className="cursor-pointer">
                         <Image
                             src={image}
                             alt="Product image"
-                            className="rounded-full w-20 h-20 border-2 border-gray-300 mb-4"
+                            className="w-20 h-20 border-2 border-gray-300 mb-4"
+                            width={100}
+                            height={100}
                         />
                     </Link>
-                    <div className="text-left text-base flex-1 overflow-hidden">
+                    <div className="text-left text-base max-w-full">
                         {isCurrentUser ? (
-                            <p><strong>You:</strong> {lastMessage.text}</p>
+                            <p className="break-all"><strong>You:</strong> {lastMessage.text}</p>
                         ) : (
-                            <p><strong>{user.username}:</strong> {lastMessage.text}</p>
+                            <p className="break-all"><strong>{user.username}:</strong> {lastMessage.text}</p>
                         )}
                     </div>
                 </div>

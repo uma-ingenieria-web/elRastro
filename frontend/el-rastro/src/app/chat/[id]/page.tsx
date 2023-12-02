@@ -119,7 +119,7 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
         {productInfo && (
           <div className="p-4 border-b border-gray-300 bg-gray-200">
             <h2 className="text-lg font-semibold">Conversation: {' '}
-              <Link href={`../products/${chatInfo?.product._id}`} className="cursor-pointer hover:underline">
+              <Link href={`../product/${chatInfo?.product._id}`} className="cursor-pointer hover:underline">
                 <strong>{productInfo.title}</strong>
               </Link>
             </h2>

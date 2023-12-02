@@ -29,7 +29,9 @@ interface ChatsWithDetails {
   };
   lastMessage: {
     _id: string;
-    origin: string;
+    origin: {
+      _id: string;
+    };
     timestamp: string;
     text: string;
   }
@@ -42,7 +44,7 @@ const ChatPage = () => {
 useEffect(() => {
   const fetchData = async () => {
     try {
-        const chatsResponse = await fetch(`http://localhost:8006/api/v1/myChats/${(session?.user as any).id}}`);
+        const chatsResponse = await fetch(`http://localhost:8006/api/v1/myChats/${(session?.user as any).id}`);
         const chatsData = await chatsResponse.json();
 
         const chatsWithDetails = await Promise.all(
