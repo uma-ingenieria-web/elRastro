@@ -7,6 +7,7 @@ export default function ProfilePageId() {
   const {data: session} = useSession()
   const id = session?.user?.id;
   const [file, setFile] = useState<File | null>(null);
+  const [status, setStatus] = useState<string>("");
 
   let apiUrl = '';
   if (process.env.NODE_ENV === 'development') {
@@ -34,12 +35,13 @@ export default function ProfilePageId() {
         });
 
         if (response.ok) {
-          console.log('File uploaded successfully');
+          setStatus('File uploaded successfully');
         } else {
-          console.error('Error uploading file');
+          throw new Error('Error uploading file');
         }
       } catch (error) {
         console.error('Error uploading file:', error);
+        setStatus('Error uploading file');
       }
     }
   };
@@ -52,7 +54,10 @@ export default function ProfilePageId() {
           <input type="file" onChange={handleFileChange} />
           <button className='text-black' onClick={handleUpload}>Upload</button>
         </div>
+        <div className="text-center mt-4">
+          <h1 className="text-2xl font-bold text-black">{status}</h1>
       </div>
+    </div>
     </div>
   );
 }

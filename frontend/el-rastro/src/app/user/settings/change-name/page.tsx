@@ -11,7 +11,6 @@ export default function ChangeUsernamePage() {
   async function sendChangeName(e: FormEvent) {
     e.preventDefault()
     try {
-      console.log("Hey" + newName)
       if (newName === null || newName === "") {
         throw new Error("Could not update name")
       }

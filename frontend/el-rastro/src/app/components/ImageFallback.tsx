@@ -1,35 +1,36 @@
+"use client"
+
 import Image, { ImageProps } from 'next/image'
 import { useEffect, useState } from 'react'
 
 import fallbackImage from '../../../public/default_user.png'
 
 interface ImageWithFallbackProps extends ImageProps {
-  fallback?: ImageProps['src']
+    fallback?: ImageProps['src']
 }
-
 
 const ImageWithFallback = ({
     fallback = fallbackImage,
-    alt,
     src,
+    alt,
     width = 200,
-    heigth = 200,
+    height = 200,
     ...props
-}) => {
-    const [error, setError] = useState(null)
+}: ImageWithFallbackProps) => {
+    const [imgSrc, set_imgSrc] = useState(src)
 
     useEffect(() => {
-        setError(null)
+        set_imgSrc(src)
     }, [src])
-
     return (
         <Image
             width={width}
-            
-            height={heigth}
+            height={height}
             alt={alt}
-            onError={setError}
-            src={error ? fallbackImage : src}
+            src={imgSrc}
+            onError={() => {
+                set_imgSrc(fallbackImage.src);
+            }}
             {...props}
         />
     )
