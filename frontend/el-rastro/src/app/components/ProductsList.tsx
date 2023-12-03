@@ -8,11 +8,49 @@ import NoProducts from "@/app/components/NoProducts"
 import { Product } from "@/app/product.types"
 import FilterPill from "@/app/components/FilterPill"
 
-let apiUrl = ""
+let productUrl = ""
+let photoUrl = ""
+let userUrl = ""
 if (process.env.NODE_ENV === "development") {
-  apiUrl = `http://localhost:8002/api/v1/products`
+  productUrl = `http://localhost:8002/api/v1/products`
+  photoUrl = `http://localhost:8003/api/v1/photo/`
+  userUrl = `http://localhost:8000/api/v1/user/username/`
 } else {
-  apiUrl = `http://backend-micro-products/api/v1/products`
+  productUrl = `http://backend-micro-products/api/v1/products`
+  photoUrl = `http://backend-micro-image-storage/api/v1/photo/`
+  userUrl = `http://backend-micro-users/api/v1/user/username/`
+}
+
+async function getUser(username: string) {
+  try {
+    const user_result = await fetch(userUrl + username)
+    const user = await user_result.json()
+    return user
+  } catch (error: any) {
+    if (error.cause?.code === "ECONNREFUSED") {
+      console.error(
+        "Error connecting to backend API. Is the backend service working?"
+      )
+    }
+    console.error("Error fetching user:", error.message)
+  }
+}
+
+async function getPhoto(id: string) {
+  try {
+    const photo_result = await fetch(photoUrl + id)
+    const url = await photo_result.json()
+    return url
+  } catch (error: any) {
+    if (error.cause?.code === "ECONNREFUSED") {
+      console.error(
+        "Error connecting to backend API. Is the backend service working?"
+      )
+      return "https://picsum.photos/800/400"
+    }
+    console.error("Error fetching photo:", error.message)
+    return "https://picsum.photos/800/400"
+  }
 }
 
 async function getProducts(
@@ -25,7 +63,7 @@ async function getProducts(
 ) {
   try {
     const result = await fetch(
-      apiUrl +
+      productUrl +
         `?orderInitialDate=${orderInitialDate}&orderCloseDate=${orderCloseDate}&minPrice=${minPrice}&maxPrice=${maxPrice}&title=${title}&username=${owner}`
     )
     const products = await result.json()
@@ -49,6 +87,8 @@ interface ProductListProps {
 export default function ProductList(props: ProductListProps) {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [ownerPhoto, setOwnerPhoto] = useState("https://picsum.photos/800/400")
+  const [user, setUser] = useState({ _id: "", username: "" })
 
   const {
     activeMinPrice,
@@ -64,7 +104,6 @@ export default function ProductList(props: ProductListProps) {
   } = useContext(FilterContext)
 
   useEffect(() => {
-
     const fetchData = async () => {
       try {
         const products = await getProducts(
@@ -88,6 +127,28 @@ export default function ProductList(props: ProductListProps) {
     activeOrderInitialDate,
     activeOrderCloseDate,
   ])
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await getUser(props.activeOwner)
+      setUser(user)
+    }
+
+    if (props.activeOwner != "") {
+      fetchUser()
+    }
+  }, [props.activeOwner])
+
+  useEffect(() => {
+    const fetchOwnerPhoto = async () => {
+      const url = await getPhoto(user._id)
+      setOwnerPhoto(url)
+    }
+
+    if (user._id != "") {
+      fetchOwnerPhoto()
+    }
+  }, [user._id])
 
   return (
     <>
@@ -128,12 +189,24 @@ export default function ProductList(props: ProductListProps) {
           ) : (
             <div className="flex">
               <Filter />
-              <section className="flex flex-col p-4 mt-5 justify-center text-center">
-                <div className="flex items-center justify-center mb-10">
-                  <h1 className="text-5xl font-bold text-black">
-                    Explore our products
-                  </h1>
-                </div>
+              <section className="flex flex-col  p-4 mt-5 justify-center text-center">
+                {props.activeOwner == "" ? (
+                  <div className="flex items-center justify-center mb-10">
+                    <h1 className="text-5xl font-bold text-black">
+                      Explore our products
+                    </h1>
+                  </div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row items-center justify-between mb-10">
+                    <h1 className="text-5xl font-bold text-black">
+                      {props.activeOwner.replace("%20", " ")}'s products
+                    </h1>
+                    <img
+                      className="w-20 h-20 mt-5 sm:mt-0 rounded-full mr-6 ml-6 object-cover"
+                      src={ownerPhoto}
+                    />
+                  </div>
+                )}
                 {activeMaxPrice != Number.MAX_SAFE_INTEGER ||
                 activeMinPrice != Number.MIN_SAFE_INTEGER ||
                 activeTitle != "" ||
@@ -201,7 +274,6 @@ export default function ProductList(props: ProductListProps) {
                   {products.map((product: Product) => (
                     <ProductCard
                       activeOwner={props.activeOwner}
-                      image={"https://picsum.photos/800/400"}
                       key={product._id}
                       product={product}
                     />

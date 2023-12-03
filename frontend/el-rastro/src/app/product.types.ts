@@ -1,3 +1,6 @@
+interface Rate {
+	value: number
+}
 interface UserInterface {
     _id: string;
     username: string;
@@ -25,8 +28,7 @@ interface Product {
 
 interface ProductInterface {
     product: Product;
-    image: string;
     activeOwner: string;
 }
 
-export type { ProductInterface, BidInterface, UserInterface, Product };
+export type { ProductInterface, BidInterface, UserInterface, Product, Rate };

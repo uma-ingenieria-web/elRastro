@@ -1,19 +1,46 @@
 "use client"
 
 import Link from "next/link"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { ProductInterface } from "@/app/product.types"
 
-function ProductCard(props: ProductInterface) {
+let apiUrl = ""
+if (process.env.NODE_ENV === "development") {
+  apiUrl = `http://localhost:8003/api/v1/photo/`
+} else {
+  apiUrl = `http://backend-micro-image-storage/api/v1/photo/`
+}
 
+async function getPhoto(id: string) {
+  try {
+    const photo_result = await fetch(apiUrl + id)
+    const url = await photo_result.json()
+    return url
+  } catch (error: any) {
+    if (error.cause?.code === "ECONNREFUSED") {
+      console.error(
+        "Error connecting to backend API. Is the backend service working?"
+      )
+      return "https://picsum.photos/800/400"
+    }
+    console.error("Error fetching photo:", error.message)
+    return "https://picsum.photos/800/400"
+  }
+}
+
+function ProductCard(props: ProductInterface) {
   const product = props.product
 
-  const formattedCloseDate = new Date(props.product.closeDate).toLocaleDateString()
+  const formattedCloseDate = new Date(
+    props.product.closeDate
+  ).toLocaleDateString()
   const closed = new Date(product.closeDate) < new Date()
 
-  product.owner.image = product.owner.image || "https://picsum.photos/800/400"
-
   const [showPopup, setShowPopup] = useState(false)
+  const [productPhoto, setProductPhoto] = useState(
+    "https://picsum.photos/800/400"
+  )
+  const [ownerPhoto, setOwnerPhoto] = useState("https://picsum.photos/800/400")
 
   const handleHoverEnter = () => {
     setShowPopup(true)
@@ -23,12 +50,29 @@ function ProductCard(props: ProductInterface) {
     setShowPopup(false)
   }
 
+  useEffect(() => {
+    const fetchPhoto = async () => {
+      const url = await getPhoto(product._id)
+      setProductPhoto(url)
+    }
+
+    const fetchOwnerPhoto = async () => {
+      const url = await getPhoto(product.owner._id)
+      setOwnerPhoto(url)
+    }
+
+    fetchOwnerPhoto()
+    fetchPhoto()
+    
+  }, [product._id, product.owner._id])
+
   return (
+    
     <div className="flex flex-col justify-between w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
       <Link href={"/product/" + product._id}>
         <img
           className="mb-3 rounded-t-lg"
-          src={props.image}
+          src={productPhoto}
           alt="product image"
         />
       </Link>
@@ -51,11 +95,11 @@ function ProductCard(props: ProductInterface) {
               onMouseEnter={handleHoverEnter}
               onMouseLeave={handleHoverLeave}
             >
-              {product.owner.image && (
+              {ownerPhoto && (
                 <div className="flex items-center">
                   <img
-                    className="inline-block h-16 w-16 sm:h-10 sm:w-10 rounded-full cursor-pointer transition-transform transform group-hover:scale-110"
-                    src={product.owner.image}
+                    className="inline-block object-cover h-16 w-16 sm:h-10 sm:w-10 rounded-full cursor-pointer transition-transform transform group-hover:scale-110"
+                    src={ownerPhoto}
                     alt="user image"
                   />
                 </div>
@@ -70,8 +114,8 @@ function ProductCard(props: ProductInterface) {
                   <div className="p-3">
                     <div className="flex items-center justify-between mb-2">
                       <img
-                        className="w-10 h-10 rounded-full"
-                        src={product.owner.image}
+                        className="w-10 h-10 object-cover rounded-full"
+                        src={ownerPhoto}
                         alt="owner's avatar"
                       />
                       <p className="text-base font-semibold leading-none text-gray-900 dark:text-white">
@@ -117,7 +161,8 @@ function ProductCard(props: ProductInterface) {
           </div>
         </div>
         <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-          {closed ? "Closed" : "Closes"} on: {formattedCloseDate}
+          <strong>{closed ? "Closed on" : "Open until"}</strong>:{" "}
+          {formattedCloseDate}
         </p>
       </div>
     </div>

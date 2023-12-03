@@ -13,7 +13,6 @@ function Filter() {
     minPrice,
     maxPrice,
     title,
-    setOwner,
     orderCloseDate,
     orderInitialDate,
     handleTitleChange,

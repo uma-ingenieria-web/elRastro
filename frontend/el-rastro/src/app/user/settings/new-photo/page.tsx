@@ -1,9 +1,11 @@
 "use client"
 
+import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
-export default function ProfilePageId({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function ProfilePageId() {
+  const {data: session} = useSession()
+  const id = session?.user?.id;
   const [file, setFile] = useState<File | null>(null);
 
   let apiUrl = '';
