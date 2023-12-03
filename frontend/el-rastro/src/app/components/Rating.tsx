@@ -1,6 +1,4 @@
-interface Rate {
-	value: number
-}
+import { Rate } from "../product.types"
 
 const r1 = (
 	<>
@@ -65,12 +63,12 @@ function getStars(rate: string | number) {
 	}
 }
 
-export function rating_html(ratings: Rate[]) {
+export function Rating({ratings} : {ratings: Rate[]}) {
 	const len = ratings.length;
 	let total = 0;
-	for (let i = 0; i < len; i++) {
-		total += ratings[i].value;
-	}
+	ratings.forEach((rating) => {
+		total += rating.value;
+	});
 	const avgRating = len ? total / len : "Not rated";
 	const stars = getStars(avgRating);
 	return (
