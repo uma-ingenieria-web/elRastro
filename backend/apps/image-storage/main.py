@@ -35,9 +35,6 @@ origins = [
     "http://frontend:3000",
 ]
 
-
-
-
 @app.get("/" + versionRoute + "/photo/{id}",
          summary="Get url to photo from id",
          description="Get url to photo from the id of a user or product",
@@ -68,12 +65,9 @@ def get_url_photo(id: str):
         },
         tags=["Photo"])
 def post_photo(id: str, file: UploadFile = File()):
-    # transformation=[{
-    #     'width': 100,
-    #     'height': 100,
-    #     'crop': 'fill'
+    response = cloudinary_uploader.upload(file.file, public_id=id, transformation=[{
+        "format": "jpg"
 
-    # }]
-    response = cloudinary_uploader.upload(file.file, public_id=id)
+    }])
     return response["secure_url"]
 
