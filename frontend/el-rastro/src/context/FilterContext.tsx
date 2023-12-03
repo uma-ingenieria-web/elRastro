@@ -5,17 +5,12 @@ import { createContext, useState } from "react"
 export const FilterContext = createContext({
   minPrice: 0,
   maxPrice: 0,
-  owner: "",
-  setOwner: (owner: string) => {},
   title: "",
   handleTitleChange: (event: React.ChangeEvent<HTMLInputElement>) => {},
   orderInitialDate: -1,
   setOrderInitialDate: (orderInitialDate: number) => {},
   orderCloseDate: -1,
   setOrderCloseDate: (orderCloseDate: number) => {},
-  handleMyProducts: () => {},
-  handleProductsBidded: () => {},
-  handleProductsWon: () => {},
   activeTitle: "",
   handleActiveTitle: (title: string) => {},
   activeMinPrice: Number.MIN_SAFE_INTEGER,
@@ -46,7 +41,6 @@ export const FilterContextProvider = ({
 }) => {
   const [minPrice, setMinPrice] = useState(0)
   const [maxPrice, setMaxPrice] = useState(0)
-  const [owner, setOwner] = useState("")
   const [title, setTitle] = useState("")
   const [orderInitialDate, setOrderInitialDate] = useState(-1)
   const [orderCloseDate, setOrderCloseDate] = useState(-1)
@@ -109,21 +103,6 @@ export const FilterContextProvider = ({
     setActiveOrderCloseDate(-1)
   }
 
-  // TODO: implement
-  const handleMyProducts = () => {
-    setOwner("me")
-  }
-
-  // TODO: implement
-  const handleProductsBidded = () => {
-    setOwner("my-bids")
-  }
-
-  // TODO: implement
-  const handleProductsWon = () => {
-    setOwner("my-won")
-  }
-
   const handleActiveTitle = (title: string) => {
     setActiveTitle(title)
   }
@@ -158,17 +137,12 @@ export const FilterContextProvider = ({
       value={{
         minPrice,
         maxPrice,
-        owner,
-        setOwner,
         title,
         handleTitleChange,
         orderInitialDate,
         setOrderInitialDate,
         orderCloseDate,
         setOrderCloseDate,
-        handleMyProducts,
-        handleProductsBidded,
-        handleProductsWon,
         activeTitle,
         handleActiveTitle,
         activeMinPrice,

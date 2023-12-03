@@ -4,8 +4,11 @@ import Link from "next/link"
 import React, { useState } from "react"
 import { ProductInterface } from "@/app/product.types"
 
-function ProductCard(product: ProductInterface) {
-  const formattedCloseDate = new Date(product.closeDate).toLocaleDateString()
+function ProductCard(props: ProductInterface) {
+
+  const product = props.product
+
+  const formattedCloseDate = new Date(props.product.closeDate).toLocaleDateString()
   const closed = new Date(product.closeDate) < new Date()
 
   product.owner.image = product.owner.image || "https://picsum.photos/800/400"
@@ -25,7 +28,7 @@ function ProductCard(product: ProductInterface) {
       <Link href={"/product/" + product._id}>
         <img
           className="mb-3 rounded-t-lg"
-          src={product.image}
+          src={props.image}
           alt="product image"
         />
       </Link>
@@ -98,10 +101,12 @@ function ProductCard(product: ProductInterface) {
             €
           </div>
           <div className="ml-4 align-middle">
-            {closed ? (
-              <button className="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 hover:scale-105 transform transition-all duration-300">
-                More like this
-              </button>
+            {closed && !props.activeOwner ? (
+              <Link href={`/product/owner/${product.owner.username}`}>
+                <button className="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 hover:scale-105 transform transition-all duration-300">
+                  More like this
+                </button>
+              </Link>
             ) : (
               <Link href={`/product/${product._id}`}>
                 <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 hover:scale-105 transform transition-all duration-300">
