@@ -68,11 +68,12 @@ def get_url_photo(id: str):
         },
         tags=["Photo"])
 def post_photo(id: str, file: UploadFile = File()):
-    response = cloudinary_uploader.upload(file.file, public_id=id, transformation=[{
-        'width': 100,
-        'height': 100,
-        'crop': 'fill'
+    # transformation=[{
+    #     'width': 100,
+    #     'height': 100,
+    #     'crop': 'fill'
 
-    }])
+    # }]
+    response = cloudinary_uploader.upload(file.file, public_id=id)
     return response["secure_url"]
 
