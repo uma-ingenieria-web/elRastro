@@ -28,7 +28,6 @@ interface Product {
 
 interface ProductInterface {
     product: Product;
-    image: string;
     activeOwner: string;
 }
 
