@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import ImageWithFallback from '@/app/components/ImageFallback';
+import { rating_html } from '../../../components/Rating'
 
 interface UserProfileProps {
   name: string;
@@ -31,11 +32,7 @@ export default async function ProfilePageId({ params }: { params: { id: string }
     const url = await photo_result.json();
     const res = await fetch(urlRating);
     const ratings = await res.json();
-    let total = 0;
-    for(let i = 0; i < ratings.length; i++) {
-        total += ratings[i].value;
-    }
-    const rating = ratings.length ? total / ratings.length : "Not rated";
+    const avgRatings = rating_html(ratings);
     return (
       <div className="flex justify-center items-center h-screen bg-gray-100">
         <div className="bg-white rounded-lg shadow-lg p-8">
@@ -47,9 +44,7 @@ export default async function ProfilePageId({ params }: { params: { id: string }
           <div className="text-center mt-4">
             <h1 className="text-2xl font-bold text-black">{name}</h1>
           </div>
-          <div className="text-center mt-4">
-            <p className="text-2m font-bold text-black">Avg. rating: {rating}</p>
-          </div>
+          {avgRatings}
           <div className="flex justify-center mt-4">
             <a href={`/user/settings/new-photo/${id}`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" >
               Settings

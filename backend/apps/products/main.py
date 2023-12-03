@@ -390,3 +390,32 @@ def get_products_bids(id: str):
 
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
+
+# Get the number of products sold by a user
+@app.get(
+    "/" + versionRoute + "/products/sold/{id}",
+    summary="Get the number of products sold by a user",
+    response_description="Number of products sold by a user",
+    responses={400: errors.error_400, 422: errors.error_422},
+)
+def get_products_sold(id: str):
+    try:
+        
+        products_sold_cursor = db.Product.aggregate(
+            [
+                {"$match": {"owner._id": ObjectId(id)}},
+                {"$match": {"buyer": {"$exists": True}}},
+                {"$count": "products_sold"},
+            ]
+        )
+        
+        products_sold = 0
+        
+        if products_sold_cursor is not None:
+            for document in products_sold_cursor:
+                products_sold = document["products_sold"]
+                
+        return products_sold
+
+    except InvalidId as e:
+        raise HTTPException(status_code=400, detail="Invalid ObjectId format")

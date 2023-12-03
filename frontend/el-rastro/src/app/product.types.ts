@@ -24,17 +24,9 @@ interface Product {
 }
 
 interface ProductInterface {
-    _id: string;
-    title: string;
-    description: string;
-    price: number;
-    initialPrice: number;
-    initialDate: Date;
-    closeDate: Date;
-    weight: number;
-    owner: UserInterface;
-    bids: BidInterface[];
+    product: Product;
     image: string;
+    activeOwner: string;
 }
 
 export type { ProductInterface, BidInterface, UserInterface, Product };
