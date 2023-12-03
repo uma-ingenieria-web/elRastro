@@ -2,6 +2,9 @@
 const nextConfig = {
   output: "standalone",
   reactStrictMode: true,
+  compiler: {
+    styledComponents: true,
+  },
   images: {
     remotePatterns: [
       {
