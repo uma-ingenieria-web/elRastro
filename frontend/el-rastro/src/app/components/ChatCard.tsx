@@ -38,7 +38,11 @@ function formatDate(timestamp: string) {
 
 function ChatCard({ _id, product, image, user, lastMessage }: ChatWithDetails) {
     const { data: session } = useSession();
-    let isCurrentUser = (session?.user as any).id === lastMessage.origin._id;
+    let existLastMessage = lastMessage._id !== undefined;
+    let isCurrentUser;
+    if (existLastMessage) {
+        isCurrentUser = (session?.user as any).id === lastMessage.origin._id;
+    }
 
     return (
         <div className="flex justify-center mt-5">
@@ -59,11 +63,12 @@ function ChatCard({ _id, product, image, user, lastMessage }: ChatWithDetails) {
                         />
                     </Link>
                     <div className="text-left text-base max-w-full">
-                        {isCurrentUser ? (
+                        {existLastMessage ? (isCurrentUser ? (
                             <p className="break-all"><strong>You:</strong> {lastMessage.text}</p>
                         ) : (
                             <p className="break-all"><strong>{user.username}:</strong> {lastMessage.text}</p>
-                        )}
+                        )) : (<p></p>)}
+                        
                     </div>
                 </div>
                 <div className="text-right text-xs text-gray-700">{formatDate(lastMessage.timestamp)}</div>
