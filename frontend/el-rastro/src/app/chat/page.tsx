@@ -41,10 +41,11 @@ const ChatPage = () => {
   const { data: session } = useSession();
   const [chats, setChats] = useState<ChatsWithDetails[]>([]);
 
+  const userId = (session?.user as any)?.id 
 useEffect(() => {
   const fetchData = async () => {
     try {
-        const chatsResponse = await fetch(`http://localhost:8006/api/v1/myChats/${(session?.user as any).id}`);
+        const chatsResponse = await fetch(`http://localhost:8006/api/v1/myChats/${userId}`);
         const chatsData = await chatsResponse.json();
 
         const chatsWithDetails = await Promise.all(
@@ -83,7 +84,7 @@ useEffect(() => {
     };
 
     fetchData();
-  }, [(session?.user as any).id]);
+  }, [userId]);
 
   return (
     <section className="flex flex-col p-4 mt-5 justify-center">
