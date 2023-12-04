@@ -71,7 +71,9 @@ function ChatCard({ _id, product, image, user, lastMessage }: ChatWithDetails) {
                         
                     </div>
                 </div>
-                <div className="text-right text-xs text-gray-700">{formatDate(lastMessage.timestamp)}</div>
+                <div className="text-right text-xs text-gray-700">
+                    {existLastMessage ? (formatDate(lastMessage.timestamp)) : (<p></p>)}
+                </div>
                 <div className="flex justify-center items-center mt-4">
                     <Link href={`../chat/${_id}`} className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded no-underline hover:bg-blue-700">
                         Open Chat
