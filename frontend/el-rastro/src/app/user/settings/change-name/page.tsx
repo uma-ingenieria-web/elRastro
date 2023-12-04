@@ -6,6 +6,7 @@ import { useState } from 'react';
 export default function ChangeUsernamePage() {
   const {data: session} = useSession()
   const [errorName, setErrorName] = useState("")
+  const [messageName, setMessageName] = useState("")
   const [newName, setNewName] = useState("")
 
   async function sendChangeName(e: FormEvent) {
@@ -26,9 +27,11 @@ export default function ChangeUsernamePage() {
       if (!result.ok) {
         throw new Error("Could not update name")
       }
+      setMessageName("Name updated successfully")
       setErrorName("")
     } catch (error) {
       setErrorName("Could not update name")
+      setMessageName("")
     }
   }
 
@@ -39,7 +42,8 @@ export default function ChangeUsernamePage() {
             <label htmlFor="changeNameInput" className='mb-2'>Change your name:</label>
             <input id="changeNameInput" type='text' maxLength={20} value={newName} onChange={(evt) => setNewName(evt.currentTarget.value)}/>
             <input type="submit" value="Submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2" />
-            {errorName && <p className="text-red-500 text-xs mt-1">{errorName}</p>}
+            {errorName && <p className="text-red-500 font-bold text-center text-xs mt-1">{errorName}</p>}
+            {messageName && <p className="text-green-500 text-xs mt-1 font-bold text-center">{messageName}</p>}
           </form>
       </div>
     </div>
