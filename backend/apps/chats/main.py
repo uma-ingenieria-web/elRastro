@@ -126,7 +126,7 @@ async def get_last_message(id: str):
     # Obtén la conversación ordenada por timestamp descendente
     conversation = db.Message.find({"chat._id": ObjectId(id)}).sort("timestamp", -1).limit(1)
     conversation_list = list(conversation)
-    if len(conversation) == 0:
+    if len(conversation_list) == 0:
         raise HTTPException(status_code=404, detail=f"Chat has no messages")
     else:
         last_message = conversation_list[0]

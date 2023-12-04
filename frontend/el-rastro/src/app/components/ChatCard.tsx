@@ -42,7 +42,7 @@ function ChatCard({ _id, product, image, user, lastMessage }: ChatWithDetails) {
 
     return (
         <div className="flex justify-center mt-5">
-            <div className="max-w-2xl w-full mx-2 p-4 bg-white rounded shadow">
+            <div className="max-w-2xl w-full mx-2 p-4 bg-gray-200 rounded shadow border border-gray-500">
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <h2 className="text-lg font-semibold"><strong>{product.title}</strong></h2>

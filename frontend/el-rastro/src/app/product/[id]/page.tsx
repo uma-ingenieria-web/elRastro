@@ -1,7 +1,7 @@
 "use client"
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-import { ProductInterface } from '@/app/product.types';
+import { Product } from '@/app/product.types';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 
@@ -9,7 +9,7 @@ function Product({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { data: session } = useSession();
   const { id } = params;
-  const [product, setProduct] = useState<ProductInterface | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     // Fetch product data on the client side
