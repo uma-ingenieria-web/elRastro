@@ -202,7 +202,7 @@ export default function ProductList(props: ProductListProps) {
                       {props.activeOwner.replace("%20", " ")}'s products
                     </h1>
                     <img
-                      className="w-20 h-20 mt-5 sm:mt-0 rounded-full mr-6 ml-6 object-cover"
+                      className="w-20 h-20 mt-5 sm:mt-0 rounded-full mr-6 object-cover"
                       src={ownerPhoto}
                     />
                   </div>
