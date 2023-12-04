@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import React, { useEffect, useState } from "react"
-import { ProductInterface } from "@/app/product.types"
+import { ProductInterface, Rate } from "@/app/product.types"
 
 let apiUrl = ""
 if (process.env.NODE_ENV === "development") {
@@ -65,7 +65,7 @@ function ProductCard(props: ProductInterface) {
     fetchPhoto()
     
   }, [product._id, product.owner._id])
-
+  const rating = "0 ⭐ :(";
   return (
     
     <div className="flex flex-col justify-between w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
@@ -123,7 +123,7 @@ function ProductCard(props: ProductInterface) {
                       </p>
                       <div></div>
                     </div>
-                    <div className="flex text-sm">{/* Add rating */}</div>
+                    <div className="flex text-sm">{rating}</div>
                   </div>
                 </div>
               )}
