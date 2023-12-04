@@ -71,7 +71,7 @@ function ProductCard(props: ProductInterface) {
     <div className="flex flex-col justify-between w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
       <Link href={"/product/" + product._id}>
         <img
-          className="mb-3 rounded-t-lg"
+          className="mb-3 rounded-t-lg object-cover object-center"
           src={productPhoto}
           alt="product image"
         />
