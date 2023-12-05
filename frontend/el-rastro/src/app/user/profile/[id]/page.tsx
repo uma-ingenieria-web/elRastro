@@ -1,4 +1,3 @@
-
 import ImageWithFallback from '@/app/components/ImageFallback';
 import { Rating } from '../../../components/Rating'
 import { Rate } from '../../../product.types';

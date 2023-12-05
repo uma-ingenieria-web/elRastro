@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import React, { useEffect, useState } from "react"
+import { Rating } from '../../../components/Rating'
 import { ProductInterface, Rate } from "@/app/product.types"
 
 let apiUrl = ""
@@ -107,11 +108,13 @@ function ProductCard(props: ProductInterface) {
             >
               {ownerPhoto && (
                 <div className="flex items-center">
+                <Link href={`/user/profile/${product.owner._id}`}>
                   <img
                     className="max-[342px]:w-9 max-[342px]:h-9 inline-block object-cover h-16 w-16 sm:h-10 sm:w-10 rounded-full cursor-pointer transition-transform transform group-hover:scale-110"
                     src={ownerPhoto}
                     alt="user image"
                   />
+                </Link>
                 </div>
               )}
               {showPopup && (
