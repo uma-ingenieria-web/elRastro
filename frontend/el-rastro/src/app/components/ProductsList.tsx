@@ -122,6 +122,8 @@ export default function ProductList(props: ProductListProps) {
     }
   }, [props.ownerId])
 
+  const owner = props.activeOwner.split("#")[0]
+
   return (
     <>
       {!loading && products.length == 0 ? (
@@ -162,16 +164,16 @@ export default function ProductList(props: ProductListProps) {
             <div className="flex">
               <Filter />
               <section className="flex flex-col  p-4 mt-5 justify-center text-center">
-                {props.activeOwner == "" ? (
+                {owner == "" ? (
                   <div className="flex items-center justify-center mb-10">
                     <h1 className="text-5xl font-bold text-black">
                       Explore our products
                     </h1>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-between mb-10">
-                    <h1 className="text-5xl pr-5 mb-5 font-bold text-black">
-                      {props.activeOwner.split("#")[0]}'s products
+                  <div className={`flex flex-col ${owner.length < 20 && 'sm:flex-row'} items-center justify-between mb-10`}>
+                    <h1 className={`text-5xl ${owner.length > 20 && 'mb-5'} pr-5 font-bold text-black`}>
+                      {owner}'s products
                     </h1>
                     <img
                       className="w-20 h-20 mt-5 sm:mt-0 rounded-full mr-6 object-cover"

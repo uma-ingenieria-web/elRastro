@@ -81,7 +81,7 @@ function ProductCard(props: ProductInterface) {
     <div className="flex flex-col justify-between w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
       <Link className="w-full h-52 sm:h-32" href={"/product/" + product._id}>
         <img
-          className="h-full w-full mb-3 rounded-t-lg object-fill object-center"
+          className="h-full w-full mb-3 rounded-t-lg object-fit object-center"
           src={productPhoto}
           alt="product image"
         />
@@ -90,7 +90,7 @@ function ProductCard(props: ProductInterface) {
         <div className="flex flex-row justify-between items-center md:items-start mt-2">
           <Link href={"/product/" + product._id}>
             <h5
-              className={`text-3xl sm:text-2xl pr-3 font-semibold tracking-tight text-gray-900 dark:text-white mb-2 ${
+              className={`text-3xl sm:text-2xl max-[342px]:text-xl pr-3 font-semibold tracking-tight text-gray-900 dark:text-white mb-2 ${
                 product.title.split(" ")[0].length > 10
                   ? "max-w-full overflow-hidden overflow-ellipsis"
                   : ""
@@ -108,7 +108,7 @@ function ProductCard(props: ProductInterface) {
               {ownerPhoto && (
                 <div className="flex items-center">
                   <img
-                    className="inline-block object-cover h-16 w-16 sm:h-10 sm:w-10 rounded-full cursor-pointer transition-transform transform group-hover:scale-110"
+                    className="max-[342px]:w-9 max-[342px]:h-9 inline-block object-cover h-16 w-16 sm:h-10 sm:w-10 rounded-full cursor-pointer transition-transform transform group-hover:scale-110"
                     src={ownerPhoto}
                     alt="user image"
                   />
@@ -124,7 +124,7 @@ function ProductCard(props: ProductInterface) {
                   <div className="p-3">
                     <div className="flex items-center justify-between mb-2">
                       <img
-                        className="w-10 h-10 object-cover rounded-full"
+                        className="w-10 h-10 mr-2 object-cover rounded-full"
                         src={ownerPhoto}
                         alt="owner's avatar"
                       />
@@ -170,7 +170,7 @@ function ProductCard(props: ProductInterface) {
             )}
           </div>
         </div>
-        <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+        <p className={`mt-3 text-sm ${new Date(props.product.closeDate ) > new Date() ? 'text-gray-500 dark:text-gray-400' : 'text-red-500 dark:text-red-400'} `}>
           <strong>{closed ? "Closed on" : "Open until"}</strong>:{" "}
           {formattedCloseDate}
         </p>
