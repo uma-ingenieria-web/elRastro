@@ -3,18 +3,17 @@
 import Image, { ImageProps } from 'next/image'
 import { useEffect, useState } from 'react'
 
-import fallbackImage from '../../../public/default_user.png'
 
 interface ImageWithFallbackProps extends ImageProps {
     fallback?: ImageProps['src']
 }
 
 const ImageWithFallback = ({
-    fallback = fallbackImage,
     src,
     alt,
     width = 200,
     height = 200,
+    fallback,
     ...props
 }: ImageWithFallbackProps) => {
     const [imgSrc, set_imgSrc] = useState(src)
@@ -29,7 +28,7 @@ const ImageWithFallback = ({
             alt={alt}
             src={imgSrc}
             onError={() => {
-                set_imgSrc(fallbackImage.src);
+                set_imgSrc(fallback);
             }}
             {...props}
         />
