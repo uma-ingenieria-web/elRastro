@@ -2,18 +2,19 @@
 
 import Link from "next/link"
 import React, { useEffect, useState } from "react"
+import { Rating } from '../../../components/Rating'
 import { ProductInterface, Rate } from "@/app/product.types"
 
-let apiUrl = ""
+let photoURL = ""
 if (process.env.NODE_ENV === "development") {
-  apiUrl = `http://localhost:8003/api/v1/photo/`
+  photoURL = `http://localhost:8003/api/v1/photo/`
 } else {
-  apiUrl = `http://backend-micro-image-storage/api/v1/photo/`
+  photoURL = `http://backend-micro-image-storage/api/v1/photo/`
 }
 
 async function getPhoto(id: string) {
   try {
-    const photo_result = await fetch(apiUrl + id)
+    const photo_result = await fetch(photoURL + id)
     const url = await photo_result.json()
     return url
   } catch (error: any) {
@@ -81,7 +82,7 @@ function ProductCard(props: ProductInterface) {
     <div className="flex flex-col justify-between w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
       <Link className="w-full h-52 sm:h-32" href={"/product/" + product._id}>
         <img
-          className="h-full w-full mb-3 rounded-t-lg object-fit object-center"
+          className="h-full w-full object-fit mb-3 rounded-t-lg object-center"
           src={productPhoto}
           alt="product image"
         />
@@ -107,11 +108,13 @@ function ProductCard(props: ProductInterface) {
             >
               {ownerPhoto && (
                 <div className="flex items-center">
+                <Link href={`/user/profile/${product.owner._id}`}>
                   <img
                     className="max-[342px]:w-9 max-[342px]:h-9 inline-block object-cover h-16 w-16 sm:h-10 sm:w-10 rounded-full cursor-pointer transition-transform transform group-hover:scale-110"
                     src={ownerPhoto}
                     alt="user image"
                   />
+                </Link>
                 </div>
               )}
               {showPopup && (
