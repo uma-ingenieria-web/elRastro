@@ -4,16 +4,16 @@ import Link from "next/link"
 import React, { useEffect, useState } from "react"
 import { ProductInterface, Rate } from "@/app/product.types"
 
-let apiUrl = ""
+let photoURL = ""
 if (process.env.NODE_ENV === "development") {
-  apiUrl = `http://localhost:8003/api/v1/photo/`
+  photoURL = `http://localhost:8003/api/v1/photo/`
 } else {
-  apiUrl = `http://backend-micro-image-storage/api/v1/photo/`
+  photoURL = `http://backend-micro-image-storage/api/v1/photo/`
 }
 
 async function getPhoto(id: string) {
   try {
-    const photo_result = await fetch(apiUrl + id)
+    const photo_result = await fetch(photoURL + id)
     const url = await photo_result.json()
     return url
   } catch (error: any) {
@@ -81,7 +81,7 @@ function ProductCard(props: ProductInterface) {
     <div className="flex flex-col justify-between w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
       <Link className="w-full h-52 sm:h-32" href={"/product/" + product._id}>
         <img
-          className="h-full w-full mb-3 rounded-t-lg object-fit object-center"
+          className="h-full w-full object-fit mb-3 rounded-t-lg object-center"
           src={productPhoto}
           alt="product image"
         />
