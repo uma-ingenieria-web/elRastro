@@ -10,31 +10,14 @@ import FilterPill from "@/app/components/FilterPill"
 
 let productUrl = ""
 let photoUrl = ""
-let userUrl = ""
 if (process.env.NODE_ENV === "development") {
   productUrl = `http://localhost:8002/api/v1/products`
   photoUrl = `http://localhost:8003/api/v1/photo/`
-  userUrl = `http://localhost:8000/api/v1/user/username/`
 } else {
   productUrl = `http://backend-micro-products/api/v1/products`
   photoUrl = `http://backend-micro-image-storage/api/v1/photo/`
-  userUrl = `http://backend-micro-users/api/v1/user/username/`
 }
 
-async function getUser(username: string) {
-  try {
-    const user_result = await fetch(userUrl + username)
-    const user = await user_result.json()
-    return user
-  } catch (error: any) {
-    if (error.cause?.code === "ECONNREFUSED") {
-      console.error(
-        "Error connecting to backend API. Is the backend service working?"
-      )
-    }
-    console.error("Error fetching user:", error.message)
-  }
-}
 
 async function getPhoto(id: string) {
   try {
@@ -82,13 +65,13 @@ async function getProducts(
 
 interface ProductListProps {
   activeOwner: string
+  ownerId: string
 }
 
 export default function ProductList(props: ProductListProps) {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [ownerPhoto, setOwnerPhoto] = useState("https://picsum.photos/800/400")
-  const [user, setUser] = useState({ _id: "", username: "" })
 
   const {
     activeMinPrice,
@@ -129,26 +112,17 @@ export default function ProductList(props: ProductListProps) {
   ])
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const user = await getUser(props.activeOwner)
-      setUser(user)
-    }
-
-    if (props.activeOwner != "") {
-      fetchUser()
-    }
-  }, [props.activeOwner])
-
-  useEffect(() => {
     const fetchOwnerPhoto = async () => {
-      const url = await getPhoto(user._id)
+      const url = await getPhoto(props.ownerId)
       setOwnerPhoto(url)
     }
 
-    if (user._id != "") {
+    if (props.ownerId != "") {
       fetchOwnerPhoto()
     }
-  }, [user._id])
+  }, [props.ownerId])
+
+  const owner = props.activeOwner.split("#")[0]
 
   return (
     <>
@@ -190,16 +164,16 @@ export default function ProductList(props: ProductListProps) {
             <div className="flex">
               <Filter />
               <section className="flex flex-col  p-4 mt-5 justify-center text-center">
-                {props.activeOwner == "" ? (
+                {owner == "" ? (
                   <div className="flex items-center justify-center mb-10">
                     <h1 className="text-5xl font-bold text-black">
                       Explore our products
                     </h1>
                   </div>
                 ) : (
-                  <div className="flex flex-col sm:flex-row items-center justify-between mb-10">
-                    <h1 className="text-5xl font-bold text-black">
-                      {props.activeOwner.replace("%20", " ")}'s products
+                  <div className={`flex flex-col ${owner.length < 20 && 'sm:flex-row'} items-center justify-between mb-10`}>
+                    <h1 className={`text-5xl ${owner.length > 20 && 'mb-5'} pr-5 font-bold text-black`}>
+                      {owner}'s products
                     </h1>
                     <img
                       className="w-20 h-20 mt-5 sm:mt-0 rounded-full mr-6 object-cover"

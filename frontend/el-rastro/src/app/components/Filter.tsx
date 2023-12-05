@@ -4,10 +4,15 @@ import { FilterContext } from "@/context/FilterContext"
 import React, { useContext, useState } from "react"
 import { MdOutlineDateRange } from "react-icons/md"
 import { GoSearch } from "react-icons/go"
+import { useSession } from "next-auth/react"
+import Link from "next/link"
 
 function Filter() {
   const [isDropdownOpen, setDropdownOpen] = useState(false)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
+  const { data: session } = useSession()
+
+  const userId = (session?.user as any)?.id || ""
 
   const {
     minPrice,
@@ -174,64 +179,72 @@ function Filter() {
                   </div>
                 </div>
               </li>
-              <li>
-                <button
-                  type="button"
-                  className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                  aria-controls="dropdown-example"
-                  data-collapse-toggle="dropdown-example"
-                  onClick={toggleDropdown}
+              <button
+                type="button"
+                className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                aria-controls="dropdown-example"
+                data-collapse-toggle="dropdown-example"
+                onClick={toggleDropdown}
+              >
+                <svg
+                  className={`flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white ${
+                    !isDropdownOpen ? "transform rotate-180" : ""
+                  }`}
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 18 21"
                 >
-                  <svg
-                    className={`flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white ${
-                      !isDropdownOpen ? "transform rotate-180" : ""
-                    }`}
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    viewBox="0 0 18 21"
-                  >
-                    <path
-                      d={isDropdownOpen ? "M15 11l-7-7-7 7" : "M15 11l-7-7-7 7"}
-                    />
-                  </svg>
-                  <span className="text-xl flex-1 ms-3 font-medium text-left rtl:text-right whitespace-nowrap">
-                    Products
-                  </span>
-                </button>
+                  <path
+                    d={isDropdownOpen ? "M15 11l-7-7-7 7" : "M15 11l-7-7-7 7"}
+                  />
+                </svg>
+                <span className="text-xl flex-1 ms-3 font-medium text-left rtl:text-right whitespace-nowrap">
+                  My Products
+                </span>
+              </button>
 
-                <ul
-                  id="dropdown-example"
-                  className={`${
-                    isDropdownOpen ? "block" : "hidden"
-                  } py-2 space-y-2`}
-                >
-                  <li>
+              <ul
+                id="dropdown-example"
+                className={`${
+                  isDropdownOpen ? "block" : "hidden"
+                } py-2 space-y-2`}
+              >
+                {session?.user ? (
+                  <>
+                    <li>
+                      <Link href={`/product/owner/${userId}`}>
+                        <p
+                          tabIndex={0}
+                          className="text-xl cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                        >
+                          On sale products
+                        </p>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href={`/bid/${userId}`}>
+                        <p
+                          tabIndex={0}
+                          className="text-xl cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                        >
+                          My bids
+                        </p>
+                      </Link>
+                    </li>
+                  </>
+                ) : (
+                  <li className="justify-center items-center flex">
                     <p
                       tabIndex={0}
-                      className="text-xl cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                      className="outline-1 border border-gray-300 shadow-md text-left text-xl cursor-not-allowed flex items-center justify-center ml-6 w-full p-2 text-gray-500 transition duration-75 rounded-lg pl-11"
                     >
-                      My products
+                      Log in to view your products
                     </p>
                   </li>
-                  <li>
-                    <p
-                      tabIndex={0}
-                      className="text-xl cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                    >
-                      My bids
-                    </p>
-                  </li>
-                  <li>
-                    <p
-                      tabIndex={0}
-                      className="text-xl cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                    >
-                      Products Won
-                    </p>
-                  </li>
-                </ul>
-              </li>
+                )}
+              </ul>
+
               <li>
                 <div className="flex flex-row align-middle mt-3 items-center">
                   <svg
