@@ -65,18 +65,28 @@ function ProductCard(props: ProductInterface) {
     fetchPhoto()
     
   }, [product._id, product.owner._id])
+
+  useEffect(() => {
+    console.log(productPhoto)
+  }
+  , [productPhoto])
+
+
   const rating = "0 ⭐ :(";
+
+  const ownerUsername = props.activeOwner.split("#")[0]
+
   return (
     
     <div className="flex flex-col justify-between w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-      <Link href={"/product/" + product._id}>
+      <Link className="w-full h-52 sm:h-32" href={"/product/" + product._id}>
         <img
-          className="mb-3 rounded-t-lg object-cover object-center"
+          className="h-full w-full mb-3 rounded-t-lg object-fill object-center"
           src={productPhoto}
           alt="product image"
         />
       </Link>
-      <div className="px-5 pb-5 flex flex-col justify-between flex-grow">
+      <div className="px-5 pb-5 flex flex-col justify-between flex-grow mt-3">
         <div className="flex flex-row justify-between items-center md:items-start mt-2">
           <Link href={"/product/" + product._id}>
             <h5
@@ -119,7 +129,7 @@ function ProductCard(props: ProductInterface) {
                         alt="owner's avatar"
                       />
                       <p className="text-base font-semibold leading-none text-gray-900 dark:text-white">
-                        {product.owner.username}
+                        {product.owner.username.split("#")[0]}
                       </p>
                       <div></div>
                     </div>
@@ -145,8 +155,8 @@ function ProductCard(props: ProductInterface) {
             €
           </div>
           <div className="ml-4 align-middle">
-            {closed && !props.activeOwner ? (
-              <Link href={`/product/owner/${product.owner.username}`}>
+            {closed && !ownerUsername ? (
+              <Link href={`/product/owner/${product.owner._id}`}>
                 <button className="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 hover:scale-105 transform transition-all duration-300">
                   More like this
                 </button>
