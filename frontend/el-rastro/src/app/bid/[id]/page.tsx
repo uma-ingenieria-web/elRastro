@@ -1,6 +1,6 @@
-function Bid() {
+function Bid({ params }: { params: { id: string } }) {
   return (
-    <div>Bid</div>
+    <div>Bid {params.id}</div>
   )
 }
 

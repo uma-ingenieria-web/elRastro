@@ -2,14 +2,16 @@
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { Product } from '@/app/product.types';
-import Image from 'next/image';
 import { useSession } from 'next-auth/react';
+import { TbMessageQuestion } from "react-icons/tb";
 
 function Product({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { data: session } = useSession();
   const { id } = params;
   const [product, setProduct] = useState<Product | null>(null);
+
+  const isLogedIn = (session?.user as any)?.id !== undefined;
 
   useEffect(() => {
     // Fetch product data on the client side
@@ -49,14 +51,11 @@ function Product({ params }: { params: { id: string } }) {
       {product && (
         <>
           <div>{product.title}</div>
-          <Image
-            src="/chat_image.jpg"
+          {isLogedIn && (<TbMessageQuestion
             alt="Open chat"
             className="w-20 h-20 border-2 border-gray-300 mb-4 cursor-pointer"
             onClick={createChat}
-            width={100}
-            height={100}
-          />
+          />)}
         </>
       )}
     </div>
