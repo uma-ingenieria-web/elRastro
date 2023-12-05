@@ -2,14 +2,17 @@
 
 import Link from "next/link"
 import React, { useEffect, useState } from "react"
-import { Rating } from '../../../components/Rating'
+import { Rating } from "@/app/components/Rating"
 import { ProductInterface, Rate } from "@/app/product.types"
 
 let photoURL = ""
+let productURL = ""
 if (process.env.NODE_ENV === "development") {
   photoURL = `http://localhost:8003/api/v1/photo/`
+  productURL = `http://localhost:8002/api/v1/products`
 } else {
   photoURL = `http://backend-micro-image-storage/api/v1/photo/`
+  productURL = `http://backend-micro-products/api/v1/products`
 }
 
 async function getPhoto(id: string) {
@@ -29,8 +32,26 @@ async function getPhoto(id: string) {
   }
 }
 
+async function getProductsSold(id: string) {
+  try {
+    const result = await fetch(productURL + `/sold/${id}`)
+    const products = await result.json()
+    return products
+  } catch (error: any) {
+    if (error.cause?.code === "ECONNREFUSED") {
+      console.error(
+        "Error connecting to backend API. Is the backend service working?"
+      )
+      return 0
+    }
+    console.error("Error fetching amount of products sold:", error.message)
+    return 0
+  }
+}
+
 function ProductCard(props: ProductInterface) {
   const product = props.product
+  const [productsSold, setProductsSold] = useState(0)
 
   const formattedCloseDate = new Date(
     props.product.closeDate
@@ -62,23 +83,21 @@ function ProductCard(props: ProductInterface) {
       setOwnerPhoto(url)
     }
 
+    const fetchSoldProducts = async () => {
+      const soldProducts = await getProductsSold(product.owner._id)
+      setProductsSold(soldProducts)
+    }
+
+    fetchSoldProducts()
     fetchOwnerPhoto()
     fetchPhoto()
-    
   }, [product._id, product.owner._id])
 
-  useEffect(() => {
-    console.log(productPhoto)
-  }
-  , [productPhoto])
-
-
-  const rating = "0 ⭐ :(";
+  const rating = "0 ⭐ :("
 
   const ownerUsername = props.activeOwner.split("#")[0]
 
   return (
-    
     <div className="flex flex-col justify-between w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
       <Link className="w-full h-52 sm:h-32" href={"/product/" + product._id}>
         <img
@@ -100,7 +119,10 @@ function ProductCard(props: ProductInterface) {
               {product.title}
             </h5>
           </Link>
-          <Link href="#" className="flex-shrink-0 relative group">
+          <Link
+            href={`/user/profile/${product.owner._id}`}
+            className="flex-shrink-0 relative group"
+          >
             <div
               className="relative group"
               onMouseEnter={handleHoverEnter}
@@ -108,13 +130,11 @@ function ProductCard(props: ProductInterface) {
             >
               {ownerPhoto && (
                 <div className="flex items-center">
-                <Link href={`/user/profile/${product.owner._id}`}>
                   <img
                     className="max-[342px]:w-9 max-[342px]:h-9 inline-block object-cover h-16 w-16 sm:h-10 sm:w-10 rounded-full cursor-pointer transition-transform transform group-hover:scale-110"
                     src={ownerPhoto}
                     alt="user image"
                   />
-                </Link>
                 </div>
               )}
               {showPopup && (
@@ -136,7 +156,10 @@ function ProductCard(props: ProductInterface) {
                       </p>
                       <div></div>
                     </div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex text-sm"> {productsSold} products sold</div>
                     <div className="flex text-sm">{rating}</div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -173,7 +196,13 @@ function ProductCard(props: ProductInterface) {
             )}
           </div>
         </div>
-        <p className={`mt-3 text-sm ${new Date(props.product.closeDate ) > new Date() ? 'text-gray-500 dark:text-gray-400' : 'text-red-500 dark:text-red-400'} `}>
+        <p
+          className={`mt-3 text-sm ${
+            new Date(props.product.closeDate) > new Date()
+              ? "text-gray-500 dark:text-gray-400"
+              : "text-red-500 dark:text-red-400"
+          } `}
+        >
           <strong>{closed ? "Closed on" : "Open until"}</strong>:{" "}
           {formattedCloseDate}
         </p>
