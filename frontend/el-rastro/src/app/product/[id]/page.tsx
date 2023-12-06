@@ -34,7 +34,7 @@ function Product({ params }: { params: { id: string } }) {
     const [product, setProduct] = useState<Product | null>(null);
     const [productPhoto, setProductPhoto] = useState("https://picsum.photos/800/400");
 
-    const isLogedIn = (session?.user as any)?.id !== undefined;
+    const isLoggedIn = (session?.user as any)?.id !== undefined;
 
     useEffect(() => {
         // Fetch product data on the client side
@@ -119,16 +119,16 @@ function Product({ params }: { params: { id: string } }) {
                             <input
                                 type="number"
                                 className={`border border-gray-300 rounded-md w-32 px-2 py-1 ml-auto ${
-                                    isLogedIn ? "cursor-pointer" : "cursor-not-allowed bg-gray-300"
+                                    isLoggedIn ? "cursor-pointer" : "cursor-not-allowed bg-gray-300"
                                 }`}
                                 placeholder="Bid amount"
-                                disabled={!isLogedIn}
+                                disabled={!isLoggedIn}
                             />
                             <button
                                 className={`text-white px-4 py-1 rounded-md ml-2 ${
-                                    isLogedIn ? "cursor-pointer bg-green-500" : "cursor-not-allowed bg-gray-300"
+                                    isLoggedIn ? "cursor-pointer bg-green-500" : "cursor-not-allowed bg-gray-300"
                                 }`}
-                                disabled={!isLogedIn}>
+                                disabled={!isLoggedIn}>
                                 Make Bid
                             </button>
                         </div>
@@ -141,7 +141,7 @@ function Product({ params }: { params: { id: string } }) {
 
                     <div className="mb-4">
                         <div className="flex justify-center items-center flex-1 h-full flex-row">
-                            {!isLogedIn && (
+                            {!isLoggedIn && (
                                 <p
                                     className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 text-base mr-4"
                                     role="alert">
@@ -150,10 +150,10 @@ function Product({ params }: { params: { id: string } }) {
                             )}
                             <button
                                 className={`w-20 h-20 border-2 border-gray-300 mb-4 ${
-                                    isLogedIn ? "cursor-pointer" : "cursor-not-allowed bg-gray-300"
+                                    isLoggedIn ? "cursor-pointer" : "cursor-not-allowed bg-gray-300"
                                 } ml-auto`}
                                 onClick={createChat}
-                                disabled={!isLogedIn}>
+                                disabled={!isLoggedIn}>
                                 <TbMessageQuestion alt="Open chat" className="w-full h-full" />
                             </button>
                         </div>
