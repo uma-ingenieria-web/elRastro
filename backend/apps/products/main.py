@@ -365,27 +365,24 @@ def get_products_bids(id: str):
         user = db.User.find_one({"_id": ObjectId(id)})
         if user is None:
             return products
-
-        seen_products = set()
-
-        for bid in user["bids"]:
-            product = db.Product.find_one({"_id": ObjectId(bid["product"]["_id"])})
-
-            if product["closeDate"] > datetime.now() and product not in seen_products:
-                products["open"].append(product)
-                seen_products.add(product["_id"])
-            elif (
-                "buyer" in product
-                and product["buyer"] is not None
-                and str(product["buyer"]["_id"]) == str(user["_id"])
-                and product["_id"] not in seen_products
-            ):
-                products["won"].append(product)
-                seen_products.add(product["_id"])
-            elif product["_id"] not in seen_products:
-                products["lost"].append(product)
-                seen_products.add(product["_id"])
-
+        
+        products_cursor = db.Product.aggregate(
+            [
+                {"$match": {"bids.bidder._id": ObjectId(id)}},
+                {"$sort": {"closeDate": 1}},
+            ]
+        )
+        
+        if products_cursor is not None:
+            for document in products_cursor:
+                product = Product(**document)
+                if product.buyer is None:
+                    products["open"].append(product)
+                elif product.buyer.id == user["_id"]:
+                    products["won"].append(product)
+                else:
+                    products["lost"].append(product)
+                    
         return products
 
     except InvalidId as e:

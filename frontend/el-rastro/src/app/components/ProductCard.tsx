@@ -98,7 +98,7 @@ function ProductCard(props: ProductInterface) {
   const ownerUsername = props.activeOwner.split("#")[0]
 
   return (
-    <div className="flex flex-col justify-between w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+    <div className="flex flex-col justify-between w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg drop-shadow-2xl dark:bg-gray-800 dark:border-gray-700">
       <Link className="w-full h-52 sm:h-32" href={"/product/" + product._id}>
         <img
           className="h-full w-full object-fit mb-3 rounded-t-lg object-center"

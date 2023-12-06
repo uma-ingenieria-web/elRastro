@@ -1,7 +1,10 @@
 "use client"
 
-import NoProducts from "@/app/components/NoProducts"
+import BidCard from "@/app/components/BidCard"
+import NoBids from "@/app/components/NoBids"
+import NotFound from "@/app/not-found"
 import { Product } from "@/app/product.types"
+import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 
 let productUrl = ""
@@ -35,8 +38,11 @@ async function getBids(id: string) {
 }
 
 function Bid({ params }: { params: { id: string } }) {
+  const { data: session } = useSession()
   const [loading, setLoading] = useState(true)
   const [bids, setBids] = useState<UserBids>({ open: [], lost: [], won: [] })
+
+  const userId = (session?.user as LoggedUser)?.id || ""
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,20 +57,29 @@ function Bid({ params }: { params: { id: string } }) {
     fetchData()
   }, [params.id])
 
-  return (
-    <>
-      {!loading && bids.open.length === 0 && bids.won.length === 0 && bids.lost.length === 0 ? (
-        <NoProducts />
+  return userId !== "" && userId !== params.id ? (
+    <NotFound /> 
+  ) : (
+    <div className="mb-8">
+      {!loading &&
+      bids.open.length === 0 &&
+      bids.won.length === 0 &&
+      bids.lost.length === 0 ? (
+        <NoBids loggedIn={(userId !== "" && userId === params.id)} />
       ) : (
-        <div>
-          {bids.open.map((bid) => (
-            <div key={bid._id}>
-              {bid.title}
-            </div>
-          ))}
+        <div className="space-y-6">
+          {bids.open.length > 0 && (
+            <BidCard title="Open" color="blue" products={bids.open} />
+          )}
+          {bids.won.length > 0 && (
+            <BidCard title="Won" color="green" products={bids.won} />
+          )}
+          {bids.lost.length > 0 && (
+            <BidCard title="Lost" color="red" products={bids.lost} />
+          )}
         </div>
       )}
-    </>
+    </div>
   )
 }
 

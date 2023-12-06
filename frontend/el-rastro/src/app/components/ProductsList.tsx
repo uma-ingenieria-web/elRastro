@@ -8,6 +8,7 @@ import NoProducts from "@/app/components/NoProducts"
 import { Product } from "@/app/product.types"
 import FilterPill from "@/app/components/FilterPill"
 import Loading from "@/app/components/Loading"
+import ProductGrid from "@/app/components/ProductGrid"
 
 let productUrl = ""
 let photoUrl = ""
@@ -143,12 +144,20 @@ export default function ProductList(props: ProductListProps) {
                     </h1>
                   </div>
                 ) : (
-                  <div className={`flex flex-col ${owner.length < 20 && 'sm:flex-row'} items-center justify-between mb-10`}>
-                    <h1 className={`text-5xl ${owner.length > 20 && 'mb-5'} pr-5 font-bold text-black`}>
+                  <div
+                    className={`flex flex-col ${
+                      owner.length < 20 && "sm:flex-row"
+                    } items-center justify-between mb-10`}
+                  >
+                    <h1
+                      className={`text-3xl sm:text-5xl mb-3 ${
+                        owner.length > 20 && "mb-5"
+                      } pr-5 font-bold text-black`}
+                    >
                       {owner}'s products
                     </h1>
                     <img
-                      className="w-20 h-20 mt-5 sm:mt-0 rounded-full mr-6 object-cover"
+                      className="w-20 h-20 sm:mt-0 rounded-full mr-6 object-cover"
                       src={ownerPhoto}
                     />
                   </div>
@@ -206,25 +215,7 @@ export default function ProductList(props: ProductListProps) {
                 ) : (
                   <> </>
                 )}
-                <div
-                  className={`grid px-5 ${
-                    products.length === 1
-                      ? "grid-cols-1"
-                      : products.length === 2
-                      ? "grid-cols-1 sm:grid-cols-2"
-                      : products.length === 3
-                      ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
-                      : "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-                  } gap-4 place-items-center place-content-center`}
-                >
-                  {products.map((product: Product) => (
-                    <ProductCard
-                      activeOwner={props.activeOwner}
-                      key={product._id}
-                      product={product}
-                    />
-                  ))}
-                </div>
+                <ProductGrid products={products} activeOwner={props.activeOwner} />
               </section>
             </div>
           )}
