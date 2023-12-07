@@ -1,7 +1,7 @@
 "use client"
 
-import BidCard from "@/app/components/BidCard"
 import NoBids from "@/app/components/NoBids"
+import ProductGrid from "@/app/components/ProductGrid"
 import NotFound from "@/app/not-found"
 import { Product } from "@/app/product.types"
 import { useSession } from "next-auth/react"
@@ -58,24 +58,69 @@ function Bid({ params }: { params: { id: string } }) {
   }, [params.id])
 
   return userId !== "" && userId !== params.id ? (
-    <NotFound /> 
+    <NotFound />
   ) : (
     <div className="mb-8">
       {!loading &&
       bids.open.length === 0 &&
       bids.won.length === 0 &&
       bids.lost.length === 0 ? (
-        <NoBids loggedIn={(userId !== "" && userId === params.id)} />
+        <NoBids loggedIn={userId !== "" && userId === params.id} />
       ) : (
         <div className="space-y-6">
           {bids.open.length > 0 && (
-            <BidCard title="Open" color="blue" products={bids.open} />
+            <>
+              <section
+                className={`bid-section bg-gradient-to-r from-blue-300 to-blue-500 border border-blue-500 rounded-md shadow-md p-6 mb-6 transform transition-transform hover:scale-105`}
+              >
+                <div className="flex flex-col items-center justify-center">
+                  <h2
+                    className={`text-4xl pt-3 font-bold mb-4 text-white underline`}
+                  >
+                    Open
+                  </h2>
+                </div>
+              </section>
+              <div className="mb-6">
+                <ProductGrid products={bids.open} activeOwner="" />
+              </div>
+            </>
           )}
           {bids.won.length > 0 && (
-            <BidCard title="Won" color="green" products={bids.won} />
+            <>
+              <section
+                className={`bid-section bg-gradient-to-r from-green-300 to-green-500 border border-green-500 rounded-md shadow-md p-6 mb-6 transform transition-transform hover:scale-105`}
+              >
+                <div className="flex flex-col items-center justify-center">
+                  <h2
+                    className={`text-4xl pt-3 font-bold mb-4 text-white underline`}
+                  >
+                    Won
+                  </h2>
+                </div>
+              </section>
+              <div className="mb-6">
+                <ProductGrid products={bids.won} activeOwner="" />
+              </div>
+            </>
           )}
           {bids.lost.length > 0 && (
-            <BidCard title="Lost" color="red" products={bids.lost} />
+            <>
+              <section
+                className={`bid-section bg-gradient-to-r from-red-300 to-red-500 border border-red-500 rounded-md shadow-md p-6 mb-6 transform transition-transform hover:scale-105`}
+              >
+                <div className="flex flex-col items-center justify-center">
+                  <h2
+                    className={`text-4xl pt-3 font-bold mb-4 text-white underline`}
+                  >
+                    Lost
+                  </h2>
+                </div>
+              </section>
+              <div className="mb-6">
+                <ProductGrid products={bids.lost} activeOwner="" />
+              </div>
+            </>
           )}
         </div>
       )}
