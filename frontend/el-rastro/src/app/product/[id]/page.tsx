@@ -9,6 +9,8 @@ import { MdClose } from "react-icons/md";
 import { MdOutlineZoomOutMap } from "react-icons/md";
 import Link from "next/link";
 import { FaExternalLinkAlt } from "react-icons/fa";
+import NotFound from "@/app/not-found";
+import Closed from "@/app/closed";
 
 const photoURL =
     process.env.NODE_ENV === "development"
@@ -62,6 +64,8 @@ function Product({ params }: { params: { id: string } }) {
     const [currentPrice, setCurrentPrice] = useState(0);
     const [bidDone, setBidDone] = useState(false);
     const [userIsLastBidder, setUserIsLastBidder] = useState(false);
+    const [closed, setClosed] = useState(false);
+    const [found, setFound] = useState(true);
 
     const userId = (session?.user as LoggedUser)?.id || "";
 
@@ -69,6 +73,10 @@ function Product({ params }: { params: { id: string } }) {
         const fetchProduct = async () => {
             const productFetched = await getProduct(id);
             setProduct(productFetched);
+            if (productFetched.detail === "Invalid ObjectId format") {
+                setFound(false);
+                return;
+            }
             setCurrentPrice(
                 productFetched
                     ? productFetched.bids.length == 0
@@ -76,7 +84,8 @@ function Product({ params }: { params: { id: string } }) {
                         : productFetched.bids[productFetched.bids.length - 1].amount
                     : 0
             );
-            setUserIsLastBidder(productFetched?.bids[productFetched.bids.length - 1].bidder._id === userId)
+            setUserIsLastBidder(productFetched.bids.length != 0 && productFetched?.bids[productFetched.bids.length - 1].bidder._id === userId);
+            setClosed(new Date(productFetched?.closeDate) < new Date());
         };
         const fetchPhoto = async () => {
             const url = await getPhoto(id);
@@ -121,7 +130,7 @@ function Product({ params }: { params: { id: string } }) {
             });
             const bidData = await response.json();
             setValidBid(true);
-            setUserIsLastBidder(true)
+            setUserIsLastBidder(true);
             setCurrentPrice(bidData.amount);
             setBidDone(true);
             setBidAmount(0);
@@ -141,7 +150,9 @@ function Product({ params }: { params: { id: string } }) {
         }
     };
 
-    return (
+    return !found ? (
+        <NotFound />
+    ) : (closed && !userIsLastBidder) ? <Closed /> : (
         <div className="flex justify-center items-center h-screen">
             <div className="flex bg-gray-100 p-8 rounded-lg shadow-lg h-auto md:flex-row flex-col justify-center  md:space-x-32">
                 <div className="flex-shrink-0 mb-8 md:mb-0">
@@ -199,8 +210,10 @@ function Product({ params }: { params: { id: string } }) {
                     </div>
                     <div className="border-t border-b border-gray-300 py-2 mb-4 flex justify-between flex-col">
                         <div className="flex justify-between w-full">
-                            <span className="text-gray-600 font-semibold">Current price:  </span>
-                            <span className={`font-bold text-xl ${userIsLastBidder ? "text-green-500 font-bold" : ""}`}>{currentPrice}€{userIsLastBidder && " (Winning bid!)"}</span>
+                            <span className="text-gray-600 font-semibold">Current price: </span>
+                            <span className={`font-bold text-xl ${userIsLastBidder ? "text-green-500 font-bold" : ""}`}>
+                                {currentPrice}€{userIsLastBidder && " (Winning bid!)"}
+                            </span>
                         </div>
                         <div className="mt-4 flex justify-center">
                             {!validBid && (
