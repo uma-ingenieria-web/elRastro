@@ -151,10 +151,17 @@ function ProductCard(props: ProductInterface) {
   return (
     <div className="flex flex-col justify-between w-full max-w-lg h-full bg-white border border-gray-200 rounded-lg drop-shadow-2xl dark:bg-gray-800 dark:border-gray-700">
       <Link className="w-full h-52 sm:h-32" href={"/product/" + product._id}>
-        <img
+        <motion.img
           className="h-full w-full object-fit mb-3 rounded-t-lg object-center"
           src={productPhoto}
           alt="product image"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{
+            scale: 1.02,
+            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+          }}
+          transition={{ duration: 0.7 }}
         />
       </Link>
       <div className="px-5 pb-5 flex flex-col justify-between flex-grow mt-3">
