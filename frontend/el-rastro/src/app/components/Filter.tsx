@@ -12,7 +12,7 @@ function Filter() {
   const [isDrawerOpen, setDrawerOpen] = useState(false)
   const { data: session } = useSession()
 
-  const userId = (session?.user as any)?.id || ""
+  const userId = (session?.user as LoggedUser)?.id || ""
 
   const {
     minPrice,
@@ -75,7 +75,7 @@ function Filter() {
     <div>
       <div className="fixed z-10 bottom-3 left-3 text-center">
         <button
-          className={`bg-blue-500 text-white ${
+          className={`bg-blue-500 hover:scale-105 transform transition-all duration-75 text-white ${
             isDrawerOpen ? "hidden" : ""
           } active:bg-blue-800 font-semibold uppercase text-md sm:text-sm px-6 py-3 rounded-full shadow-md hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150`}
           type="button"
@@ -218,7 +218,7 @@ function Filter() {
                           tabIndex={0}
                           className="text-xl cursor-pointer flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                         >
-                          On sale products
+                          Selling
                         </p>
                       </Link>
                     </li>

@@ -12,16 +12,21 @@ const defaultIcon = new L.Icon({
   popupAnchor: [1, -34],
 });
 
-const Map = () => {
+interface UserLocation {
+  lat: number;
+  lng: number;
+}
+
+const Map = (location : UserLocation) => {
 
   return (
-    <MapContainer center={[0, 0]} zoom={13} style={{ height: '400px', width: '100%' }}>
+    <MapContainer center={[location.lat, location.lng]} zoom={13} style={{ height: '400px', width: '100%' }}>
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       
-        <Marker key={0} position={[36.13326, -5.45051]} icon={defaultIcon}>
+        <Marker key={0} position={[location.lat, location.lng]} icon={defaultIcon}>
           <Popup>
           </Popup>
         </Marker>

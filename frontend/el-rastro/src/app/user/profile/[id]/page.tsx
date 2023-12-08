@@ -36,7 +36,7 @@ export default async function ProfilePageId({ params }: { params: { id: string }
     const photoResult = photo_promise.status === 'fulfilled' && photo_promise.value.status == 200 ? await photo_promise.value.json() : null;
     const urlResult = url_promise.status === 'fulfilled' && url_promise.value.status == 200 ? await url_promise.value.json() : null;
 
-    name = userResult?.username || "User Not Found";
+    name = userResult?.username.split("#")[0] || "User Not Found";
     const photo_url = photoResult as string;
     const ratings = urlResult as Rate[];
     return (
