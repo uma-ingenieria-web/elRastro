@@ -74,7 +74,7 @@ def get_ratings(id: str):
         raise HTTPException(400, "Invalid Id")
 
 
-# Auxiliarity function to insert a new algo
+# Auxiliary function to insert a new algo
 def insert_rating(new_rating: RatingBasicInfo, product_id: str, user_id: str):
     try:
         product = db.Product.find_one({"_id": ObjectId(product_id)})
@@ -85,12 +85,9 @@ def insert_rating(new_rating: RatingBasicInfo, product_id: str, user_id: str):
                 status_code=404, detail=f"Product {product_id} not found"
             )
 
-        if product["buyer"] is None:
-            raise HTTPException(
-                status_code=400, detail=f"Product {product_id} has no buyer"
-            )
-
-        buyer_id = product["buyer"]["_id"]
+        bid = db.Bid.find_one({"product._id": ObjectId(product_id)}, sort=[("amount", -1)])
+        
+        buyer_id = bid["bidder"]["_id"]
         owner_id = product["owner"]["_id"]
 
         if buyer_id != ObjectId(user_id) and owner_id != ObjectId(user_id):
