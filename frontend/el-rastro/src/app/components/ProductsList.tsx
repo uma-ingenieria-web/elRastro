@@ -1,14 +1,16 @@
 "use client"
 
-import ProductCard from "@/app/components/ProductCard"
 import Filter from "@/app/components/Filter"
 import { useContext, useEffect, useState } from "react"
 import { FilterContext } from "@/context/FilterContext"
 import NoProducts from "@/app/components/NoProducts"
-import { Product } from "@/app/product.types"
 import FilterPill from "@/app/components/FilterPill"
 import Loading from "@/app/components/Loading"
 import ProductGrid from "@/app/components/ProductGrid"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { useSession } from "next-auth/react"
+import { IoIosAddCircle } from "react-icons/io"
 
 let productUrl = ""
 let photoUrl = ""
@@ -74,6 +76,8 @@ export default function ProductList(props: ProductListProps) {
   const [loading, setLoading] = useState(true)
   const [ownerPhoto, setOwnerPhoto] = useState("https://picsum.photos/800/400")
 
+  const { data: session } = useSession()
+
   const {
     activeMinPrice,
     activeMaxPrice,
@@ -135,6 +139,22 @@ export default function ProductList(props: ProductListProps) {
             <Loading />
           ) : (
             <div className="flex">
+              {session?.user && (
+                <Link href={"/product/new"}>
+                  <motion.button
+                    whileHover={{
+                      scale: 1.1,
+                      transition: { duration: 0.3 },
+                    }}
+                    className="fixed bottom-4 right-6 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full z-10"
+                  >
+                    <IoIosAddCircle className="inline-block mr-2 text-3xl sm:text-2xl text-black" />
+                    <span className="hidden sm:inline-block">
+                      Add product to auction
+                    </span>
+                  </motion.button>
+                </Link>
+              )}
               <Filter />
               <section className="flex flex-col  p-4 mt-5 justify-center text-center">
                 {owner == "" ? (
@@ -215,7 +235,10 @@ export default function ProductList(props: ProductListProps) {
                 ) : (
                   <> </>
                 )}
-                <ProductGrid products={products} activeOwner={props.activeOwner} />
+                <ProductGrid
+                  products={products}
+                  activeOwner={props.activeOwner}
+                />
               </section>
             </div>
           )}

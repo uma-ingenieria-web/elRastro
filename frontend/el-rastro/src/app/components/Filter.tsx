@@ -75,7 +75,7 @@ function Filter() {
     <div>
       <div className="fixed z-10 bottom-3 left-3 text-center">
         <button
-          className={`bg-blue-500 text-white ${
+          className={`bg-blue-500 hover:scale-105 transform transition-all duration-75 text-white ${
             isDrawerOpen ? "hidden" : ""
           } active:bg-blue-800 font-semibold uppercase text-md sm:text-sm px-6 py-3 rounded-full shadow-md hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150`}
           type="button"

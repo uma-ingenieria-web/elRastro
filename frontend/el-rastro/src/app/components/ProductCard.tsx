@@ -3,6 +3,9 @@
 import Link from "next/link"
 import React, { useEffect, useState } from "react"
 import { ProductInterface } from "@/app/product.types"
+import { MdModeEdit } from "react-icons/md"
+import { useSession } from "next-auth/react"
+import { motion } from "framer-motion"
 
 let photoURL = ""
 let productURL = ""
@@ -49,22 +52,53 @@ async function getProductsSold(id: string) {
 }
 
 async function getRating(id: string) {
-	try {
-		const res = await fetch(`http://localhost:8007/api/v2/users/${id}/rating`);
-		const res_json = await res.json();
-		if (res_json) {
-			return (<><svg className="w-4 h-4 ms-1 text-yellow-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20"><path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/></svg> {res_json}</>);
-		}
-		return (<><svg className="w-4 h-4 ms-1 text-gray-300 dark:text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20"><path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/></svg> Not Rated</>);
-	} catch (error: any) {
-		return (<span>Ratings Not Found</span>)
-	}
+  try {
+    const res = await fetch(`http://localhost:8007/api/v2/users/${id}/rating`)
+    const res_json = await res.json()
+    if (res_json) {
+      return (
+        <>
+          <svg
+            className="w-4 h-4 ms-1 text-yellow-300"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            viewBox="0 0 22 20"
+          >
+            <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+          </svg>{" "}
+          {res_json}
+        </>
+      )
+    }
+    return (
+      <>
+        <svg
+          className="w-4 h-4 ms-1 text-gray-300 dark:text-gray-500"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          viewBox="0 0 22 20"
+        >
+          <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+        </svg>{" "}
+        Not Rated
+      </>
+    )
+  } catch (error: any) {
+    return <span>Ratings Not Found</span>
+  }
 }
 
 function ProductCard(props: ProductInterface) {
   const product = props.product
   const [productsSold, setProductsSold] = useState(0)
-  const [rating, setRating] = useState((<div>Loading...</div>))
+  const [rating, setRating] = useState(<div>Loading...</div>)
+  const [isHovered, setIsHovered] = useState(false)
+
+  const { data: session } = useSession()
+
+  const userId = (session?.user as LoggedUser)?.id || ""
 
   const formattedCloseDate = new Date(
     props.product.closeDate
@@ -174,8 +208,11 @@ function ProductCard(props: ProductInterface) {
                       <div></div>
                     </div>
                     <div className="flex items-center justify-between mb-2">
-                      <div className="flex text-sm"> {productsSold} products sold</div>
-                    <div className="flex text-sm">{rating}</div>
+                      <div className="flex text-sm">
+                        {" "}
+                        {productsSold} products sold
+                      </div>
+                      <div className="flex text-sm">{rating}</div>
                     </div>
                   </div>
                 </div>
@@ -213,6 +250,34 @@ function ProductCard(props: ProductInterface) {
             )}
           </div>
         </div>
+        {userId && product.owner._id === userId && (
+          <div className="fixed top-2 right-2 inline-block">
+            <Link href={`/product/${product._id}/edit`}>
+              <motion.button
+                whileHover={{ scale: 1.1, boxShadow: "0px 0px 8px rgb(0,0,0)" }}
+                whileTap={{ scale: 0.9 }}
+                className="bg-blue-500 text-white px-4 py-2 rounded-full"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              >
+                <MdModeEdit />
+                <motion.div
+                  initial={{ opacity: 0, x: -40 }}
+                  animate={{
+                    opacity: isHovered ? 1 : 0,
+                    x: isHovered ? 0 : -40,
+                  }}
+                  exit={{ opacity: 0, x: -30 }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute right-4 transform -translate-x-full bg-gray-800 text-white px-2 py-1 rounded-md pointer-events-none"
+                  style={{ display: "flex", whiteSpace: "nowrap" }}
+                >
+                  Edit Product
+                </motion.div>
+              </motion.button>
+            </Link>
+          </div>
+        )}
         <p
           className={`mt-3 text-sm ${
             new Date(props.product.closeDate) > new Date()

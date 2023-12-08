@@ -75,7 +75,7 @@ function Bid({ params }: { params: { id: string } }) {
               >
                 <div className="flex flex-col items-center justify-center">
                   <h2
-                    className={`text-4xl pt-3 font-bold mb-4 text-white underline`}
+                    className={`text-5xl pt-3 font-bold mb-4 text-white`}
                   >
                     Open
                   </h2>
@@ -93,7 +93,7 @@ function Bid({ params }: { params: { id: string } }) {
               >
                 <div className="flex flex-col items-center justify-center">
                   <h2
-                    className={`text-4xl pt-3 font-bold mb-4 text-white underline`}
+                    className={`text-5xl pt-3 font-bold mb-4 text-white`}
                   >
                     Won
                   </h2>
@@ -111,7 +111,7 @@ function Bid({ params }: { params: { id: string } }) {
               >
                 <div className="flex flex-col items-center justify-center">
                   <h2
-                    className={`text-4xl pt-3 font-bold mb-4 text-white underline`}
+                    className={`text-5xl pt-3 font-bold mb-4 text-white`}
                   >
                     Lost
                   </h2>
