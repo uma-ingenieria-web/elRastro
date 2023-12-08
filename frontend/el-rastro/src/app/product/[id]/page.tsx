@@ -40,6 +40,30 @@ async function getPhoto(id: string) {
   }
 }
 
+interface Rating {
+    value: number,
+    product: {
+      _id: string
+    },
+}
+
+async function getRating(id: string) {
+  try {
+    const resultP = await fetch(apiUrl + id)
+    const usr = await resultP.json()
+    const id_usr = usr.owner._id;
+    const result = await fetch(`http://localhost:8007/api/v2/users/${id_usr}/ratings`);
+    const rates: Rating[] = await result.json();
+    const rate = rates.find((x) => x.product._id === id)
+    if (rate?.value)
+      return rate?.value;
+    return 0;
+  } catch(error: any) {
+    console.error("Error fetching product:", error.message)
+    return 0;
+  }
+}
+
 async function getProduct(id: string) {
   try {
     const result = await fetch(apiUrl + id)
@@ -68,15 +92,21 @@ function Product({ params }: { params: { id: string } }) {
   )
   const [validBid, setValidBid] = useState(true)
   const [bidAmount, setBidAmount] = useState(0)
+  const [rate, setRate] = useState(0)
   const [currentPrice, setCurrentPrice] = useState(0)
   const [bidDone, setBidDone] = useState(false)
   const [userIsLastBidder, setUserIsLastBidder] = useState(false)
   const [closed, setClosed] = useState(false)
   const [found, setFound] = useState(true)
+  const [rating, setRating] = useState(0)
 
   const userId = (session?.user as LoggedUser)?.id || ""
 
   useEffect(() => {
+    const fetchRating = async () => {
+      const ratingFetched = await getRating(id);
+      setRating(ratingFetched);
+    }
     const fetchProduct = async () => {
       const productFetched = await getProduct(id)
       setProduct(productFetched)
@@ -103,9 +133,10 @@ function Product({ params }: { params: { id: string } }) {
       setProductPhoto(url)
     }
 
+    fetchRating();
     fetchProduct()
     fetchPhoto()
-  }, [id])
+  }, [id, product?.owner._id])
 
   const createChat = async () => {
     try {
@@ -154,6 +185,22 @@ function Product({ params }: { params: { id: string } }) {
       setBidAmount(0)
     } catch (error) {
       console.error("Error creating bid", error)
+    }
+  }
+
+  const handleRate = async () => {
+    if (product && typeof rate === "number") {
+      await fetch(`http://localhost:8007/api/v2/users/${id}/${userId}/ratings`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          value: rate,
+        }),
+      });
+      location.assign('/product');
     }
   }
 
@@ -304,10 +351,27 @@ function Product({ params }: { params: { id: string } }) {
             </div>
           </div>
           <div className="mb-4">
-            <p>
-              <span className="text-gray-600 font-semibold">Rating: </span>
-              Implement ratings***
-            </p>
+          {userId && closed && (
+          (rating != 0) &&
+            <>
+              <p>Rated with {rating} ⭐</p>
+            </>
+          ||
+            <>
+              <p className="mb-2">⭐ Rate your interaction with this sell 😄</p>
+              <input
+                type="number"
+                onChange={(e) => setRate(parseFloat(e.target.value))}
+                className={`border border-gray-300 rounded-md w-32 px-2 py-1 ml-2 ${userId && "cursor-pointer"}`}
+                placeholder="1-5 ⭐"
+              />
+              <button
+                onClick={handleRate}
+                className={`text-white px-4 py-1 rounded-md ml-2 ${userId && "cursor-pointer bg-green-500"}`}
+              >
+                Rate
+              </button>
+            </>)}
           </div>
 
           <div className="mb-4">
