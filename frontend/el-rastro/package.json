@@ -12,6 +12,7 @@
     "flowbite": "^2.2.0",
     "flowbite-react": "^0.7.0",
     "leaflet": "^1.9.4",
+    "leaflet-defaulticon-compatibility": "^0.1.2",
     "next": "^14.0.3",
     "next-auth": "^4.24.5",
     "react": "^18",
