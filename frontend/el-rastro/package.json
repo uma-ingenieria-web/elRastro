@@ -11,6 +11,7 @@
   "dependencies": {
     "flowbite": "^2.2.0",
     "flowbite-react": "^0.7.0",
+    "framer-motion": "^10.16.15",
     "leaflet": "^1.9.4",
     "next": "^14.0.3",
     "next-auth": "^4.24.5",
