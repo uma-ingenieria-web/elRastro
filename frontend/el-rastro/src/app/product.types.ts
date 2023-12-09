@@ -1,5 +1,8 @@
 interface Rate {
-    value: number
+    value: number,
+    product: {
+      _id: string
+    }
 }
 
 interface UserInterface {

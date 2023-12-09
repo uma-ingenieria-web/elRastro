@@ -1,7 +1,7 @@
 "use client"
 import { useRouter } from "next/navigation"
 import React, { useState, useEffect } from "react"
-import { Product } from "@/app/product.types"
+import { Product, Rate } from "@/app/product.types"
 import { useSession } from "next-auth/react"
 import { TbMessageQuestion } from "react-icons/tb"
 import Modal from "react-modal"
@@ -46,20 +46,13 @@ async function getPhoto(id: string) {
   }
 }
 
-interface Rating {
-    value: number,
-    product: {
-      _id: string
-    },
-}
-
 async function getRating(id: string, userId: string) {
   try {
     const result_p = await fetch(apiUrl + id)
     const product = await result_p.json()
     const id_usr = (userId === product.owner._id) ? product.buyer._id : product.owner._id;
     const result = await fetch(rateUrl + id_usr + "/ratings");
-    const rates: Rating[] = await result.json();
+    const rates: Rate[] = await result.json();
     const rate = rates.find((x) => x.product._id === id)
     if (rate?.value)
       return rate?.value;
@@ -98,13 +91,14 @@ function Product({ params }: { params: { id: string } }) {
   )
   const [validBid, setValidBid] = useState(true)
   const [bidAmount, setBidAmount] = useState(0)
-  const [rate, setRate] = useState(0)
   const [currentPrice, setCurrentPrice] = useState(0)
   const [bidDone, setBidDone] = useState(false)
   const [userIsLastBidder, setUserIsLastBidder] = useState(false)
   const [closed, setClosed] = useState(false)
   const [found, setFound] = useState(true)
+  const [rate, setRate] = useState(0)
   const [rating, setRating] = useState(0)
+  const [validRating, setValidRating] = useState(true)
   const [map, setMap] = useState((<></>))
 
   const userId = (session?.user as LoggedUser)?.id || ""
@@ -198,17 +192,21 @@ function Product({ params }: { params: { id: string } }) {
 
   const handleRate = async () => {
     if (product && typeof rate === "number") {
-      await fetch(rateUrl + id + "/" + userId + "/ratings",
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          value: rate,
-        }),
-      });
-      // location.assign('/product');
+      if (rate >= 1 && rate <= 5) {
+        setRating(rate);
+        await fetch(rateUrl + id + "/" + userId + "/ratings",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            value: rate,
+            }),
+        });
+      } else {
+        setValidRating(false);
+      }
     }
   }
 
@@ -367,6 +365,11 @@ function Product({ params }: { params: { id: string } }) {
           ||
             <>
               <p className="mb-2">⭐ Rate your interaction with this sell 😄</p>
+              {!validRating && (
+                <p className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 text-base mr-4" role="warn">
+                  Rate must be between 1 and 5.
+                </p>
+              )}
               <input
                 type="number"
                 onChange={(e) => setRate(parseFloat(e.target.value))}
