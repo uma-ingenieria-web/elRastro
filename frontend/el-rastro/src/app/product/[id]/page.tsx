@@ -24,6 +24,11 @@ const apiUrl =
     ? `http://localhost:8002/api/v1/products/`
     : `http://backend-micro-products/api/v1/products/`
 
+const rateUrl =
+  process.env.NODE_ENV === "development"
+    ? `http://localhost:8007/api/v2/users/`
+    : `https://backend-micro-ratings/api/v2/users/`
+
 async function getPhoto(id: string) {
   try {
     const photo_result = await fetch(photoURL + id)
@@ -48,12 +53,12 @@ interface Rating {
     },
 }
 
-async function getRating(id: string) {
+async function getRating(id: string, userId: string) {
   try {
-    const resultP = await fetch(apiUrl + id)
-    const usr = await resultP.json()
-    const id_usr = usr.owner._id;
-    const result = await fetch(`http://localhost:8007/api/v2/users/${id_usr}/ratings`);
+    const result_p = await fetch(apiUrl + id)
+    const product = await result_p.json()
+    const id_usr = (userId === product.owner._id) ? product.buyer._id : product.owner._id;
+    const result = await fetch(rateUrl + id_usr + "/ratings");
     const rates: Rating[] = await result.json();
     const rate = rates.find((x) => x.product._id === id)
     if (rate?.value)
@@ -100,13 +105,13 @@ function Product({ params }: { params: { id: string } }) {
   const [closed, setClosed] = useState(false)
   const [found, setFound] = useState(true)
   const [rating, setRating] = useState(0)
-  const [map, setMap] = useState(StaticMap({position:[36.72016,-4.42034]}))
+  const [map, setMap] = useState((<></>))
 
   const userId = (session?.user as LoggedUser)?.id || ""
 
   useEffect(() => {
     const fetchRating = async () => {
-      const ratingFetched = await getRating(id);
+      const ratingFetched = await getRating(id, userId);
       setRating(ratingFetched);
     }
     const fetchProduct = async () => {
@@ -139,7 +144,7 @@ function Product({ params }: { params: { id: string } }) {
     fetchRating();
     fetchProduct()
     fetchPhoto()
-  }, [id, product?.owner._id])
+  }, [id])
 
   const createChat = async () => {
     try {
@@ -193,7 +198,7 @@ function Product({ params }: { params: { id: string } }) {
 
   const handleRate = async () => {
     if (product && typeof rate === "number") {
-      await fetch(`http://localhost:8007/api/v2/users/${id}/${userId}/ratings`,
+      await fetch(rateUrl + id + "/" + userId + "/ratings",
       {
         method: "PUT",
         headers: {

@@ -9,12 +9,15 @@ import { motion } from "framer-motion"
 
 let photoURL = ""
 let productURL = ""
+let rateUrl = ""
 if (process.env.NODE_ENV === "development") {
   photoURL = `http://localhost:8003/api/v1/photo/`
   productURL = `http://localhost:8002/api/v1/products`
+  rateUrl = `http://localhost:8007/api/v2/users/`
 } else {
   photoURL = `http://backend-micro-image-storage/api/v1/photo/`
   productURL = `http://backend-micro-products/api/v1/products`
+  rateUrl = `https://backend-micro-ratings/api/v1/users/`
 }
 
 async function getPhoto(id: string) {
@@ -53,7 +56,7 @@ async function getProductsSold(id: string) {
 
 async function getRating(id: string) {
   try {
-    const res = await fetch(`http://localhost:8007/api/v2/users/${id}/rating`)
+    const res = await fetch(rateUrl + id + "/rating")
     const res_json = await res.json()
     if (res_json) {
       return (
