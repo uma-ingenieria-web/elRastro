@@ -222,7 +222,7 @@ function Product({ params }: { params: { id: string } }) {
 
   return !found ? (
     <NotFound />
-  ) : closed && !userIsLastBidder ? (
+  ) : closed && (!userIsLastBidder && !(userId && product?.owner._id === userId)) ? (
     <Closed />
   ) : (
     <div className="flex justify-center items-center h-screen">
