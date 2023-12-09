@@ -12,6 +12,7 @@ import { FaExternalLinkAlt } from "react-icons/fa"
 import NotFound from "@/app/not-found"
 import Closed from "@/app/closed"
 import { motion } from "framer-motion"
+import StaticMap from "@/app/components/StaticMap"
 
 const photoURL =
   process.env.NODE_ENV === "development"
@@ -99,6 +100,7 @@ function Product({ params }: { params: { id: string } }) {
   const [closed, setClosed] = useState(false)
   const [found, setFound] = useState(true)
   const [rating, setRating] = useState(0)
+  const [map, setMap] = useState(StaticMap({position:[36.72016,-4.42034]}))
 
   const userId = (session?.user as LoggedUser)?.id || ""
 
@@ -110,6 +112,7 @@ function Product({ params }: { params: { id: string } }) {
     const fetchProduct = async () => {
       const productFetched = await getProduct(id)
       setProduct(productFetched)
+      setMap(StaticMap({position: [productFetched.owner.location.lat, productFetched.owner.location.lon], popup: productFetched.owner.username}));
       if (productFetched.detail === "Invalid ObjectId format") {
         setFound(false)
         return
@@ -200,7 +203,7 @@ function Product({ params }: { params: { id: string } }) {
           value: rate,
         }),
       });
-      location.assign('/product');
+      // location.assign('/product');
     }
   }
 
@@ -373,6 +376,7 @@ function Product({ params }: { params: { id: string } }) {
               </button>
             </>)}
           </div>
+          {map}
 
           <div className="mb-4">
             <div className="flex justify-center items-center flex-1 h-full flex-row">

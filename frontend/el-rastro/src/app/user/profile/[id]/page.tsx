@@ -39,6 +39,7 @@ export default async function ProfilePageId({ params }: { params: { id: string }
     name = userResult?.username.split("#")[0] || "User Not Found";
     const photo_url = photoResult as string;
     const ratings = urlResult as Rate[];
+
     return (
       <div className="flex justify-center items-center h-screen bg-gray-100">
         <div className="bg-white rounded-lg shadow-lg p-8">
@@ -67,5 +68,3 @@ export default async function ProfilePageId({ params }: { params: { id: string }
     }
   }
 }
-
-
