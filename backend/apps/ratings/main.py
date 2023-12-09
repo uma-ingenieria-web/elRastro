@@ -86,7 +86,7 @@ def insert_rating(new_rating: RatingBasicInfo, product_id: str, user_id: str):
             )
 
         bid = db.Bid.find_one({"product._id": ObjectId(product_id)}, sort=[("amount", -1)])
-        
+
         buyer_id = bid["bidder"]["_id"]
         owner_id = product["owner"]["_id"]
 
@@ -96,9 +96,9 @@ def insert_rating(new_rating: RatingBasicInfo, product_id: str, user_id: str):
                 detail=f"User {user_id} is not the buyer nor the owner of the product {product_id}",
             )
 
-        if new_rating["value"] < 0 or new_rating["value"] > 5:
+        if new_rating["value"] < 1 or new_rating["value"] > 5:
             raise HTTPException(
-                status_code=400, detail=f"Rating value must be between 0 and 5"
+                status_code=400, detail=f"Rating value must be between 1 and 5"
             )
 
         if buyer_id == ObjectId(user_id):
