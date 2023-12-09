@@ -228,7 +228,7 @@ def update_product(id: str, new_product: UpdateProduct):
         if len(new_product.model_dump(by_alias=True, exclude={"id"})) >= 1:
             update_result = db.Product.find_one_and_update(
                 {"_id": ObjectId(id)},
-                {"$set": new_product.model_dump(by_alias=True, exclude={"id"})},
+                {"$set": new_product.model_dump(by_alias=True, exclude={"id"}, exclude_none=True, exclude_unset=True)},
                 return_document=ReturnDocument.AFTER,
             )
 
