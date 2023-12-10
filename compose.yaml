@@ -35,22 +35,22 @@ services:
       context: ./backend/apps/image-storage/
     ports:
       - 8003:8000
-  backend-micro-coord-place:
-    container_name: backend-coord-place
-    env_file:
-      - ./backend/apps/coord-place/.env
-    build:
-      context: ./backend/apps/coord-place/
-    ports:
-      - 8004:8000
-  backend-micro-random-quote:
-    container_name: backend-random-quote
-    env_file:
-      - ./backend/apps/random-quote/.env
-    build:
-      context: ./backend/apps/random-quote/
-    ports:
-      - 8005:8000
+  # backend-micro-coord-place:
+  #   container_name: backend-coord-place
+  #   env_file:
+  #     - ./backend/apps/coord-place/.env
+  #   build:
+  #     context: ./backend/apps/coord-place/
+  #   ports:
+  #     - 8004:8000
+  # backend-micro-random-quote:
+  #   container_name: backend-random-quote
+  #   env_file:
+  #     - ./backend/apps/random-quote/.env
+  #   build:
+  #     context: ./backend/apps/random-quote/
+  #   ports:
+  #     - 8005:8000
   backend-micro-chats:
     container_name: backend-chats
     env_file:
