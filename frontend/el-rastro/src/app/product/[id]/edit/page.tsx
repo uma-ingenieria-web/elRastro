@@ -84,42 +84,39 @@ function EditProduct({ params }: { params: { id: string } }) {
     const handleSubmit = async (e: { preventDefault: () => void }) => {
         e.preventDefault();
         
-        // Devuelve un Type Error
-
-        // fetch(apiUrl + product?._id, {
-        //     method: "PUT",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //     },
-        //     body: JSON.stringify({
-        //         title: title,
-        //         description: description,
-        //         weight: 5,
-        //     }),
-        // })
-        //     .then((response) => response.json())
-        //     .then((data) => {
-        //         if (!selectedFile) {
-        //             router.push(`/product/${id}`);
-        //         } else {
-        //             const formData = new FormData();
-        //             formData.append("file", selectedFile!);
-        //             fetch(photoUrl + data._id, {
-        //                 method: "POST",
-        //                 body: formData,
-        //             })
-        //                 .then((response) => response.json())
-        //                 .then((data) => {
-        //                     router.push(`/product/${id}`);
-        //                 })
-        //                 .catch((error) => {
-        //                     console.error("Error:", error);
-        //                 });
-        //         }
-        //     })
-        //     .catch((error) => {
-        //         console.error("Error:", error);
-        //     });
+        fetch(apiUrl + product?._id, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                title: title,
+                description: description,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (!selectedFile) {
+                    router.push(`/product/${id}`);
+                } else {
+                    const formData = new FormData();
+                    formData.append("file", selectedFile!);
+                    fetch(photoUrl + data._id, {
+                        method: "POST",
+                        body: formData,
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            router.push(`/product/${id}`);
+                        })
+                        .catch((error) => {
+                            console.error("Error:", error);
+                        });
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
     };
 
     return (
