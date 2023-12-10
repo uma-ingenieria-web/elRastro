@@ -28,7 +28,6 @@ export default function InteractiveMap({position, setPosition} : {position: [num
           A pretty CSS3 popup. <br /> Easily customizable.
         </Popup>
       </Marker>
-    <MyComponent>
-    </MyComponent>
+    <MyComponent />
   </MapContainer>
 }

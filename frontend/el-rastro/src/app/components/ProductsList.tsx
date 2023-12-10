@@ -174,7 +174,7 @@ export default function ProductList(props: ProductListProps) {
                         owner.length > 20 && "mb-5"
                       } pr-5 font-bold text-black`}
                     >
-                      {owner}'s products
+                        {owner}&apos;s products
                     </h1>
                     <img
                       className="w-20 h-20 sm:mt-0 rounded-full mr-6 object-cover"

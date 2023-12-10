@@ -46,11 +46,7 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
   const [isSendButtonDisabled, setIsSendButtonDisabled] = useState(true);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchData();
-  }, [id]);
-
+  
   const fetchData = async () => {
     try {
       const result = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE?? "http://localhost:8006"}/api/v1/chat/${id}`);
@@ -60,7 +56,7 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
       const messagesResult = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE?? "http://localhost:8006"}/api/v1/chat/${id}/messages`);
       const messagesData = await messagesResult.json();
       setMessages(messagesData);
-
+      
       const productResult = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products/${chatData.product._id}`);
       const productData = await productResult.json();
       setProductInfo(productData);
@@ -85,6 +81,10 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
       setLoading(false);
     }
   };
+  
+  useEffect(() => {
+    fetchData();
+  }, [fetchData, id]);
 
   const handleSendMessage = async () => {
     try {
