@@ -84,7 +84,7 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
   
   useEffect(() => {
     fetchData();
-  }, [fetchData, id]);
+  }, [id]);
 
   const handleSendMessage = async () => {
     try {
