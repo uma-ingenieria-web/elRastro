@@ -92,7 +92,7 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
         return;
       }
 
-      const response = await fetch(`http://localhost:8006/api/v1/chat/${id}/send?origin_id=${(session?.user as any).id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE?? "http://localhost:8006"}/api/v1/chat/${id}/send?origin_id=${(session?.user as any).id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

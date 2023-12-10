@@ -386,10 +386,12 @@ function Product({ params }: { params: { id: string } }) {
               )}
               <button
                 className={`w-20 h-20 border-2 border-gray-300 mb-4 ${
-                  userId ? "cursor-pointer" : "cursor-not-allowed bg-gray-300"
+                  userId && !closed && userId !== product?.owner._id
+                    ? "cursor-pointer"
+                    : "cursor-not-allowed bg-gray-300"
                 } ml-auto`}
                 onClick={createChat}
-                disabled={!userId}
+                disabled={closed || !userId || userId === product?.owner._id}
               >
                 <TbMessageQuestion alt="Open chat" className="w-full h-full" />
               </button>
