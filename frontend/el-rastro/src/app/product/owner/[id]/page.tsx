@@ -24,9 +24,9 @@ async function getUser(id: string) {
 
 async function ProductsOwner({ params }: { params: { id: string } }) {
 
-  const user = await getUser(params.id)
+  const username = await getUser(params.id).then((user) => user.username || "")
 
-  return <ProductList activeOwner={user.username} ownerId={params.id}/>
+  return <ProductList activeOwner={username} ownerId={params.id}/>
 }
 
 export default ProductsOwner
