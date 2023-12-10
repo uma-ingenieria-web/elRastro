@@ -53,21 +53,21 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
 
   const fetchData = async () => {
     try {
-      const result = await fetch(`http://localhost:8006/api/v1/chat/${id}`);
+      const result = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE?? "http://localhost:8006"}/api/v1/chat/${id}`);
       const chatData = await result.json();
       setChatInfo(chatData);
 
-      const messagesResult = await fetch(`http://localhost:8006/api/v1/chat/${id}/messages`);
+      const messagesResult = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE?? "http://localhost:8006"}/api/v1/chat/${id}/messages`);
       const messagesData = await messagesResult.json();
       setMessages(messagesData);
 
-      const productResult = await fetch(`http://localhost:8002/api/v1/products/${chatData.product._id}`);
+      const productResult = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products/${chatData.product._id}`);
       const productData = await productResult.json();
       setProductInfo(productData);
 
       let userData;
       if ((session?.user as any).id == chatData.interested._id) {
-        const userResponse = await fetch(`http://localhost:8000/api/v1/user/${chatData.vendor._id}`);
+        const userResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_USER_SERVICE}/api/v1/user/${chatData.vendor._id}`);
         userData = await userResponse.json();
       } else {
         userData = { _id: "0", username: "Anonymous" };

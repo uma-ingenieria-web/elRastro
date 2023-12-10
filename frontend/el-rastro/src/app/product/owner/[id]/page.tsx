@@ -4,7 +4,7 @@ let userUrl = ""
 if (process.env.NODE_ENV === "development") {
   userUrl = `http://localhost:8000/api/v1/user/`
 } else {
-  userUrl = `http://backend-micro-users/api/v1/user/`
+  userUrl = `${process.env.BACKEND_SERVER_USER_SERVICE?? "http://localhost:8000"}/api/v1/user/`
 }
 
 async function getUser(id: string) {

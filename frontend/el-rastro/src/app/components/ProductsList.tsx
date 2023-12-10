@@ -18,8 +18,8 @@ if (process.env.NODE_ENV === "development") {
   productUrl = `http://localhost:8002/api/v1/products`
   photoUrl = `http://localhost:8003/api/v1/photo/`
 } else {
-  productUrl = `http://backend-micro-products/api/v1/products`
-  photoUrl = `http://backend-micro-image-storage/api/v1/photo/`
+  productUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products`
+  photoUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE?? "http://localhost:8003"}/api/v1/photo/`
 }
 
 async function getPhoto(id: string) {

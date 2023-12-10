@@ -10,11 +10,11 @@ import { motion } from "framer-motion"
 let photoURL = ""
 let productURL = ""
 if (process.env.NODE_ENV === "development") {
-  photoURL = `http://localhost:8003/api/v1/photo/`
   productURL = `http://localhost:8002/api/v1/products`
+  photoURL = `http://localhost:8003/api/v1/photo/`
 } else {
-  photoURL = `http://backend-micro-image-storage/api/v1/photo/`
-  productURL = `http://backend-micro-products/api/v1/products`
+  productURL = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE}/api/v1/products`
+  photoURL = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE}/api/v1/photo/`
 }
 
 async function getPhoto(id: string) {
@@ -53,7 +53,7 @@ async function getProductsSold(id: string) {
 
 async function getRating(id: string) {
   try {
-    const res = await fetch(`http://localhost:8007/api/v2/users/${id}/rating`)
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_RATING_SERVICE}/api/v2/users/${id}/rating`)
     const res_json = await res.json()
     if (res_json) {
       return (

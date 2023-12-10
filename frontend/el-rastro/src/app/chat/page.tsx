@@ -46,26 +46,26 @@ const ChatPage = () => {
 useEffect(() => {
   const fetchData = async () => {
     try {
-        const chatsResponse = await fetch(`http://localhost:8006/api/v1/myChats/${userId}`);
+        const chatsResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE?? "http://localhost:8006"}/api/v1/myChats/${userId}`);
         const chatsData = await chatsResponse.json();
 
         const chatsWithDetails = await Promise.all(
           chatsData.map(async (chat: Chat) => {
-            const productResponse = await fetch(`http://localhost:8002/api/v1/products/${chat.product._id}`);
+            const productResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products/${chat.product._id}`);
             const productData = await productResponse.json();
 
-            const imageResponse = await fetch(`http://localhost:8003/api/v1/photo/${chat.product._id}`);
+            const imageResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE?? "http://localhost:8003"}/api/v1/photo/${chat.product._id}`);
             const imageData = await imageResponse.json();
             
             let userData;
             if ((session?.user as any).id == chat.interested._id) {
-              const userResponse = await fetch(`http://localhost:8000/api/v1/user/${chat.vendor._id}`);
+              const userResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_USER_SERVICE}/api/v1/user/${chat.vendor._id}`);
               userData = await userResponse.json();
             } else {
               userData = {_id: "0", username: "Anonymous"};
             }
             
-            const messageResponse = await fetch(`http://localhost:8006/api/v1/chat/${chat._id}/lastMessage`);
+            const messageResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE}/api/v1/chat/${chat._id}/lastMessage`);
             const lastMessageData = await messageResponse.json();
 
             return {

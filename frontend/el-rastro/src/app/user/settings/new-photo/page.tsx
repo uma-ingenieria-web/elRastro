@@ -13,7 +13,7 @@ export default function ProfilePageId() {
   if (process.env.NODE_ENV === 'development') {
     apiUrl = `http://localhost:8003/api/v1/photo/${id}`;
   } else {
-    apiUrl = `http://backend-micro-image-storage/api/v1/photo/${id}`;
+    apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE?? "http://localhost:8003"}/api/v1/photo/${id}`;
   }
   
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -16,12 +16,12 @@ import { motion } from "framer-motion"
 const photoURL =
   process.env.NODE_ENV === "development"
     ? `http://localhost:8003/api/v1/photo/`
-    : `http://backend-micro-image-storage/api/v1/photo/`
+    : `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE?? "http://localhost:8003"}/api/v1/photo/`
 
 const apiUrl =
   process.env.NODE_ENV === "development"
     ? `http://localhost:8002/api/v1/products/`
-    : `http://backend-micro-products/api/v1/products/`
+    : `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products/`
 
 async function getPhoto(id: string) {
   try {
@@ -52,7 +52,7 @@ async function getRating(id: string) {
     const resultP = await fetch(apiUrl + id)
     const usr = await resultP.json()
     const id_usr = usr.owner._id;
-    const result = await fetch(`http://localhost:8007/api/v2/users/${id_usr}/ratings`);
+    const result = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_RATING_SERVICE}/api/v2/users/${id_usr}/ratings`);
     const rates: Rating[] = await result.json();
     const rate = rates.find((x) => x.product._id === id)
     if (rate?.value)
@@ -141,7 +141,7 @@ function Product({ params }: { params: { id: string } }) {
   const createChat = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8006/api/v1/chat/${id}?interested_id=${
+        `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE}/api/v1/chat/${id}?interested_id=${
           (session?.user as any).id
         }`,
         {
@@ -166,7 +166,7 @@ function Product({ params }: { params: { id: string } }) {
   const makeBid = async (newBid: number) => {
     try {
       const response = await fetch(
-        `http://localhost:8001/api/v1/bids/${id}/${userId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_BID_SERVICE}/api/v1/bids/${id}/${userId}`,
         {
           method: "POST",
           headers: {
@@ -190,7 +190,7 @@ function Product({ params }: { params: { id: string } }) {
 
   const handleRate = async () => {
     if (product && typeof rate === "number") {
-      await fetch(`http://localhost:8007/api/v2/users/${id}/${userId}/ratings`,
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_RATING_SERVICE}/api/v2/users/${id}/${userId}/ratings`,
       {
         method: "PUT",
         headers: {

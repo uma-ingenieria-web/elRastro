@@ -15,7 +15,7 @@ export default function ChangeUsernamePage() {
       if (newName === null || newName === "") {
         throw new Error("Could not update name")
       }
-      const result = await fetch(`http://localhost:8000/api/v1/user/${session?.user?.id}`, {
+      const result = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_USER_SERVICE?? "http://localhost:8000"}/api/v1/user/${session?.user?.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

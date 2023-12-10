@@ -11,7 +11,7 @@ let productUrl = ""
 if (process.env.NODE_ENV === "development") {
   productUrl = `http://localhost:8002/api/v1/products`
 } else {
-  productUrl = `http://backend-micro-products/api/v1/products`
+  productUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products`
 }
 
 interface UserBids {
