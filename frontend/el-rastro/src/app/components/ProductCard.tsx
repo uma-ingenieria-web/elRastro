@@ -243,7 +243,7 @@ function ProductCard(props: ProductInterface) {
             )}
           </div>
         </div>
-        {userId && product.owner._id === userId && (
+        {userId && product.owner._id === userId && !closed && (
           <div className="fixed top-2 right-2 inline-block">
             <Link href={`/product/${product._id}/edit`}>
               <motion.button
