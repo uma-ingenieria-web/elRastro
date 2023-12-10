@@ -133,7 +133,6 @@ function Product({ params }: { params: { id: string } }) {
       setProductPhoto(url)
     }
 
-    fetchRating();
     fetchProduct()
     fetchPhoto()
   }, [id])
