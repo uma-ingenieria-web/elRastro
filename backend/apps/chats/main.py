@@ -195,4 +195,16 @@ def send_message(message: CreateMessage, id: str, origin_id: str):
     else:
         raise HTTPException(status_code=404, detail=f"Message could not be created")
     
+@app.get("/" + versionRoute + "/findChat/{product_id}",
+         summary="Get the chat given by interested and vendor ids",
+         response_description="The chat given by interested and vendor ids",
+         response_model=Chat,
+         status_code=status.HTTP_200_OK,
+         responses={400: errors.error_400, 404: errors.error_404, 422: errors.error_422},
+         tags=["Chat"])
+async def get_chat(product_id: str, interested_id: str, vendor_id: str):
+    chat = db.Chat.find_one({"product._id": ObjectId(product_id), "interested._id": ObjectId(interested_id), "vendor._id": ObjectId(vendor_id)})
+    if chat is None:
+        raise HTTPException(status_code=404, detail=f"Chat could not be found")
 
+    return Chat(**chat)
