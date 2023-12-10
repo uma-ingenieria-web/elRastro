@@ -1,11 +1,13 @@
-import NextAuth, { AuthOptions, Session } from "next-auth";
+import type { NextAuthOptions } from "next-auth"
+
+import NextAuth, { AuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
 if (!process.env.GOOGLE_ID || !process.env.GOOGLE_SECRET) {
   throw new Error("GOOGLE environment variables not set");
 }
 
-export const authOptions: AuthOptions = {
+export const config : AuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
@@ -25,7 +27,7 @@ export const authOptions: AuthOptions = {
       }
     },
     async session({ session, token, user }) {
-      const response = await fetch("http://localhost:8008/api/v1/auth/jwt", {
+      const response = await fetch(`${process.env.BACKEND_SERVER_AUTH_SERVICE}/api/v1/auth/jwt`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -40,8 +42,8 @@ export const authOptions: AuthOptions = {
       return session;
     },
   },
-};
+} satisfies NextAuthOptions;
 
-export const handler = NextAuth(authOptions);
+export const handler = NextAuth(config);
 
 export { handler as GET, handler as POST };
