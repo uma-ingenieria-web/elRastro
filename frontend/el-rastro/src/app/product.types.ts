@@ -33,6 +33,7 @@ interface Product {
     weight: number;
     location: Location;
     owner: UserInterface;
+    buyer: UserInterface;
     bids: BidInterface[];
 }
 

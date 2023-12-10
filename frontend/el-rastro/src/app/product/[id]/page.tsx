@@ -48,10 +48,8 @@ async function getPhoto(id: string) {
   }
 }
 
-async function getRating(id: string, userId: string) {
+async function getRating(id: string, userId: string, product: Product) {
   try {
-    const result_p = await fetch(`${productURL}/${id}`)
-    const product = await result_p.json()
     const id_usr = (userId === product.owner._id) ? product.buyer._id : product.owner._id;
     const result = await fetch(`${rateUrl}/${id_usr}/ratings`);
     const rates: Rate[] = await result.json();
@@ -106,12 +104,10 @@ function Product({ params }: { params: { id: string } }) {
   const userId = (session?.user as LoggedUser)?.id || ""
 
   useEffect(() => {
-    const fetchRating = async () => {
-      const ratingFetched = await getRating(id, userId);
-      setRating(ratingFetched);
-    }
     const fetchProduct = async () => {
       const productFetched = await getProduct(id)
+      const ratingFetched = await getRating(id, userId, productFetched)
+      setRating(ratingFetched);
       setProduct(productFetched)
       setMap(StaticMap({position: [productFetched.owner.location.lat, productFetched.owner.location.lon], popup: productFetched.owner.username}));
       if (productFetched.detail === "Invalid ObjectId format") {
