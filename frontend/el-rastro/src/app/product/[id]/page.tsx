@@ -16,24 +16,24 @@ import StaticMap from "@/app/components/StaticMap"
 
 const photoURL =
   process.env.NODE_ENV === "development"
-    ? `http://localhost:8003/api/v1/photo/`
-    : `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE?? "http://localhost:8003"}/api/v1/photo/`
+    ? `http://localhost:8003/api/v1/photo`
+    : `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE?? "http://localhost:8003"}/api/v1/photo`
 
-const apiUrl =
+const productURL =
   process.env.NODE_ENV === "development"
-    ? `http://localhost:8002/api/v1/products/`
-    : `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products/`
+    ? `http://localhost:8002/api/v1/products`
+    : `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products`
 
 const rateUrl =
   process.env.NODE_ENV === "development"
-    ? `http://localhost:8007/api/v2/users/`
-    : `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_RATING_SERVICE?? "http://localhost:8007"}/api/v2/users/`
+    ? `http://localhost:8007/api/v2/users`
+    : `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_RATING_SERVICE?? "http://localhost:8007"}/api/v2/users`
 
 
 
 async function getPhoto(id: string) {
   try {
-    const photo_result = await fetch(photoURL + id)
+    const photo_result = await fetch(`${photoURL}/${id}`)
     const url = await photo_result.json()
     return url
   } catch (error: any) {
@@ -50,10 +50,10 @@ async function getPhoto(id: string) {
 
 async function getRating(id: string, userId: string) {
   try {
-    const result_p = await fetch(apiUrl + id)
+    const result_p = await fetch(`${productURL}/${id}`)
     const product = await result_p.json()
     const id_usr = (userId === product.owner._id) ? product.buyer._id : product.owner._id;
-    const result = await fetch(rateUrl + id_usr + "/ratings");
+    const result = await fetch(`${rateUrl}/${id_usr}/ratings`);
     const rates: Rate[] = await result.json();
     const rate = rates.find((x) => x.product._id === id)
     if (rate?.value)
@@ -67,7 +67,7 @@ async function getRating(id: string, userId: string) {
 
 async function getProduct(id: string) {
   try {
-    const result = await fetch(apiUrl + id)
+    const result = await fetch(`${productURL}/${id}`)
     const product = await result.json()
     return product
   } catch (error: any) {
@@ -196,7 +196,7 @@ function Product({ params }: { params: { id: string } }) {
     if (product && typeof rate === "number") {
       if (rate >= 1 && rate <= 5) {
         setRating(rate);
-        await fetch(rateUrl + id + "/" + userId + "/ratings",
+        await fetch(`${rateUrl}/${id}/${userId}/ratings`,
         {
           method: "PUT",
           headers: {
