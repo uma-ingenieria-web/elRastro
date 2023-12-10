@@ -28,13 +28,12 @@ db = client.elRastro2
 versionRoute = "api/v1"
 
 origins = [
-    "http://localhost:3000",
-    "http://frontend:3000",
+    "*"
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=[origins],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
