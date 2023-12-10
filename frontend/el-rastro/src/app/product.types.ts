@@ -1,6 +1,10 @@
 interface Rate {
-	value: number
+    value: number,
+    product: {
+      _id: string
+    }
 }
+
 interface UserInterface {
     _id: string;
     username: string;
@@ -13,6 +17,11 @@ interface BidInterface {
     bidder: UserInterface;
 }
 
+interface Location {
+    lat: number;
+    lon: number;
+}
+
 interface Product {
     _id: string;
     title: string;
@@ -22,6 +31,7 @@ interface Product {
     initialDate: Date;
     closeDate: Date;
     weight: number;
+    location: Location;
     owner: UserInterface;
     bids: BidInterface[];
 }

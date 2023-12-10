@@ -1,7 +1,7 @@
 "use client"
 import { useRouter } from "next/navigation"
 import React, { useState, useEffect } from "react"
-import { Product } from "@/app/product.types"
+import { Product, Rate } from "@/app/product.types"
 import { useSession } from "next-auth/react"
 import { TbMessageQuestion } from "react-icons/tb"
 import Modal from "react-modal"
@@ -12,6 +12,7 @@ import { FaExternalLinkAlt } from "react-icons/fa"
 import NotFound from "@/app/not-found"
 import Closed from "@/app/closed"
 import { motion } from "framer-motion"
+import StaticMap from "@/app/components/StaticMap"
 
 const photoURL =
   process.env.NODE_ENV === "development"
@@ -22,6 +23,13 @@ const apiUrl =
   process.env.NODE_ENV === "development"
     ? `http://localhost:8002/api/v1/products/`
     : `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products/`
+
+const rateUrl =
+  process.env.NODE_ENV === "development"
+    ? `http://localhost:8007/api/v2/users/`
+    : `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_RATING_SERVICE?? "http://localhost:8007"}/api/v2/users/`
+
+
 
 async function getPhoto(id: string) {
   try {
@@ -40,20 +48,13 @@ async function getPhoto(id: string) {
   }
 }
 
-interface Rating {
-    value: number,
-    product: {
-      _id: string
-    },
-}
-
-async function getRating(id: string) {
+async function getRating(id: string, userId: string) {
   try {
-    const resultP = await fetch(apiUrl + id)
-    const usr = await resultP.json()
-    const id_usr = usr.owner._id;
-    const result = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_RATING_SERVICE}/api/v2/users/${id_usr}/ratings`);
-    const rates: Rating[] = await result.json();
+    const result_p = await fetch(apiUrl + id)
+    const product = await result_p.json()
+    const id_usr = (userId === product.owner._id) ? product.buyer._id : product.owner._id;
+    const result = await fetch(rateUrl + id_usr + "/ratings");
+    const rates: Rate[] = await result.json();
     const rate = rates.find((x) => x.product._id === id)
     if (rate?.value)
       return rate?.value;
@@ -92,24 +93,27 @@ function Product({ params }: { params: { id: string } }) {
   )
   const [validBid, setValidBid] = useState(true)
   const [bidAmount, setBidAmount] = useState(0)
-  const [rate, setRate] = useState(0)
   const [currentPrice, setCurrentPrice] = useState(0)
   const [bidDone, setBidDone] = useState(false)
   const [userIsLastBidder, setUserIsLastBidder] = useState(false)
   const [closed, setClosed] = useState(false)
   const [found, setFound] = useState(true)
+  const [rate, setRate] = useState(0)
   const [rating, setRating] = useState(0)
+  const [validRating, setValidRating] = useState(true)
+  const [map, setMap] = useState((<></>))
 
   const userId = (session?.user as LoggedUser)?.id || ""
 
   useEffect(() => {
     const fetchRating = async () => {
-      const ratingFetched = await getRating(id);
+      const ratingFetched = await getRating(id, userId);
       setRating(ratingFetched);
     }
     const fetchProduct = async () => {
       const productFetched = await getProduct(id)
       setProduct(productFetched)
+      setMap(StaticMap({position: [productFetched.owner.location.lat, productFetched.owner.location.lon], popup: productFetched.owner.username}));
       if (productFetched.detail === "Invalid ObjectId format") {
         setFound(false)
         return
@@ -136,7 +140,7 @@ function Product({ params }: { params: { id: string } }) {
     fetchRating();
     fetchProduct()
     fetchPhoto()
-  }, [id, product?.owner._id])
+  }, [id])
 
   const createChat = async () => {
     try {
@@ -190,17 +194,21 @@ function Product({ params }: { params: { id: string } }) {
 
   const handleRate = async () => {
     if (product && typeof rate === "number") {
-      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_RATING_SERVICE}/api/v2/users/${id}/${userId}/ratings`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          value: rate,
-        }),
-      });
-      location.assign('/product');
+      if (rate >= 1 && rate <= 5) {
+        setRating(rate);
+        await fetch(rateUrl + id + "/" + userId + "/ratings",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            value: rate,
+            }),
+        });
+      } else {
+        setValidRating(false);
+      }
     }
   }
 
@@ -219,7 +227,7 @@ function Product({ params }: { params: { id: string } }) {
 
   return !found ? (
     <NotFound />
-  ) : closed && !userIsLastBidder ? (
+  ) : closed && (!userIsLastBidder && !(userId && product?.owner._id === userId)) ? (
     <Closed />
   ) : (
     <div className="flex justify-center items-center h-screen">
@@ -359,6 +367,11 @@ function Product({ params }: { params: { id: string } }) {
           ||
             <>
               <p className="mb-2">⭐ Rate your interaction with this sell 😄</p>
+              {!validRating && (
+                <p className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 text-base mr-4" role="warn">
+                  Rate must be between 1 and 5.
+                </p>
+              )}
               <input
                 type="number"
                 onChange={(e) => setRate(parseFloat(e.target.value))}
@@ -373,6 +386,7 @@ function Product({ params }: { params: { id: string } }) {
               </button>
             </>)}
           </div>
+          {map}
 
           <div className="mb-4">
             <div className="flex justify-center items-center flex-1 h-full flex-row">

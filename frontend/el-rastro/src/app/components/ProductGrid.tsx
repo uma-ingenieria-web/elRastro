@@ -19,7 +19,7 @@ function ProductGrid(props: ProductGridProps) {
       <div
         className={`grid px-5 ${
           props.products.length === 1
-            ? "grid-cols-1 w-96"
+            ? "grid-cols-1 w-full sm:w-96"
             : props.products.length === 2
             ? "grid-cols-1 sm:grid-cols-2"
             : props.products.length === 3
