@@ -20,6 +20,8 @@ const productURL = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "
 
 const rateUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_RATING_SERVICE?? "http://localhost:8007"}/api/v2/users`
 
+const bidUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_BID_SERVICE?? "http://localhost:8001"}/api/v1/bids`
+
 
 
 async function getPhoto(id: string) {
@@ -165,7 +167,7 @@ function Product({ params }: { params: { id: string } }) {
   const makeBid = async (newBid: number) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_BID_SERVICE}/api/v1/bids/${id}/${userId}`,
+        `${bidUrl}/${id}/${userId}`,
         {
           method: "POST",
           headers: {
