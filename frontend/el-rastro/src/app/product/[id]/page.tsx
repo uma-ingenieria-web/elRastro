@@ -130,20 +130,29 @@ function Product({ params }: { params: { id: string } }) {
 
   const createChat = async () => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE}/api/v1/chat/${id}?interested_id=${
+      const chat = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE}/api/v1/findChat/${id}?interested_id=${
           (session?.user as any).id
-        }`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({}),
-        }
-      )
-      const chatData = await response.json()
-      router.push(`../../chat/${chatData?._id}`)
+        }&vendor_id=${product.owner._id}`)
+      const existChat = await chat.json()
+      if (existChat._id === undefined) {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE}/api/v1/chat/${id}?interested_id=${
+            (session?.user as any).id
+          }`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({}),
+          }
+        )
+        const chatData = await response.json()
+        router.push(`../../chat/${chatData?._id}`)
+      } else {
+        router.push(`../../chat/${existChat?._id}`)
+      }
     } catch (error) {
       console.error("Error creating chat", error)
     }
