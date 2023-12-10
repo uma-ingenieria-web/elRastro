@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 import cloudinary
 import cloudinary.uploader as cloudinary_uploader
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
@@ -12,6 +13,14 @@ load_dotenv()
 
 uri = os.getenv('MONGODB_URI')
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 cloudinary.config( 
   cloud_name = "dnzyzkglp", 
@@ -21,6 +30,9 @@ cloudinary.config(
 
 versionRoute = "api/v1"
 
+origins = [
+    "*"
+]
 
 @app.get("/" + versionRoute + "/photo/{id}",
          summary="Get url to photo from id",
@@ -52,11 +64,6 @@ def get_url_photo(id: str):
         },
         tags=["Photo"])
 def post_photo(id: str, file: UploadFile = File()):
-    response = cloudinary_uploader.upload(file.file, public_id=id, transformation=[{
-        'width': 100,
-        'height': 100,
-        'crop': 'fill'
-
-    }])
+    response = cloudinary_uploader.upload(file.file, public_id=id, format="jpg")
     return response["secure_url"]
 

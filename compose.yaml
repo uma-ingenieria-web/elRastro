@@ -35,22 +35,46 @@ services:
       context: ./backend/apps/image-storage/
     ports:
       - 8003:8000
-  backend-micro-coord-place:
-    container_name: backend-coord-place
+  # backend-micro-coord-place:
+  #   container_name: backend-coord-place
+  #   env_file:
+  #     - ./backend/apps/coord-place/.env
+  #   build:
+  #     context: ./backend/apps/coord-place/
+  #   ports:
+  #     - 8004:8000
+  # backend-micro-random-quote:
+  #   container_name: backend-random-quote
+  #   env_file:
+  #     - ./backend/apps/random-quote/.env
+  #   build:
+  #     context: ./backend/apps/random-quote/
+  #   ports:
+  #     - 8005:8000
+  backend-micro-chats:
+    container_name: backend-chats
     env_file:
-      - ./backend/apps/coord-place/.env
+      - ./backend/apps/chats/.env
     build:
-      context: ./backend/apps/coord-place/
+      context: ./backend/apps/chats/
     ports:
-      - 8004:8000
-  backend-micro-random-quote:
-    container_name: backend-random-quote
+      - 8006:8000
+  backend-micro-ratings:
+    container_name: backend-ratings
     env_file:
-      - ./backend/apps/random-quote/.env
+      - ./backend/apps/ratings/.env
     build:
-      context: ./backend/apps/random-quote/
+      context: ./backend/apps/ratings/
     ports:
-      - 8005:8000
+      - 8007:8000
+  backend-micro-auth:
+    container_name: backend-auth
+    env_file:
+      - ./backend/apps/auth/.env
+    build:
+      context: ./backend/apps/auth/
+    ports:
+      - 8008:8000
   # backend-micro-carbon-footprint:
   #   container_name: backend-carbon-footprint
   #   env_file:
@@ -59,10 +83,11 @@ services:
   #     context: ./backend/apps/carbon-footprint/
   #   ports:
   #     - 8005:8000
-  # frontend:
-  #   build:
-  #     context: ./frontend/el-rastro/
-  #   environment:
-  #     NODE_ENV: production
-  #   ports:
-  #     - 8080:3000
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend/el-rastro/
+    env_file:
+      - ./frontend/el-rastro/.env.local
+    ports:
+      - 8080:3000

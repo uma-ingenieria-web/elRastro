@@ -1,11 +1,19 @@
+from datetime import datetime, timedelta
 from typing import List
 from fastapi import FastAPI, HTTPException, Response, status, Query
 from dotenv import load_dotenv
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
-from productModel import Product, ProductBasicInfo, ProductUserInfo, UpdateProduct
+from productModel import (
+    Product,
+    ProductBasicInfo,
+    ProductUserInfo,
+    ProductsResponse,
+    UpdateProduct,
+)
 from bson import ObjectId
 from bson.errors import InvalidId
+from fastapi.middleware.cors import CORSMiddleware
 import errors
 import re
 
@@ -20,9 +28,21 @@ uri = os.getenv("MONGODB_URI")
 client = MongoClient(uri)
 
 # Set the desired db
-db = client.elRastro
+db = client.elRastro2
 
 versionRoute = "api/v1"
+
+origins = [
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
@@ -50,10 +70,25 @@ def get_products(
 ):
     filter_params = {}
 
-    if minPrice is not None:
-        filter_params["initialPrice"] = {"$gte": minPrice}
-    if maxPrice is not None:
-        filter_params.setdefault("initialPrice", {})["$lte"] = maxPrice
+    if minPrice is not None or maxPrice is not None:
+        price_conditions = {}
+
+        if minPrice is not None:
+            price_conditions["$gte"] = minPrice
+
+        if maxPrice is not None:
+            price_conditions["$lte"] = maxPrice
+
+        filter_params["$or"] = [
+            {"bids": {"$exists": False}},  # No bids
+            {
+                "$and": [
+                    {"bids": {"$elemMatch": {"amount": price_conditions}}},
+                    {"bids": {"$not": {"$size": 0}}},
+                ]
+            },  # Bids with amount conditions
+            {"bids": {"$size": 0}, "initialPrice": price_conditions},
+        ]
     if username:
         regex_pattern = re.compile(f".*{re.escape(username)}.*", re.IGNORECASE)
         filter_params["owner.username"] = {"$regex": regex_pattern}
@@ -117,6 +152,14 @@ def create_product(product: ProductBasicInfo, idOwner: str):
 
 # Auxiliary function to save a product
 def save_product(product: ProductBasicInfo, idOwner: str):
+    if product["closeDate"] < datetime.now():
+        raise HTTPException(status_code=400, detail="Close date is in the past")
+
+    if product["closeDate"] < datetime.now() + timedelta(days=5):
+        raise HTTPException(
+            status_code=400, detail="Close date is less than 5 days from now"
+        )
+
     owner = db.User.find_one({"_id": ObjectId(idOwner)})
 
     if owner is None:
@@ -144,10 +187,47 @@ def save_product(product: ProductBasicInfo, idOwner: str):
 )
 def update_product(id: str, new_product: UpdateProduct):
     try:
+        buyer = None
+
+        if new_product.buyer is not None:
+            buyer = db.User.find_one({"_id": ObjectId(new_product.buyer.id)})
+            if buyer is None:
+                raise HTTPException(status_code=404, detail="Buyer not found")
+            if (
+                new_product.buyer.location.lat != buyer["location"]["lat"]
+                or new_product.buyer.location.lon != buyer["location"]["lon"]
+            ):
+                raise HTTPException(
+                    status_code=400,
+                    detail="Buyer location is not the same as the one stored in the database",
+                )
+
+            if buyer["_id"] == product["owner"]["_id"]:
+                raise HTTPException(
+                    status_code=400, detail="Buyer can't be  the owner of the product"
+                )
+
+        product = db.Product.find_one({"_id": ObjectId(id)})
+
+        last_bid = db.Bid.find_one(
+            {"product._id": ObjectId(id)}, sort=[("timestamp", -1)]
+        )
+
+        if last_bid is not None and last_bid["bidder"]["_id"] != buyer["_id"]:
+            raise HTTPException(
+                status_code=400, detail="Buyer is not the last bidder of the product"
+            )
+
+        if buyer is not None and product["closeDate"] > datetime.now():
+            raise HTTPException(status_code=400, detail="Product is not closed yet")
+        
+        if buyer is not None:
+            new_product.buyer.id = ObjectId(new_product.buyer.id)
+
         if len(new_product.model_dump(by_alias=True, exclude={"id"})) >= 1:
             update_result = db.Product.find_one_and_update(
                 {"_id": ObjectId(id)},
-                {"$set": new_product.model_dump(by_alias=True, exclude={"id"})},
+                {"$set": new_product.model_dump(by_alias=True, exclude={"id"}, exclude_none=True, exclude_unset=True)},
                 return_document=ReturnDocument.AFTER,
             )
 
@@ -266,5 +346,72 @@ def get_related_products(id: str):
         if user_products is None:
             return []
         return user_products["products"]
+    except InvalidId as e:
+        raise HTTPException(status_code=400, detail="Invalid ObjectId format")
+
+
+# Get the products that the user has bid on divided if the user has won or not or if the product is still open
+@app.get(
+    "/" + versionRoute + "/products/bids/{id}",
+    summary="Get the products that the user has bid on divided if the user has won or not or if the product is still open",
+    response_description="List of products that the user has bid on divided if the user has won or not or if the product is still open",
+    response_model=ProductsResponse,
+    responses={400: errors.error_400, 422: errors.error_422},
+)
+def get_products_bids(id: str):
+    try:
+        products = {"open": [], "won": [], "lost": []}
+        user = db.User.find_one({"_id": ObjectId(id)})
+        if user is None:
+            return products
+        
+        products_cursor = db.Product.aggregate(
+            [
+                {"$match": {"bids.bidder._id": ObjectId(id)}},
+                {"$sort": {"closeDate": 1}},
+            ]
+        )
+        
+        if products_cursor is not None:
+            for document in products_cursor:
+                product = Product(**document)
+                if product.buyer is None:
+                    products["open"].append(product)
+                elif product.buyer.id == user["_id"]:
+                    products["won"].append(product)
+                else:
+                    products["lost"].append(product)
+                    
+        return products
+
+    except InvalidId as e:
+        raise HTTPException(status_code=400, detail="Invalid ObjectId format")
+
+# Get the number of products sold by a user
+@app.get(
+    "/" + versionRoute + "/products/sold/{id}",
+    summary="Get the number of products sold by a user",
+    response_description="Number of products sold by a user",
+    responses={400: errors.error_400, 422: errors.error_422},
+)
+def get_products_sold(id: str):
+    try:
+        
+        products_sold_cursor = db.Product.aggregate(
+            [
+                {"$match": {"owner._id": ObjectId(id)}},
+                {"$match": {"buyer": {"$exists": True}}},
+                {"$count": "products_sold"},
+            ]
+        )
+        
+        products_sold = 0
+        
+        if products_sold_cursor is not None:
+            for document in products_sold_cursor:
+                products_sold = document["products_sold"]
+                
+        return products_sold
+
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")

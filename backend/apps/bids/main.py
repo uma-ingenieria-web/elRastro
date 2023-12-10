@@ -6,6 +6,7 @@ from pymongo.mongo_client import MongoClient
 from bidModel import Bid, UpdateBid, BidBasicInfo
 from productModel import Product
 from bson import ObjectId
+from fastapi.middleware.cors import CORSMiddleware
 from bson.errors import InvalidId
 import errors
 import re
@@ -22,9 +23,22 @@ uri = os.getenv("MONGODB_URI")
 client = MongoClient(uri)
 
 # Set the desired db
-db = client.elRastro
+db = client.elRastro2
 
 versionRoute = "api/v1"
+
+origins = [
+    "*",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+)
 
 
 @app.get("/")
@@ -40,11 +54,16 @@ def save_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
 
+    if product["closeDate"] < bid["timestamp"]:
+        raise HTTPException(
+            status_code=400, detail="Bid cannot be placed after the close date"
+        )
+
     if bidder is None:
         raise HTTPException(status_code=404, detail="Bidder not found")
 
     owner = db.User.find_one({"_id": ObjectId(product["owner"]["_id"])})
-    
+
     bid["product"] = {
         "_id": product["_id"],
         "title": product["title"],
@@ -75,7 +94,8 @@ def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
         product = db.Product.find_one({"_id": ObjectId(idProduct)})
         if product is not None and product["owner"]["_id"] == ObjectId(idBidder):
             raise HTTPException(
-                status_code=400, detail="Owner cannot bid on his own product")
+                status_code=400, detail="Owner cannot bid on his own product"
+            )
 
         new_bid = bid.model_dump(by_alias=True, exclude={"id"})
 
@@ -83,11 +103,10 @@ def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
             last_bid = product["bids"][-1]
             if last_bid is not None and last_bid["amount"] >= new_bid["amount"]:
                 raise HTTPException(
-                    status_code=400, detail="Bid must be higher than the last one")
+                    status_code=400, detail="Bid must be higher than the last one"
+                )
 
-        response = save_bid(
-            new_bid, idProduct, idBidder
-        )
+        response = save_bid(new_bid, idProduct, idBidder)
 
         if response:
             db.Product.find_one_and_update(

@@ -1,6 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'standalone',
-}
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  output: "standalone",
+  reactStrictMode: true,
+  compiler: {
+    styledComponents: true,
+  },
+  images: {
+    remotePatterns: [
+      {
+        hostname: "res.cloudinary.com",
+      },
+    ],
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "f63525ca-0a62-4130-ad72-535c09c5f8ef",
+		"_postman_id": "de1937cc-b491-4de5-bb0f-ae930fcb1054",
 		"name": "elRastro",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "30721845"
+		"_exporter_id": "30049081"
 	},
 	"item": [
 		{
@@ -311,7 +311,7 @@
 									"    pm.expect(body.description).to.be.eql(\"Gently worn classic leather wallet – timeless style for a steal!\");\r",
 									"    pm.expect(body.initialPrice).to.be.eql(11.99);\r",
 									"    pm.expect(body.initialDate).to.be.eql(\"2023-11-09T19:27:38.794000\");\r",
-									"    pm.expect(body.closeDate).to.be.eql(\"2023-11-09T19:26:09.512000\");\r",
+									"    pm.expect(body.closeDate).to.be.eql(\"2024-11-09T19:26:09.512000\");\r",
 									"    pm.expect(body.weight).to.be.eql(0.5);\r",
 									"    pm.expect(body.owner._id).to.be.eql(\"654b5d074da4bf53381f1ba1\");\r",
 									"    pm.expect(body.owner.username).to.be.eql(\"Guillermo Tell\");\r",
@@ -353,7 +353,7 @@
 								"exec": [
 									"pm.collectionVariables.set(\"new_product_title\", \"pm_example\")\r",
 									"pm.collectionVariables.set(\"new_product_description\", \"pm_example\")\r",
-									"pm.collectionVariables.set(\"new_product_closeDate\", \"2023-11-09 19:52:08.492189\")"
+									"pm.collectionVariables.set(\"new_product_closeDate\", \"2024-11-09 19:52:08.492189\")"
 								],
 								"type": "text/javascript"
 							}
@@ -794,10 +794,6 @@
 			"value": ""
 		},
 		{
-			"key": "new_product_closeDate",
-			"value": ""
-		},
-		{
 			"key": "new_product_id",
 			"value": ""
 		},
@@ -820,6 +816,10 @@
 		{
 			"key": "new_bid_id",
 			"value": ""
+		},
+		{
+			"key": "new_product_closeDate",
+			"value": "2024-11-09 19:52:08.492189"
 		}
 	]
 }
