@@ -10,15 +10,10 @@ import { motion } from "framer-motion"
 let photoURL = ""
 let productURL = ""
 let rateUrl = ""
-if (process.env.NODE_ENV === "development") {
-  productURL = `http://localhost:8002/api/v1/products`
-  photoURL = `http://localhost:8003/api/v1/photo`
-  rateUrl = `http://localhost:8007/api/v2/users`
-} else {
-  productURL = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE}/api/v1/products`
-  photoURL = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE}/api/v1/photo`
-  rateUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_RATING_SERVICE}/api/v2/users`
-}
+
+productURL = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products`
+photoURL = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE?? "http://localhost:8003"}/api/v1/photo`
+rateUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_RATING_SERVICE?? "http://localhost:8007"}/api/v2/users`
 
 async function getPhoto(id: string) {
   try {

@@ -14,20 +14,11 @@ import Closed from "@/app/closed"
 import { motion } from "framer-motion"
 import StaticMap from "@/app/components/StaticMap"
 
-const photoURL =
-  process.env.NODE_ENV === "development"
-    ? `http://localhost:8003/api/v1/photo`
-    : `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE?? "http://localhost:8003"}/api/v1/photo`
+const photoURL =`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE?? "http://localhost:8003"}/api/v1/photo`
 
-const productURL =
-  process.env.NODE_ENV === "development"
-    ? `http://localhost:8002/api/v1/products`
-    : `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products`
+const productURL = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products`
 
-const rateUrl =
-  process.env.NODE_ENV === "development"
-    ? `http://localhost:8007/api/v2/users`
-    : `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_RATING_SERVICE?? "http://localhost:8007"}/api/v2/users`
+const rateUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_RATING_SERVICE?? "http://localhost:8007"}/api/v2/users`
 
 
 

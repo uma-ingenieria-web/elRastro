@@ -27,7 +27,7 @@ export const authOptions : AuthOptions = {
       }
     },
     async session({ session, token, user }) {
-      const response = await fetch(`${process.env.BACKEND_SERVER_AUTH_SERVICE}/api/v1/auth/jwt`, {
+      const response = await fetch(`${process.env.BACKEND_SERVER_AUTH_SERVICE?? "http://localhost:8008"}/api/v1/auth/jwt`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

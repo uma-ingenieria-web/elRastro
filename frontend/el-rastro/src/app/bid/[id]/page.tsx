@@ -7,12 +7,7 @@ import { Product } from "@/app/product.types"
 import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 
-let productUrl = ""
-if (process.env.NODE_ENV === "development") {
-  productUrl = `http://localhost:8002/api/v1/products`
-} else {
-  productUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products`
-}
+const productUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products`
 
 interface UserBids {
   open: Product[]

@@ -11,15 +11,9 @@ interface Props {
     image: string;
 }
 
-const apiUrl =
-    process.env.NODE_ENV === "development"
-        ? `http://localhost:8002/api/v1/products/`
-        : `http://backend-micro-products/api/v1/products/`;
+const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products/`;
 
-const photoUrl =
-    process.env.NODE_ENV === "development"
-        ? `http://localhost:8003/api/v1/photo/`
-        : `http://backend-micro-image-storage/api/v1/photo/`;
+const photoUrl =`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE?? "http://localhost:8003"}/api/v1/photo/`;
 
 async function getProduct(id: string) {
     try {

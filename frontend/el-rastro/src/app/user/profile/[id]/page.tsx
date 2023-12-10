@@ -17,15 +17,9 @@ export default async function ProfilePageId({ params }: { params: { id: string }
   let urlRating = '';
   let name = "User Not Found";
 
-  if (process.env.NODE_ENV === 'development') {
-    userApiURL = `http://localhost:8000/api/v1/user/${id}`;
-    photoApiURL = `http://localhost:8003/api/v1/photo/${id}`;
-    urlRating = `http://localhost:8007/api/v2/users/${id}/ratings`;
-  } else {
-    userApiURL = `${process.env.BACKEND_SERVER_USER_SERVICE?? "http://localhost:8000"}/api/v1/user/${id}`;
-    photoApiURL = `${process.env.BACKEND_SERVER_IMAGE_STORAGE_SERVICE?? "http://localhost:8003"}/api/v1/photo/${id}`;
-    urlRating = `${process.env.BACKEND_SERVER_RATING_SERVICE?? "http://localhost:8007"}/api/v2/users/${id}/ratings`;
-  }
+  userApiURL = `${process.env.BACKEND_SERVER_USER_SERVICE?? "http://localhost:8000"}/api/v1/user/${id}`;
+  photoApiURL = `${process.env.BACKEND_SERVER_IMAGE_STORAGE_SERVICE?? "http://localhost:8003"}/api/v1/photo/${id}`;
+  urlRating = `${process.env.BACKEND_SERVER_RATING_SERVICE?? "http://localhost:8007"}/api/v2/users/${id}/ratings`;
 
   try {
     const [user_promise, photo_promise, url_promise] = await Promise.allSettled([
