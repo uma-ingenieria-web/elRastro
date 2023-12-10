@@ -87,8 +87,6 @@ services:
     container_name: frontend
     build:
       context: ./frontend/el-rastro/
-    environment:
-      NODE_ENV: production
     env_file:
       - ./frontend/el-rastro/.env.local
     ports:
