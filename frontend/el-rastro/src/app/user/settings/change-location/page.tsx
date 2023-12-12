@@ -3,6 +3,7 @@
 import InteractiveMap from '@/app/components/InteractiveMap';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { fetchWithToken } from '../../../../../lib/authFetch';
 
 
 export default function ChangeUserLocation() {
@@ -20,7 +21,7 @@ export default function ChangeUserLocation() {
         className="flex flex-col items-center space-y-4"
         onSubmit={(e) => {
           e.preventDefault();
-          fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_USER_SERVICE?? "http://localhost:8000"}/api/v1/user/${id}`, {
+          fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_USER_SERVICE?? "http://localhost:8000"}/api/v1/user/${id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json'

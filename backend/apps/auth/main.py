@@ -62,10 +62,10 @@ async def generate_jwt_token(account: JwtInfo):
     return JSONResponse(content=jsonable_encoder({"jwt": jwt_token, "id": id}))
 
 @app.post("/" + versionRoute + "/auth/verify")
-async def validate_jwt_token(jwt: str):
+async def validate_jwt_token(jwt_token: str):
     try:
-        payload = jwt.decode(jwt, os.getenv('JWT_SECRET'), algorithms=["HS256"])
-        return JSONResponse(content=jsonable_encoder({"valid": True}))
+        payload = jwt.decode(jwt_token, os.getenv('JWT_SECRET'), algorithms=["HS256"])
+        return JSONResponse(content=jsonable_encoder({"id": payload.sub}))
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Signature has expired")
     except jwt.InvalidTokenError:

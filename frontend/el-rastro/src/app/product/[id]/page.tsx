@@ -13,6 +13,7 @@ import NotFound from "@/app/not-found"
 import Closed from "@/app/closed"
 import { motion } from "framer-motion"
 import StaticMap from "@/app/components/StaticMap"
+import { fetchWithToken } from "../../../../lib/authFetch"
 
 const photoURL =`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE?? "http://localhost:8003"}/api/v1/photo`
 
@@ -132,13 +133,13 @@ function Product({ params }: { params: { id: string } }) {
 
   const createChat = async () => {
     try {
-      const chat = await fetch(
+      const chat = await fetchWithToken(
         `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE}/api/v1/findChat/${id}?interested_id=${
           (session?.user as any).id
         }&vendor_id=${product.owner._id}`)
       const existChat = await chat.json()
       if (existChat._id === undefined) {
-        const response = await fetch(
+        const response = await fetchWithToken(
           `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE}/api/v1/chat/${id}?interested_id=${
             (session?.user as any).id
           }`,
@@ -166,7 +167,7 @@ function Product({ params }: { params: { id: string } }) {
 
   const makeBid = async (newBid: number) => {
     try {
-      const response = await fetch(
+      const response = await fetchWithToken(
         `${bidUrl}/${id}/${userId}`,
         {
           method: "POST",
@@ -193,7 +194,7 @@ function Product({ params }: { params: { id: string } }) {
     if (product && typeof rate === "number") {
       if (rate >= 1 && rate <= 5) {
         setRating(rate);
-        await fetch(`${rateUrl}/${id}/${userId}/ratings`,
+        await fetchWithToken(`${rateUrl}/${id}/${userId}/ratings`,
         {
           method: "PUT",
           headers: {

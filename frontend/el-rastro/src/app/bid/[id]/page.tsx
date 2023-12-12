@@ -6,6 +6,7 @@ import NotFound from "@/app/not-found"
 import { Product } from "@/app/product.types"
 import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
+import { fetchWithToken } from '../../../../lib/authFetch';
 
 const productUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products`
 
@@ -17,7 +18,7 @@ interface UserBids {
 
 async function getBids(id: string) {
   try {
-    const result = await fetch(productUrl + `/bids/${id}`)
+    const result = await fetchWithToken(productUrl + `/bids/${id}`)
     const products = await result.json()
     return products
   } catch (error: any) {
