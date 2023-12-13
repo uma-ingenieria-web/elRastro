@@ -27,7 +27,7 @@ export default function ChangeUserLocation() {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({ location: { lat: position[0], lon: position[1] } })
-          })
+          }, session)
         }}
       >
         <label htmlFor="latitude">Latitude</label>

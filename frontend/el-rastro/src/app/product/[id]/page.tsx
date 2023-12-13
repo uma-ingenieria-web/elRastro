@@ -136,7 +136,7 @@ function Product({ params }: { params: { id: string } }) {
       const chat = await fetchWithToken(
         `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE}/api/v1/findChat/${id}?interested_id=${
           (session?.user as any).id
-        }&vendor_id=${product.owner._id}`)
+        }&vendor_id=${product.owner._id}`, {}, session)
       const existChat = await chat.json()
       if (existChat._id === undefined) {
         const response = await fetchWithToken(
@@ -149,7 +149,7 @@ function Product({ params }: { params: { id: string } }) {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({}),
-          }
+          }, session
         )
         const chatData = await response.json()
         router.push(`../../chat/${chatData?._id}`)
@@ -177,7 +177,7 @@ function Product({ params }: { params: { id: string } }) {
           body: JSON.stringify({
             amount: newBid,
           }),
-        }
+        }, session
       )
       const bidData = await response.json()
       setValidBid(true)
@@ -203,7 +203,7 @@ function Product({ params }: { params: { id: string } }) {
           body: JSON.stringify({
             value: rate,
             }),
-        });
+        }, session);
       } else {
         setValidRating(false);
       }

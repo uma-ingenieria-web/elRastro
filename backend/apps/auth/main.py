@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Body, HTTPException, status, Query
+from fastapi import FastAPI, Body, HTTPException, Header, status, Query
 from dotenv import load_dotenv
 from pymongo.mongo_client import MongoClient
 from bson.errors import InvalidId
@@ -62,10 +62,15 @@ async def generate_jwt_token(account: JwtInfo):
     return JSONResponse(content=jsonable_encoder({"jwt": jwt_token, "id": id}))
 
 @app.post("/" + versionRoute + "/auth/verify")
-async def validate_jwt_token(jwt_token: str):
+async def validate_jwt_token(authorization: str = Header(...)):
     try:
+        scheme, jwt_token = authorization.split()
+        if scheme.lower() != "bearer":
+            raise HTTPException(status_code=401, detail="Invalid authorization scheme")
+        
         payload = jwt.decode(jwt_token, os.getenv('JWT_SECRET'), algorithms=["HS256"])
-        return JSONResponse(content=jsonable_encoder({"id": payload.sub}))
+        user_id = payload.get('sub')
+        return JSONResponse(content=jsonable_encoder({"id": user_id}))
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Signature has expired")
     except jwt.InvalidTokenError:

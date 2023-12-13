@@ -33,7 +33,7 @@ export default function ProfilePageId() {
         const response = await fetchWithToken(apiUrl, {
           method: 'POST',
           body: formData,
-        });
+        }, session);
 
         if (response.ok) {
           setStatus('File uploaded successfully');

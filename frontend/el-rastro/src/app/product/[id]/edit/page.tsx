@@ -94,7 +94,7 @@ function EditProduct({ params }: { params: { id: string } }) {
                 title: title,
                 description: description,
             }),
-        })
+        }, session)
             .then((response) => response.json())
             .then((data) => {
                 if (!selectedFile) {
@@ -105,7 +105,7 @@ function EditProduct({ params }: { params: { id: string } }) {
                     fetchWithToken(photoUrl + data._id, {
                         method: "POST",
                         body: formData,
-                    })
+                    }, session)
                         .then((response) => response.json())
                         .then((data) => {
                             router.push(`/product/${id}`);

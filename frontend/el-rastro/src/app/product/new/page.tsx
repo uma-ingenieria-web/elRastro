@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Product } from "@/app/product.types";
 import { useSession } from "next-auth/react";
+import { fetchWithToken } from "../../../../lib/authFetch";
 
 const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products/`;
 
@@ -48,7 +49,7 @@ function CreateProduct() {
             return;
         }
 
-        fetch(apiUrl + userId, {
+        fetchWithToken(apiUrl + userId, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -60,15 +61,15 @@ function CreateProduct() {
                 closeDate: buildISODate(new Date(endDate)),
                 weight: 5,
             }),
-        })
+        }, session)
             .then((response) => response.json())
             .then((data) => {
                 const formData = new FormData();
                 formData.append("file", selectedFile!);
-                fetch(photoUrl + data._id, {
+                fetchWithToken(photoUrl + data._id, {
                     method: "POST",
                     body: formData,
-                })
+                }, session)
                     .then((response) => response.json())
                     .then((data) => {
                         router.push(`/product/`);

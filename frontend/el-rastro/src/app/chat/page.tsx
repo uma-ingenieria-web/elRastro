@@ -47,7 +47,7 @@ const ChatPage = () => {
 useEffect(() => {
   const fetchData = async () => {
     try {
-        const chatsResponse = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE?? "http://localhost:8006"}/api/v1/myChats/${userId}`);
+        const chatsResponse = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE?? "http://localhost:8006"}/api/v1/myChats/${userId}`, {}, session);
         const chatsData = await chatsResponse.json();
 
         const chatsWithDetails = await Promise.all(
@@ -66,7 +66,7 @@ useEffect(() => {
               userData = {_id: "0", username: "Anonymous"};
             }
             
-            const messageResponse = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE}/api/v1/chat/${chat._id}/lastMessage`);
+            const messageResponse = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE}/api/v1/chat/${chat._id}/lastMessage`, {}, session);
             const lastMessageData = await messageResponse.json();
 
             return {

@@ -24,7 +24,7 @@ export default function ChangeUsernamePage() {
         body: JSON.stringify({
           username: newName
         })
-      })
+      }, session)
       if (!result.ok) {
         throw new Error("Could not update name")
       }

@@ -7,6 +7,7 @@ import { Product } from "@/app/product.types"
 import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { fetchWithToken } from '../../../../lib/authFetch';
+import { Session } from "next-auth"
 
 const productUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products`
 
@@ -16,9 +17,9 @@ interface UserBids {
   won: Product[]
 }
 
-async function getBids(id: string) {
+async function getBids(id: string, session: Session) {
   try {
-    const result = await fetchWithToken(productUrl + `/bids/${id}`)
+    const result = await fetchWithToken(productUrl + `/bids/${id}`, {}, session)
     const products = await result.json()
     return products
   } catch (error: any) {
@@ -43,7 +44,7 @@ function Bid({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const products = await getBids(params.id)
+        const products = await getBids(params.id, session)
         setBids(products)
       } finally {
         setLoading(false)
