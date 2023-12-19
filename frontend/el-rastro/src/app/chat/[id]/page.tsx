@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
 import { useSession } from "next-auth/react";
+import { fetchWithToken } from '../../../../lib/authFetch';
 
 interface Message {
   chat: {
@@ -49,11 +50,11 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
   
   const fetchData = async () => {
     try {
-      const result = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE?? "http://localhost:8006"}/api/v1/chat/${id}`);
+      const result = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE?? "http://localhost:8006"}/api/v1/chat/${id}`, {}, session);
       const chatData = await result.json();
       setChatInfo(chatData);
 
-      const messagesResult = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE?? "http://localhost:8006"}/api/v1/chat/${id}/messages`);
+      const messagesResult = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE?? "http://localhost:8006"}/api/v1/chat/${id}/messages`, {}, session);
       const messagesData = await messagesResult.json();
       setMessages(messagesData);
       
@@ -92,13 +93,13 @@ export default function ChatPageId({ params }: { params: { id: string } }) {
         return;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE?? "http://localhost:8006"}/api/v1/chat/${id}/send?origin_id=${(session?.user as any).id}`, {
+      const response = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE?? "http://localhost:8006"}/api/v1/chat/${id}/send?origin_id=${(session?.user as any).id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ text: newMessageText }),
-      });
+      }, session);
 
       if (response.ok) {
         fetchData();

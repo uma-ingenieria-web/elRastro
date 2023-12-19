@@ -1,6 +1,7 @@
 from typing import List
-from fastapi import FastAPI, HTTPException, Response, status, Query
+from fastapi import Depends, FastAPI, HTTPException, Header, Response, status, Query
 from dotenv import load_dotenv
+import httpx
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
 from chatModel import Chat, Message, CreateChat, CreateMessage
@@ -38,6 +39,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+async def get_token(authorization: str = Header(...)):
+    scheme, token = authorization.split()
+    if scheme.lower() != "bearer":
+        raise HTTPException(status_code=403, detail="Invalid authentication scheme")
+    try:
+        async with httpx.AsyncClient() as client:
+            url = os.getenv("AUTH_URL")
+            headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
+            response = await client.post(url, headers=headers)
+
+            if response.status_code == 200:
+                json_content = response.text
+                return json_content
+            else:
+                return False
+    except HTTPException:
+        return False
+    
 @app.get("/")
 def read_root():
     return {"API": "REST"}
@@ -64,7 +83,10 @@ async def get_chats(page: int = Query(1, ge=1), page_size: int = Query(10, le=20
          status_code=status.HTTP_200_OK,
          responses={400: errors.error_400, 404: errors.error_404, 422: errors.error_422},
          tags=["Chat"])
-async def get_chat(id: str):
+async def get_chat(id: str, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     chat = db.Chat.find_one({"_id": ObjectId(id)})
     if chat is None:
         raise HTTPException(status_code=404, detail=f"Chat could not be found")
@@ -78,7 +100,10 @@ async def get_chat(id: str):
          status_code=status.HTTP_200_OK,
          responses={400: errors.error_400, 404: errors.error_404, 422: errors.error_422},
          tags=["Chat"])
-async def get_myChats(user_id: str):
+async def get_myChats(user_id: str, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     user = db.User.find_one({"_id": ObjectId(user_id)})
     if user is None:
         raise HTTPException(status_code=404, detail=f"User could not be found")
@@ -100,12 +125,14 @@ async def get_myChats(user_id: str):
          status_code=status.HTTP_200_OK,
          responses={400: errors.error_400, 404: errors.error_404, 422: errors.error_422},
          tags=["Chat"])
-async def get_conversation_sorted_by_timestamp(id: str):
+async def get_conversation_sorted_by_timestamp(id: str, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     chat = db.Chat.find_one({"_id": ObjectId(id)})
     if chat is None:
         raise HTTPException(status_code=404, detail=f"Chat could not be found")
 
-    # Obtén la conversación ordenada por timestamp descendente
     conversation = db.Message.find({"chat._id": ObjectId(id)}).sort("timestamp", 1)
 
     return list(conversation)
@@ -117,12 +144,14 @@ async def get_conversation_sorted_by_timestamp(id: str):
          status_code=status.HTTP_200_OK,
          responses={400: errors.error_400, 404: errors.error_404, 422: errors.error_422},
          tags=["Message"])
-async def get_last_message(id: str):
+async def get_last_message(id: str, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     chat = db.Chat.find_one({"_id": ObjectId(id)})
     if chat is None:
         raise HTTPException(status_code=404, detail=f"Chat could not be found")
 
-    # Obtén la conversación ordenada por timestamp descendente
     conversation = db.Message.find({"chat._id": ObjectId(id)}).sort("timestamp", -1).limit(1)
     conversation_list = list(conversation)
     if len(conversation_list) == 0:
@@ -143,7 +172,10 @@ async def get_last_message(id: str):
     },
     tags=["Chat"]
 )
-def create_chat(chat: CreateChat, interested_id: str, product_id: str):
+def create_chat(chat: CreateChat, interested_id: str, product_id: str, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     interested = db.User.find_one({"_id": ObjectId(interested_id)})
     if interested is None:
         raise HTTPException(status_code=404, detail=f"User could not be found")
@@ -173,7 +205,10 @@ def create_chat(chat: CreateChat, interested_id: str, product_id: str):
     },
     tags=["Message"]
 )
-def send_message(message: CreateMessage, id: str, origin_id: str):
+def send_message(message: CreateMessage, id: str, origin_id: str, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     chat = db.Chat.find_one({"_id": ObjectId(id)})
     if chat is None:
         raise HTTPException(status_code=404, detail=f"Chat could not be found")
@@ -202,7 +237,10 @@ def send_message(message: CreateMessage, id: str, origin_id: str):
          status_code=status.HTTP_200_OK,
          responses={400: errors.error_400, 404: errors.error_404, 422: errors.error_422},
          tags=["Chat"])
-async def get_chat(product_id: str, interested_id: str, vendor_id: str):
+async def get_chat(product_id: str, interested_id: str, vendor_id: str, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     chat = db.Chat.find_one({"product._id": ObjectId(product_id), "interested._id": ObjectId(interested_id), "vendor._id": ObjectId(vendor_id)})
     if chat is None:
         raise HTTPException(status_code=404, detail=f"Chat could not be found")

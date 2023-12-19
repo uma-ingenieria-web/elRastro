@@ -1,6 +1,7 @@
 from typing import List
-from fastapi import FastAPI, HTTPException, Query, Response, status
+from fastapi import Depends, FastAPI, HTTPException, Header, Query, Response, status
 from dotenv import load_dotenv
+import httpx
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
 from bidModel import Bid, UpdateBid, BidBasicInfo
@@ -39,6 +40,24 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+
+async def get_token(authorization: str = Header(...)):
+    scheme, token = authorization.split()
+    if scheme.lower() != "bearer":
+        raise HTTPException(status_code=403, detail="Invalid authentication scheme")
+    try:
+        async with httpx.AsyncClient() as client:
+            url = os.getenv("AUTH_URL")
+            headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
+            response = await client.post(url, headers=headers)
+
+            if response.status_code == 200:
+                json_content = response.text
+                return json_content
+            else:
+                return False
+    except HTTPException:
+        return False
 
 
 @app.get("/")
@@ -89,7 +108,10 @@ def save_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
     responses={422: errors.error_422, 400: errors.error_400, 404: errors.error_404},
     tags=["Bids"],
 )
-def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
+def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     try:
         product = db.Product.find_one({"_id": ObjectId(idProduct)})
         if product is not None and product["owner"]["_id"] == ObjectId(idBidder):
@@ -163,7 +185,10 @@ def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
     },
     tags=["Bids"],
 )
-def update_bid(id: str, new_bid: UpdateBid):
+def update_bid(id: str, new_bid: UpdateBid, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     try:
         if len(new_bid.model_dump(by_alias=True, exclude={"id"})) >= 1:
             update_result = db.Bid.find_one_and_update(
@@ -220,7 +245,10 @@ def update_bid(id: str, new_bid: UpdateBid):
     },
     tags=["Bids"],
 )
-def delete_bid(id: str):
+def delete_bid(id: str, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     try:
         result = db.Bid.delete_one({"_id": ObjectId(id)})
 
@@ -303,7 +331,10 @@ def get_bids(
     },
     tags=["Bids"],
 )
-def get_bid(id):
+def get_bid(id, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     try:
         bid = db.Bid.find_one({"_id": ObjectId(id)})
         if bid:

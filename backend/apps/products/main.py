@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from typing import List
-from fastapi import FastAPI, HTTPException, Response, status, Query
+from fastapi import Depends, FastAPI, HTTPException, Header, Response, status, Query
 from dotenv import load_dotenv
+import httpx
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
 from productModel import (
@@ -43,6 +44,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+async def get_token(authorization: str = Header(...)):
+    scheme, token = authorization.split()
+    if scheme.lower() != "bearer":
+        raise HTTPException(status_code=403, detail="Invalid authentication scheme")
+    try:
+        async with httpx.AsyncClient() as client:
+            url = os.getenv("AUTH_URL")
+            headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
+            response = await client.post(url, headers=headers)
+
+            if response.status_code == 200:
+                json_content = response.text
+                return json_content
+            else:
+                return False
+    except HTTPException:
+        return False
 
 
 @app.get("/")
@@ -124,7 +143,10 @@ def get_products(
         404: errors.error_404,
     },
 )
-def create_product(product: ProductBasicInfo, idOwner: str):
+def create_product(product: ProductBasicInfo, idOwner: str, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     try:
         response = save_product(
             product.model_dump(by_alias=True, exclude={"id"}), idOwner
@@ -185,7 +207,10 @@ def save_product(product: ProductBasicInfo, idOwner: str):
     status_code=status.HTTP_200_OK,
     responses={404: errors.error_404, 400: errors.error_400, 422: errors.error_422},
 )
-def update_product(id: str, new_product: UpdateProduct):
+def update_product(id: str, new_product: UpdateProduct, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     try:
         buyer = None
 
@@ -278,7 +303,10 @@ def update_product(id: str, new_product: UpdateProduct):
         422: errors.error_422,
     },
 )
-def delete_product(id: str):
+def delete_product(id: str, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     try:
         result = db.Product.delete_one({"_id": ObjectId(id)})
         if result.deleted_count == 1:

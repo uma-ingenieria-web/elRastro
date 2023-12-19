@@ -5,6 +5,7 @@ import { Product } from "@/app/product.types";
 import { useSession } from "next-auth/react";
 import Modal from "react-modal";
 import { MdClose, MdOutlineZoomOutMap } from "react-icons/md";
+import { fetchWithToken } from "../../../../../lib/authFetch";
 
 interface Props {
     initialProduct: Product;
@@ -84,7 +85,7 @@ function EditProduct({ params }: { params: { id: string } }) {
     const handleSubmit = async (e: { preventDefault: () => void }) => {
         e.preventDefault();
         
-        fetch(apiUrl + product?._id, {
+        fetchWithToken(apiUrl + product?._id, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -93,7 +94,7 @@ function EditProduct({ params }: { params: { id: string } }) {
                 title: title,
                 description: description,
             }),
-        })
+        }, session)
             .then((response) => response.json())
             .then((data) => {
                 if (!selectedFile) {
@@ -101,10 +102,10 @@ function EditProduct({ params }: { params: { id: string } }) {
                 } else {
                     const formData = new FormData();
                     formData.append("file", selectedFile!);
-                    fetch(photoUrl + data._id, {
+                    fetchWithToken(photoUrl + data._id, {
                         method: "POST",
                         body: formData,
-                    })
+                    }, session)
                         .then((response) => response.json())
                         .then((data) => {
                             router.push(`/product/${id}`);

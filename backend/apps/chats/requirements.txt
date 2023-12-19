@@ -3,3 +3,4 @@ uvicorn
 pymongo
 python-dotenv
 pydantic == 2.*
+httpx

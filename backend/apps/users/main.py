@@ -1,6 +1,7 @@
 from bson import ObjectId
-from fastapi import FastAPI, Body, HTTPException, status, Query
+from fastapi import Depends, FastAPI, Body, HTTPException, Header, status, Query
 from dotenv import load_dotenv
+import httpx
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
 from bson.errors import InvalidId
@@ -36,6 +37,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+async def get_token(authorization: str = Header(...)):
+    scheme, token = authorization.split()
+    if scheme.lower() != "bearer":
+        raise HTTPException(status_code=403, detail="Invalid authentication scheme")
+    try:
+        async with httpx.AsyncClient() as client:
+            url = os.getenv("AUTH_URL")
+            headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
+            response = await client.post(url, headers=headers)
+
+            if response.status_code == 200:
+                json_content = response.text
+                return json_content
+            else:
+                return False
+    except HTTPException:
+        return False
 
 
 @app.get("/")
@@ -156,7 +175,10 @@ async def create_user(user: userModel.CreateUser = Body(...)):
          response_description="Update username of a user ",
          response_model=userModel.UserBasicInfo,
          tags=["User"])
-async def update_user(id: str, user: userModel.UpdateUser = Body(...)):
+async def update_user(id: str, user: userModel.UpdateUser = Body(...), token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     userOptions = {}
     model_dump = user.model_dump(by_alias=True)
 
@@ -242,7 +264,10 @@ def update_owner(id, user):
             status_code=status.HTTP_204_NO_CONTENT,
             responses={404: errors.error_404},
             tags=["User"])
-async def delete_user(id: str):
+async def delete_user(id: str, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     try:
         result = db.User.delete_one({"_id": ObjectId(id)})
     except InvalidId:

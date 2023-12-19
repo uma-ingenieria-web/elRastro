@@ -1,6 +1,7 @@
 from typing import List
-from fastapi import FastAPI, HTTPException, Query, Response, status
+from fastapi import Depends, FastAPI, HTTPException, Header, Query, Response, status
 from dotenv import load_dotenv
+import httpx
 from pymongo import ReturnDocument
 from pymongo.mongo_client import MongoClient
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,6 +36,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+async def get_token(authorization: str = Header(...)):
+    scheme, token = authorization.split()
+    if scheme.lower() != "bearer":
+        raise HTTPException(status_code=403, detail="Invalid authentication scheme")
+    try:
+        async with httpx.AsyncClient() as client:
+            url = os.getenv("AUTH_URL")
+            headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
+            response = await client.post(url, headers=headers)
+
+            if response.status_code == 200:
+                json_content = response.text
+                return json_content
+            else:
+                return False
+    except HTTPException:
+        return False
 
 
 @app.get("/")
@@ -145,7 +164,10 @@ def insert_rating(new_rating: RatingBasicInfo, product_id: str, user_id: str):
     responses={422: errors.error_422, 400: errors.error_400, 404: errors.error_404},
     tags=["Ratings"],
 )
-def create_rating(product_id: str, user_id: str, rating: RatingBasicInfo):
+def create_rating(product_id: str, user_id: str, rating: RatingBasicInfo, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     response = insert_rating(
         rating.model_dump(by_alias=True, exclude={"id"}), product_id, user_id
     )
