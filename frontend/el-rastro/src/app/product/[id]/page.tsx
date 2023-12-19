@@ -23,8 +23,6 @@ const rateUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_RATING_SERVICE?? "http
 
 const bidUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_BID_SERVICE?? "http://localhost:8001"}/api/v1/bids`
 
-
-
 async function getPhoto(id: string) {
   try {
     const photo_result = await fetch(`${photoURL}/${id}`)
@@ -103,7 +101,7 @@ function Product({ params }: { params: { id: string } }) {
       const ratingFetched = await getRating(id, userId, productFetched)
       setRating(ratingFetched);
       setProduct(productFetched)
-      setMap(StaticMap({position: [productFetched.owner.location.lat, productFetched.owner.location.lon], popup: productFetched.owner.username}));
+      setMap(<StaticMap position={[productFetched.owner.location.lat, productFetched.owner.location.lon]} popup={productFetched.owner.username} />);
       if (productFetched.detail === "Invalid ObjectId format") {
         setFound(false)
         return
