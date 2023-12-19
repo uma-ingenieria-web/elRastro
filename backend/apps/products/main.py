@@ -177,9 +177,9 @@ def save_product(product: ProductBasicInfo, idOwner: str):
     if product["closeDate"] < datetime.now():
         raise HTTPException(status_code=400, detail="Close date is in the past")
 
-    if product["closeDate"] < datetime.now() + timedelta(days=5):
+    if product["closeDate"] < datetime.now() + timedelta(days=1):
         raise HTTPException(
-            status_code=400, detail="Close date is less than 5 days from now"
+            status_code=400, detail="Close date is less than 1 days from now"
         )
 
     owner = db.User.find_one({"_id": ObjectId(idOwner)})
