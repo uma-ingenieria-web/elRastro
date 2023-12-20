@@ -24,7 +24,7 @@ load_dotenv()
 API_KEY = os.getenv("X-APIKEY")
 
 
-@app.post("/" + versionRoute + "/carbon/{origin_lat}/{origin_long}/{destination_lat}/{destination_long}/weight/{weight}")
+@app.get("/" + versionRoute + "/carbon/{origin_lat}/{origin_long}/{destination_lat}/{destination_long}/weight/{weight}")
 async def get_carbon(origin_lat: float, origin_long: float, destination_lat: float, destination_long: float, weight: float):
     try:
         async with httpx.AsyncClient() as client:

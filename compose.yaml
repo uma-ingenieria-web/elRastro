@@ -83,11 +83,11 @@ services:
       context: ./backend/apps/carbon-footprint/
     ports:
       - 8009:8000
-  # frontend:
-  #   container_name: frontend
-  #   build:
-  #     context: ./frontend/el-rastro/
-  #   env_file:
-  #     - ./frontend/el-rastro/.env.local
-  #   ports:
-  #     - 8080:3000
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend/el-rastro/
+    env_file:
+      - ./frontend/el-rastro/.env.local
+    ports:
+      - 8080:3000

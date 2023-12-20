@@ -2,7 +2,7 @@ import ProductList from "@/app/components/ProductsList"
 
 let userUrl = ""
 
-userUrl = `${process.env.BACKEND_SERVER_USER_SERVICE?? "http://localhost:8000"}/api/v1/user/`
+userUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_USER_SERVICE?? "http://localhost:8000"}/api/v1/user/`
 
 async function getUser(id: string) {
   try {
