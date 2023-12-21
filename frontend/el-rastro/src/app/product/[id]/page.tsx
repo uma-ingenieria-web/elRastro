@@ -14,7 +14,7 @@ import Closed from "@/app/closed"
 import { motion } from "framer-motion"
 import StaticMap from "@/app/components/StaticMap"
 import { fetchWithToken } from "../../../../lib/authFetch"
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js"
+import { PayPalButtons } from "@paypal/react-paypal-js"
 
 const photoURL = `${
   process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE ??
@@ -43,33 +43,6 @@ const carbonUrl = `${
   process.env.NEXT_PUBLIC_BACKEND_CLIENT_CARBON_FOOTPRINT_SERVICE ??
   "https://locahost:8009"
 }/api/v2/carbon`
-
-const createOrder = (data, actions) => {
-  // Producto por defecto
-  return actions.order
-    .create({
-      purchase_units: [
-        {
-          description: "Sunflower",
-          amount: {
-            currency_code: "USD",
-            value: 20,
-          },
-        },
-      ],
-    })
-    .then((orderID) => {
-      // Mensajes
-      return orderID
-    })
-}
-
-const onApprove = (data, actions) => {
-  return actions.order.capture().then(function (details) {
-    const { payer } = details
-    // Mensajes
-  })
-}
 
 async function getUser(session) {
   try {
@@ -358,7 +331,7 @@ function Product({ params }: { params: { id: string } }) {
     !(userId && product?.owner._id === userId) ? (
     <Closed />
   ) : (
-    <PayPalScriptProvider options={{ "client-id": paypalClient ?? "" }}>
+      <>
       <div className="flex justify-center items-center h-screen">
         <div className="flex bg-gray-100 p-8 rounded-lg shadow-lg h-auto md:flex-row flex-col justify-center  md:space-x-32">
           <div className="flex-shrink-0 mb-8 md:mb-0">
@@ -444,7 +417,7 @@ function Product({ params }: { params: { id: string } }) {
                   <span className="text-gray-600 font-semibold">
                     Current price:{" "}
                   </span>
-                  {co2Rate !== null && (
+                  {(co2Rate !== null && session) && (
                     <span className="text-gray-600 font-semibold mt-2">
                       CO2 Rate:
                     </span>
@@ -458,7 +431,7 @@ function Product({ params }: { params: { id: string } }) {
                   >
                     {currentPrice}€{userIsLastBidder && " (Winning bid!)"}
                   </span>
-                  {co2Rate !== null && (
+                  {(co2Rate !== null && session) && (
                     <>
                       {co2Rate < 0.0001 &&
                         session?.user?.id !== product?.owner._id && (
@@ -480,48 +453,64 @@ function Product({ params }: { params: { id: string } }) {
                   )}
                 </div>
               </div>
-
-              <div className="mt-4 flex justify-center">
-                {!validBid && (
-                  <p
-                    className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 text-base mr-4"
-                    role="warn"
-                  >
-                    New bid amount must be higher than the current price.
-                  </p>
-                )}
-                {bidDone && (
-                  <p>
-                    <span className="text-green-500 font-semibold">
-                      Bid done!
-                    </span>
-                  </p>
-                )}
-                <input
+              {!closed && (<>
+                  <div className="mt-4 flex justify-center">
+                  {!validBid && (
+                          <p
+                          className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 text-base mr-4"
+                          role="warn"
+                          >
+                          New bid amount must be higher than the current price.
+                          </p>
+                          )}
+                  {bidDone && (
+                          <p>
+                          <span className="text-green-500 font-semibold">
+                          Bid done!
+                          </span>
+                          </p>
+                          )}
+                  <input
                   type="number"
                   value={bidAmount}
                   onChange={(e) => setBidAmount(parseInt(e.target.value))}
                   className={`border border-gray-300 rounded-md w-32 px-2 py-1 ml-2 ${
-                    userId && !closed
-                      ? "cursor-pointer"
-                      : "cursor-not-allowed bg-gray-300"
+                      userId && !closed
+                          ? "cursor-pointer"
+                          : "cursor-not-allowed bg-gray-300"
                   }`}
                   placeholder="Bid amount"
-                  disabled={!userId || closed || userId === product?.owner._id}
-                />
-                <button
-                  onClick={handleNewBid}
+                      disabled={!userId || closed || userId === product?.owner._id}
+                  />
+                      <button
+                      onClick={handleNewBid}
                   className={`text-white px-4 py-1 rounded-md ml-2 ${
-                    userId && !closed && userId !== product?.owner._id
-                      ? "cursor-pointer bg-green-500"
-                      : "cursor-not-allowed bg-gray-300"
+                      userId && !closed && userId !== product?.owner._id
+                          ? "cursor-pointer bg-green-500"
+                          : "cursor-not-allowed bg-gray-300"
                   }`}
                   disabled={closed || !userId || userId === product?.owner._id}
-                >
-                  Make Bid
-                </button>
-              </div>
-            </div>
+                  >
+                      Make Bid
+                      </button>
+                      </div>
+              </>) || (product?.buyer != null && (
+                  <>
+                  <Link
+                    href={`/checkout/${product?._id}`}
+                  >
+                  <button
+                    className={`text-white px-4 py-1 rounded-md ml-2 cursor-pointer bg-green-500`}
+                  >
+                    Checkout 💸
+                  </button>
+                  </Link>
+                  </>
+              ) || (<>
+                  <div className="mt-4 flex justify-center">
+                    You already paid for this product 😁
+                  </div>
+              </>))}
             <div className="mb-4">
               {userId &&
                 closed &&
@@ -591,13 +580,7 @@ function Product({ params }: { params: { id: string } }) {
             </div>
           </div>
         </div>
-        <PayPalButtons
-          style={{ layout: "vertical" }}
-          createOrder={createOrder}
-          onApprove={onApprove}
-        />
-      </div>
-    </PayPalScriptProvider>
+     </>
   )
 }
 
