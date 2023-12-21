@@ -19,6 +19,7 @@ function CreateProduct() {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState(0);
+    const [weight, setWeight] = useState(0);
     const [endDate, setEndDate] = useState("");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -44,7 +45,7 @@ function CreateProduct() {
     const handleSubmit = async (e: { preventDefault: () => void }) => {
         e.preventDefault();
 
-        if (!title || !description || !price || !endDate || !selectedFile) {
+        if (!title || !description || !price || !endDate || !selectedFile || !weight) {
             alert("Please fill all the fields");
             return;
         }
@@ -59,7 +60,7 @@ function CreateProduct() {
                 description: description,
                 initialPrice: price,
                 closeDate: buildISODate(new Date(endDate)),
-                weight: 5,
+                weight: weight,
             }),
         }, session)
             .then((response) => response.json())
@@ -145,6 +146,16 @@ function CreateProduct() {
                         className="w-full p-2 border border-gray-300 rounded"
                         min={getFormattedDate()}
                         onChange={handleDateChange}
+                    />
+                </label>
+                <label className="block mb-2">
+                    Weight:
+                    <input
+                        type="number"
+                        value={weight}
+                        onChange={(e) => setWeight(parseInt(e.target.value))}
+                        className="w-full p-2 border border-gray-300 rounded"
+                        placeholder="Title for your product"
                     />
                 </label>
                 <button
