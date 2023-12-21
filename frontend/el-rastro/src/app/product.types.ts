@@ -9,6 +9,7 @@ interface UserInterface {
     _id: string;
     username: string;
     image: string;
+    location: Location;
 }
 
 interface BidInterface {

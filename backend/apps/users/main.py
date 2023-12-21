@@ -54,7 +54,7 @@ async def get_token(authorization: str = Header(...)):
                 return json.loads(json_content)
             else:
                 return False
-    except HTTPException:
+    except Exception:
         return False
 
 
@@ -75,6 +75,27 @@ async def get_users(page: int = Query(1, ge=1), page_size: int = Query(10, le=20
     return {"users": list(users)}
 
 
+
+@app.get("/" + versionRoute + "/user/me",
+         summary="Get information for the sender user",
+         response_description="The user with the given id and location details",
+         response_model=userModel.UserPersonalInfo,
+         status_code=status.HTTP_200_OK,
+         responses={404: errors.error_404, 422: errors.error_422},
+         tags=["User"])
+async def read_user_me(token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    try:
+        user = db.User.find_one({"_id": ObjectId(token["id"])})
+    except InvalidId:
+            raise HTTPException(status_code=422, detail=f"User id is invalid") 
+    if user is not None:
+        return user
+    else:
+        raise HTTPException(status_code=404, detail=f"User not found")
+
 @app.get("/" + versionRoute + "/user/{id}",
          summary="Find a user with a certain id",
          response_description="The user with the given id",
@@ -91,7 +112,7 @@ async def read_user(id: str):
         return user
     else:
         raise HTTPException(status_code=404, detail=f"User {id} not found")
-
+    
 
 @app.get("/" + versionRoute + "/user/username/{username}/",
          summary="Find the user with the given username",

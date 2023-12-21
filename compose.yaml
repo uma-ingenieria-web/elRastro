@@ -75,14 +75,14 @@ services:
       context: ./backend/apps/auth/
     ports:
       - 8008:8000
-  # backend-micro-carbon-footprint:
-  #   container_name: backend-carbon-footprint
-  #   env_file:
-  #     - ./backend/apps/carbon-footprint/.env
-  #   build:
-  #     context: ./backend/apps/carbon-footprint/
-  #   ports:
-  #     - 8005:8000
+  backend-micro-carbon-footprint:
+    container_name: backend-carbon-footprint
+    env_file:
+      - ./backend/apps/carbon-footprint/.env
+    build:
+      context: ./backend/apps/carbon-footprint/
+    ports:
+      - 8009:8000
   frontend:
     container_name: frontend
     build:
