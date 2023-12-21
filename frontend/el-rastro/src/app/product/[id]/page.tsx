@@ -511,48 +511,6 @@ function Product({ params }: { params: { id: string } }) {
                     You already paid for this product 😁
                   </div>
               </>))}
-            </div>
-              <div className="mt-4 flex justify-center">
-                {!validBid && (
-                  <p
-                    className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 text-base mr-4"
-                    role="warn"
-                  >
-                    New bid amount must be higher than the current price.
-                  </p>
-                )}
-                {bidDone && (
-                  <p>
-                    <span className="text-green-500 font-semibold">
-                      Bid done!
-                    </span>
-                  </p>
-                )}
-                <input
-                  type="number"
-                  value={bidAmount}
-                  onChange={(e) => setBidAmount(parseInt(e.target.value))}
-                  className={`border border-gray-300 rounded-md w-32 px-2 py-1 ml-2 ${
-                    userId && !closed
-                      ? "cursor-pointer"
-                      : "cursor-not-allowed bg-gray-300"
-                  }`}
-                  placeholder="Bid amount"
-                  disabled={!userId || closed || userId === product?.owner._id}
-                />
-                <button
-                  onClick={handleNewBid}
-                  className={`text-white px-4 py-1 rounded-md ml-2 ${
-                    userId && !closed && userId !== product?.owner._id
-                      ? "cursor-pointer bg-green-500"
-                      : "cursor-not-allowed bg-gray-300"
-                  }`}
-                  disabled={closed || !userId || userId === product?.owner._id}
-                >
-                  Make Bid
-                </button>
-              </div>
-            </div>
             <div className="mb-4">
               {userId &&
                 closed &&
