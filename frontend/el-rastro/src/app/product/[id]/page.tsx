@@ -331,7 +331,6 @@ function Product({ params }: { params: { id: string } }) {
     !(userId && product?.owner._id === userId) ? (
     <Closed />
   ) : (
-      <>
       <div className="flex justify-center items-center h-screen">
         <div className="flex bg-gray-100 p-8 rounded-lg shadow-lg h-auto md:flex-row flex-col justify-center  md:space-x-32">
           <div className="flex-shrink-0 mb-8 md:mb-0">
@@ -453,7 +452,7 @@ function Product({ params }: { params: { id: string } }) {
                   )}
                 </div>
               </div>
-              {!closed && (<>
+              {!closed ? (<>
                   <div className="mt-4 flex justify-center">
                   {!validBid && (
                           <p
@@ -494,23 +493,21 @@ function Product({ params }: { params: { id: string } }) {
                       Make Bid
                       </button>
                       </div>
-              </>) || (product?.buyer != null && (
-                  <>
+              </>) : (product?.buyer ? (
                   <Link
                     href={`/checkout/${product?._id}`}
                   >
-                  <button
-                    className={`text-white px-4 py-1 rounded-md ml-2 cursor-pointer bg-green-500`}
-                  >
-                    Checkout 💸
-                  </button>
+                    <button
+                      className={`text-white px-4 py-1 rounded-md ml-2 cursor-pointer bg-green-500`}
+                    >
+                      Checkout 💸
+                    </button>
                   </Link>
-                  </>
-              ) || (<>
+              ) : (
                   <div className="mt-4 flex justify-center">
                     You already paid for this product 😁
                   </div>
-              </>))}
+              ))}
             <div className="mb-4">
               {userId &&
                 closed &&
@@ -580,7 +577,8 @@ function Product({ params }: { params: { id: string } }) {
             </div>
           </div>
         </div>
-     </>
+      </div>
+    </div>
   )
 }
 
