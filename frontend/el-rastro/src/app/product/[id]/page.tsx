@@ -14,7 +14,7 @@ import Closed from "@/app/closed"
 import { motion } from "framer-motion"
 import StaticMap from "@/app/components/StaticMap"
 import { fetchWithToken } from "../../../../lib/authFetch"
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js"
+import { PayPalButtons } from "@paypal/react-paypal-js"
 
 const photoURL = `${
   process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE ??
@@ -43,33 +43,6 @@ const carbonUrl = `${
   process.env.NEXT_PUBLIC_BACKEND_CLIENT_CARBON_FOOTPRINT_SERVICE ??
   "https://locahost:8009"
 }/api/v2/carbon`
-
-const createOrder = (data, actions) => {
-  // Producto por defecto
-  return actions.order
-    .create({
-      purchase_units: [
-        {
-          description: "Sunflower",
-          amount: {
-            currency_code: "USD",
-            value: 20,
-          },
-        },
-      ],
-    })
-    .then((orderID) => {
-      // Mensajes
-      return orderID
-    })
-}
-
-const onApprove = (data, actions) => {
-  return actions.order.capture().then(function (details) {
-    const { payer } = details
-    // Mensajes
-  })
-}
 
 async function getUser(session) {
   try {
@@ -358,7 +331,7 @@ function Product({ params }: { params: { id: string } }) {
     !(userId && product?.owner._id === userId) ? (
     <Closed />
   ) : (
-    <PayPalScriptProvider options={{ "client-id": paypalClient ?? "" }}>
+      <>
       <div className="flex justify-center items-center h-screen">
         <div className="flex bg-gray-100 p-8 rounded-lg shadow-lg h-auto md:flex-row flex-col justify-center  md:space-x-32">
           <div className="flex-shrink-0 mb-8 md:mb-0">
@@ -522,7 +495,17 @@ function Product({ params }: { params: { id: string } }) {
                       </button>
                       </div>
               </>) || (product?.buyer != null && (
-                  <PayPalButtons style={{ layout: "vertical" }} createOrder={createOrder} onApprove={onApprove} />
+                  <>
+                  <Link
+                    href={`/checkout/${product?._id}`}
+                  >
+                  <button
+                    className={`text-white px-4 py-1 rounded-md ml-2 cursor-pointer bg-green-500`}
+                  >
+                    Checkout 💸
+                  </button>
+                  </Link>
+                  </>
               ) || (<>
                   <div className="mt-4 flex justify-center">
                     You already paid for this product 😁
@@ -639,13 +622,7 @@ function Product({ params }: { params: { id: string } }) {
             </div>
           </div>
         </div>
-        <PayPalButtons
-          style={{ layout: "vertical" }}
-          createOrder={createOrder}
-          onApprove={onApprove}
-        />
-      </div>
-    </PayPalScriptProvider>
+     </>
   )
 }
 
