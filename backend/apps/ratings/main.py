@@ -165,7 +165,7 @@ def insert_rating(new_rating: RatingBasicInfo, product_id: str, user_id: str):
     responses={422: errors.error_422, 400: errors.error_400, 404: errors.error_404},
     tags=["Ratings"],
 )
-def create_rating(product_id: str, user_id: str, rating: RatingBasicInfo, token: dict = Depends(get_token)):
+def create_rating(product_id: str, rating: RatingBasicInfo, token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
     user_id = token["id"]
