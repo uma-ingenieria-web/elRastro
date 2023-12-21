@@ -13,6 +13,7 @@ import errors
 import re
 
 import os
+import json
 
 app = FastAPI()
 
@@ -49,11 +50,11 @@ async def get_token(authorization: str = Header(...)):
         async with httpx.AsyncClient() as client:
             url = os.getenv("AUTH_URL")
             headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
-            response = await client.post(url, headers=headers)
+            response = await client.post(url + "/api/v1/auth/verify", headers=headers)
 
             if response.status_code == 200:
                 json_content = response.text
-                return json_content
+                return json.loads(json_content)
             else:
                 return False
     except HTTPException:
@@ -100,7 +101,7 @@ def save_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
 
 # Create a new bid
 @app.post(
-    "/" + versionRoute + "/bids/{idProduct}/{idBidder}",
+    "/" + versionRoute + "/bids/{idProduct}",
     summary="Add new bid",
     response_description="Create a new bid with the desired amount",
     response_model=Bid,
@@ -108,9 +109,10 @@ def save_bid(bid: BidBasicInfo, idProduct: str, idBidder: str):
     responses={422: errors.error_422, 400: errors.error_400, 404: errors.error_404},
     tags=["Bids"],
 )
-def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str, token: dict = Depends(get_token)):
+def create_bid(bid: BidBasicInfo, idProduct: str, token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
+    idBidder = token["id"]
     
     try:
         product = db.Product.find_one({"_id": ObjectId(idProduct)})
@@ -172,104 +174,104 @@ def create_bid(bid: BidBasicInfo, idProduct: str, idBidder: str, token: dict = D
 
 
 # Update a bid
-@app.put(
-    "/" + versionRoute + "/bids/{id}",
-    summary="Update bid",
-    response_description="Update the values of a bid",
-    response_model=Bid,
-    status_code=status.HTTP_200_OK,
-    responses={
-        404: errors.error_404,
-        400: errors.error_400,
-        422: errors.error_422,
-    },
-    tags=["Bids"],
-)
-def update_bid(id: str, new_bid: UpdateBid, token: dict = Depends(get_token)):
-    if not token:
-        raise HTTPException(status_code=401, detail="Invalid token")
+# @app.put(
+#     "/" + versionRoute + "/bids/{id}",
+#     summary="Update bid",
+#     response_description="Update the values of a bid",
+#     response_model=Bid,
+#     status_code=status.HTTP_200_OK,
+#     responses={
+#         404: errors.error_404,
+#         400: errors.error_400,
+#         422: errors.error_422,
+#     },
+#     tags=["Bids"],
+# )
+# def update_bid(id: str, new_bid: UpdateBid, token: dict = Depends(get_token)):
+#     if not token:
+#         raise HTTPException(status_code=401, detail="Invalid token")
     
-    try:
-        if len(new_bid.model_dump(by_alias=True, exclude={"id"})) >= 1:
-            update_result = db.Bid.find_one_and_update(
-                {"_id": ObjectId(id)},
-                {"$set": new_bid.model_dump(by_alias=True, exclude={"id"})},
-                return_document=ReturnDocument.AFTER,
-            )
+#     try:
+#         if len(new_bid.model_dump(by_alias=True, exclude={"id"})) >= 1:
+#             update_result = db.Bid.find_one_and_update(
+#                 {"_id": ObjectId(id)},
+#                 {"$set": new_bid.model_dump(by_alias=True, exclude={"id"})},
+#                 return_document=ReturnDocument.AFTER,
+#             )
 
-            db.Product.find_one_and_update(
-                {"bids._id": ObjectId(id)},
-                {
-                    "$set": {
-                        "bids.$.amount": new_bid.amount,
-                    }
-                },
-            )
+#             db.Product.find_one_and_update(
+#                 {"bids._id": ObjectId(id)},
+#                 {
+#                     "$set": {
+#                         "bids.$.amount": new_bid.amount,
+#                     }
+#                 },
+#             )
 
-            db.User.find_one_and_update(
-                {"bids._id": ObjectId(id)},
-                {
-                    "$set": {
-                        "bids.$.amount": new_bid.amount,
-                    }
-                },
-            )
+#             db.User.find_one_and_update(
+#                 {"bids._id": ObjectId(id)},
+#                 {
+#                     "$set": {
+#                         "bids.$.amount": new_bid.amount,
+#                     }
+#                 },
+#             )
 
-            if update_result is not None:
-                return update_result
-            else:
-                raise HTTPException(status_code=404, detail=f"Bid {id} not found")
+#             if update_result is not None:
+#                 return update_result
+#             else:
+#                 raise HTTPException(status_code=404, detail=f"Bid {id} not found")
 
-        if (existing_bid := db.Bid.find_one({"_id": id})) is not None:
-            return existing_bid
-        raise HTTPException(status_code=404, detail=f"Bid {id} not found")
+#         if (existing_bid := db.Bid.find_one({"_id": id})) is not None:
+#             return existing_bid
+#         raise HTTPException(status_code=404, detail=f"Bid {id} not found")
 
-    except InvalidId as e:
-        raise HTTPException(status_code=400, detail="Invalid ObjectId format")
+#     except InvalidId as e:
+#         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
 
-# Delete a bid
-@app.delete(
-    "/" + versionRoute + "/bids/{id}",
-    summary="Delete a bid",
-    response_description="Delete the bid from the database",
-    status_code=status.HTTP_204_NO_CONTENT,
-    responses={
-        204: {
-            "description": "Bid deleted successfully",
-            "headers": {"message": "Bid deleted successfully"},
-        },
-        404: errors.error_404,
-        400: errors.error_400,
-        422: errors.error_422,
-    },
-    tags=["Bids"],
-)
-def delete_bid(id: str, token: dict = Depends(get_token)):
-    if not token:
-        raise HTTPException(status_code=401, detail="Invalid token")
+# # Delete a bid
+# @app.delete(
+#     "/" + versionRoute + "/bids/{id}",
+#     summary="Delete a bid",
+#     response_description="Delete the bid from the database",
+#     status_code=status.HTTP_204_NO_CONTENT,
+#     responses={
+#         204: {
+#             "description": "Bid deleted successfully",
+#             "headers": {"message": "Bid deleted successfully"},
+#         },
+#         404: errors.error_404,
+#         400: errors.error_400,
+#         422: errors.error_422,
+#     },
+#     tags=["Bids"],
+# )
+# def delete_bid(id: str, token: dict = Depends(get_token)):
+#     if not token:
+#         raise HTTPException(status_code=401, detail="Invalid token")
     
-    try:
-        result = db.Bid.delete_one({"_id": ObjectId(id)})
+#     try:
+#         result = db.Bid.delete_one({"_id": ObjectId(id)})
 
-        db.Product.update_many(
-            {"bids._id": ObjectId(id)}, {"$pull": {"bids": {"_id": ObjectId(id)}}}
-        )
+#         db.Product.update_many(
+#             {"bids._id": ObjectId(id)}, {"$pull": {"bids": {"_id": ObjectId(id)}}}
+#         )
 
-        db.User.update_many(
-            {"bids._id": ObjectId(id)}, {"$pull": {"bids": {"_id": ObjectId(id)}}}
-        )
+#         db.User.update_many(
+#             {"bids._id": ObjectId(id)}, {"$pull": {"bids": {"_id": ObjectId(id)}}}
+#         )
 
-        if result.deleted_count == 1:
-            return Response(
-                status_code=status.HTTP_204_NO_CONTENT,
-                media_type="application/json",
-                headers={"message": "Bid deleted successfully"},
-            )
-        raise HTTPException(status_code=404, detail="Bid not found")
+#         if result.deleted_count == 1:
+#             return Response(
+#                 status_code=status.HTTP_204_NO_CONTENT,
+#                 media_type="application/json",
+#                 headers={"message": "Bid deleted successfully"},
+#             )
+#         raise HTTPException(status_code=404, detail="Bid not found")
 
-    except InvalidId as e:
-        raise HTTPException(status_code=400, detail="Invalid ObjectId format")
+#     except InvalidId as e:
+#         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
 
 # Get all bids

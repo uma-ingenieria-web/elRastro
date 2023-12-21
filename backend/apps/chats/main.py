@@ -12,6 +12,7 @@ import errors
 import re
 
 import os
+import json
 
 app = FastAPI()
 
@@ -47,11 +48,11 @@ async def get_token(authorization: str = Header(...)):
         async with httpx.AsyncClient() as client:
             url = os.getenv("AUTH_URL")
             headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
-            response = await client.post(url, headers=headers)
+            response = await client.post(url + "/api/v1/auth/verify", headers=headers)
 
             if response.status_code == 200:
                 json_content = response.text
-                return json_content
+                return json.loads(json_content)
             else:
                 return False
     except HTTPException:
@@ -86,32 +87,40 @@ async def get_chats(page: int = Query(1, ge=1), page_size: int = Query(10, le=20
 async def get_chat(id: str, token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
-    chat = db.Chat.find_one({"_id": ObjectId(id)})
+    user_id = token["id"]
+
+    chat = db.Chat.find_one({
+        "$and": [
+            {"_id": ObjectId(id)},
+            {
+                "$or": [
+                    {"interested._id": ObjectId(user_id)},
+                    {"vendor._id": ObjectId(user_id)}
+                ]
+            }
+        ]
+    })
     if chat is None:
         raise HTTPException(status_code=404, detail=f"Chat could not be found")
 
     return Chat(**chat)
 
-@app.get("/" + versionRoute + "/myChats/{user_id}",
+@app.get("/" + versionRoute + "/myChats",
          summary="Get the chats from the given user id",
          response_description="The chats from the given user id",
          response_model=List[Chat],
          status_code=status.HTTP_200_OK,
          responses={400: errors.error_400, 404: errors.error_404, 422: errors.error_422},
          tags=["Chat"])
-async def get_myChats(user_id: str, token: dict = Depends(get_token)):
+async def get_myChats(token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
-    user = db.User.find_one({"_id": ObjectId(user_id)})
-    if user is None:
-        raise HTTPException(status_code=404, detail=f"User could not be found")
+    user_id = token["id"]
 
     chats = db.Chat.find({
         "$or": [
-            {"vendor._id": user["_id"]},
-            {"interested._id": user["_id"]}
+            {"vendor._id": ObjectId(user_id)},
+            {"interested._id": ObjectId(user_id)}
         ]
     })
 
@@ -128,8 +137,19 @@ async def get_myChats(user_id: str, token: dict = Depends(get_token)):
 async def get_conversation_sorted_by_timestamp(id: str, token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
-    chat = db.Chat.find_one({"_id": ObjectId(id)})
+    user_id = token["id"]
+
+    chat = db.Chat.find_one({
+        "$and": [
+            {"_id": ObjectId(id)},
+            {
+                "$or": [
+                    {"interested._id": ObjectId(user_id)},
+                    {"vendor._id": ObjectId(user_id)}
+                ]
+            }
+        ]
+    })
     if chat is None:
         raise HTTPException(status_code=404, detail=f"Chat could not be found")
 
@@ -147,8 +167,19 @@ async def get_conversation_sorted_by_timestamp(id: str, token: dict = Depends(ge
 async def get_last_message(id: str, token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
-    chat = db.Chat.find_one({"_id": ObjectId(id)})
+    user_id = token["id"]
+
+    chat = db.Chat.find_one({
+        "$and": [
+            {"_id": ObjectId(id)},
+            {
+                "$or": [
+                    {"interested._id": ObjectId(user_id)},
+                    {"vendor._id": ObjectId(user_id)}
+                ]
+            }
+        ]
+    })
     if chat is None:
         raise HTTPException(status_code=404, detail=f"Chat could not be found")
 
@@ -172,13 +203,11 @@ async def get_last_message(id: str, token: dict = Depends(get_token)):
     },
     tags=["Chat"]
 )
-def create_chat(chat: CreateChat, interested_id: str, product_id: str, token: dict = Depends(get_token)):
+def create_chat(chat: CreateChat, product_id: str, token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
-    interested = db.User.find_one({"_id": ObjectId(interested_id)})
-    if interested is None:
-        raise HTTPException(status_code=404, detail=f"User could not be found")
+    interested_id = token["id"]
+
     product = db.Product.find_one({"_id": ObjectId(product_id)})
     if product is None:
         raise HTTPException(status_code=404, detail=f"Product could not be found")
@@ -205,25 +234,23 @@ def create_chat(chat: CreateChat, interested_id: str, product_id: str, token: di
     },
     tags=["Message"]
 )
-def send_message(message: CreateMessage, id: str, origin_id: str, token: dict = Depends(get_token)):
+def send_message(message: CreateMessage, id: str, token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
-    chat = db.Chat.find_one({"_id": ObjectId(id)})
-    if chat is None:
-        raise HTTPException(status_code=404, detail=f"Chat could not be found")
+    user_id = token["id"]
+
     chat_owner = list(db.Chat.find(
         {
                 "$or": [
-                    {"$and": [{"vendor._id": ObjectId(origin_id)}, {"_id": ObjectId(id)}]},
-                    {"$and": [{"interested._id": ObjectId(origin_id)}, {"_id": ObjectId(id)}]}
+                    {"$and": [{"vendor._id": ObjectId(user_id)}, {"_id": ObjectId(id)}]},
+                    {"$and": [{"interested._id": ObjectId(user_id)}, {"_id": ObjectId(id)}]}
                 ]
         }
     ))
     if not chat_owner:
         raise HTTPException(status_code=404, detail=f"Origin is not part of the given chat")
     result = db.Message.insert_one(message.model_dump(by_alias=True, exclude=["id"]))
-    db.Message.update_one({"_id": ObjectId(result.inserted_id)}, {"$set": {"chat._id": ObjectId(id), "origin._id": ObjectId(origin_id)}})
+    db.Message.update_one({"_id": ObjectId(result.inserted_id)}, {"$set": {"chat._id": ObjectId(id), "origin._id": ObjectId(user_id)}})
     message = db.Message.find_one({"_id": ObjectId(result.inserted_id)})
     if message is not None:
         return Message(**message)
@@ -237,10 +264,11 @@ def send_message(message: CreateMessage, id: str, origin_id: str, token: dict = 
          status_code=status.HTTP_200_OK,
          responses={400: errors.error_400, 404: errors.error_404, 422: errors.error_422},
          tags=["Chat"])
-async def get_chat(product_id: str, interested_id: str, vendor_id: str, token: dict = Depends(get_token)):
+async def get_chat(product_id: str, vendor_id: str, token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
+    interested_id = token["id"]
+
     chat = db.Chat.find_one({"product._id": ObjectId(product_id), "interested._id": ObjectId(interested_id), "vendor._id": ObjectId(vendor_id)})
     if chat is None:
         raise HTTPException(status_code=404, detail=f"Chat could not be found")

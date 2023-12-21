@@ -19,6 +19,7 @@ import errors
 import re
 
 import os
+import json
 
 app = FastAPI()
 
@@ -53,11 +54,11 @@ async def get_token(authorization: str = Header(...)):
         async with httpx.AsyncClient() as client:
             url = os.getenv("AUTH_URL")
             headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
-            response = await client.post(url, headers=headers)
+            response = await client.post(url + "/api/v1/auth/verify", headers=headers)
 
             if response.status_code == 200:
                 json_content = response.text
-                return json_content
+                return json.loads(json_content)
             else:
                 return False
     except HTTPException:
@@ -132,7 +133,7 @@ def get_products(
 
 # Add a new product
 @app.post(
-    "/" + versionRoute + "/products/{idOwner}",
+    "/" + versionRoute + "/products",
     summary="Add new product",
     response_description="Create a new product by specifying its attributes",
     response_model=Product,
@@ -143,10 +144,11 @@ def get_products(
         404: errors.error_404,
     },
 )
-def create_product(product: ProductBasicInfo, idOwner: str, token: dict = Depends(get_token)):
+def create_product(product: ProductBasicInfo, token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
+    idOwner = token["id"]
+
     try:
         response = save_product(
             product.model_dump(by_alias=True, exclude={"id"}), idOwner
@@ -210,9 +212,10 @@ def save_product(product: ProductBasicInfo, idOwner: str):
 def update_product(id: str, new_product: UpdateProduct, token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
+    ownerId = token["id"]
     
     try:
-        buyer = None
+        """ buyer = None
 
         if new_product.buyer is not None:
             buyer = db.User.find_one({"_id": ObjectId(new_product.buyer.id)})
@@ -230,11 +233,13 @@ def update_product(id: str, new_product: UpdateProduct, token: dict = Depends(ge
             if buyer["_id"] == product["owner"]["_id"]:
                 raise HTTPException(
                     status_code=400, detail="Buyer can't be  the owner of the product"
-                )
+                ) """
 
-        product = db.Product.find_one({"_id": ObjectId(id)})
+        product = db.Product.find_one({"_id": ObjectId(id), "owner._id": ObjectId(ownerId)})
+        if not product:
+            raise HTTPException(status_code=404, detail="Not found")
 
-        last_bid = db.Bid.find_one(
+        """ last_bid = db.Bid.find_one(
             {"product._id": ObjectId(id)}, sort=[("timestamp", -1)]
         )
 
@@ -247,7 +252,7 @@ def update_product(id: str, new_product: UpdateProduct, token: dict = Depends(ge
             raise HTTPException(status_code=400, detail="Product is not closed yet")
         
         if buyer is not None:
-            new_product.buyer.id = ObjectId(new_product.buyer.id)
+            new_product.buyer.id = ObjectId(new_product.buyer.id) """
 
         if len(new_product.model_dump(by_alias=True, exclude={"id"})) >= 1:
             update_result = db.Product.find_one_and_update(
@@ -306,9 +311,13 @@ def update_product(id: str, new_product: UpdateProduct, token: dict = Depends(ge
 def delete_product(id: str, token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
+    ownerId = token["id"]
+
     try:
-        result = db.Product.delete_one({"_id": ObjectId(id)})
+        result = db.Product.delete_one({"_id": ObjectId(id), "owner._id": ObjectId(ownerId)})
+        if not result:
+            raise HTTPException(status_code=404, detail="Not found")
+        
         if result.deleted_count == 1:
             db.Bid.delete_many({"product._id": ObjectId(id)})
 
@@ -380,18 +389,16 @@ def get_related_products(id: str):
 
 # Get the products that the user has bid on divided if the user has won or not or if the product is still open
 @app.get(
-    "/" + versionRoute + "/products/bids/{id}",
+    "/" + versionRoute + "/products/bids",
     summary="Get the products that the user has bid on divided if the user has won or not or if the product is still open",
     response_description="List of products that the user has bid on divided if the user has won or not or if the product is still open",
     response_model=ProductsResponse,
     responses={400: errors.error_400, 422: errors.error_422},
 )
-def get_products_bids(id: str):
+def get_products_bids(token: dict = Depends(get_token)):
     try:
         products = {"open": [], "won": [], "lost": []}
-        user = db.User.find_one({"_id": ObjectId(id)})
-        if user is None:
-            return products
+        id = token["id"]
         
         products_cursor = db.Product.aggregate(
             [
@@ -405,7 +412,7 @@ def get_products_bids(id: str):
                 product = Product(**document)
                 if product.buyer is None:
                     products["open"].append(product)
-                elif product.buyer.id == user["_id"]:
+                elif product.buyer.id == id:
                     products["won"].append(product)
                 else:
                     products["lost"].append(product)

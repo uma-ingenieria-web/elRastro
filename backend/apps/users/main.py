@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pymongo.errors import DuplicateKeyError
 
 import os
+import json
 
 import userModel
 import errors
@@ -46,11 +47,11 @@ async def get_token(authorization: str = Header(...)):
         async with httpx.AsyncClient() as client:
             url = os.getenv("AUTH_URL")
             headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
-            response = await client.post(url, headers=headers)
+            response = await client.post(url + "/api/v1/auth/verify", headers=headers)
 
             if response.status_code == 200:
                 json_content = response.text
-                return json_content
+                return json.loads(json_content)
             else:
                 return False
     except HTTPException:
@@ -152,7 +153,7 @@ async def get_user_products(user_id: str):
         raise HTTPException(status_code=404, detail=f"User {id} not found")
 
 
-@app.post("/" + versionRoute + "/user",
+""" @app.post("/" + versionRoute + "/user",
           summary="Create a user",
           response_description="User created",
           status_code=status.HTTP_201_CREATED,
@@ -167,18 +168,19 @@ async def create_user(user: userModel.CreateUser = Body(...)):
         return str(result.inserted_id)
     else:
         raise HTTPException(status_code=404, detail=f"User could not be created")
-    
+     """
 
-@app.put("/" + versionRoute + "/user/{id}",
+@app.put("/" + versionRoute + "/user",
          summary="Update user's field",
          status_code=status.HTTP_201_CREATED,
          response_description="Update username of a user ",
          response_model=userModel.UserBasicInfo,
          tags=["User"])
-async def update_user(id: str, user: userModel.UpdateUser = Body(...), token: dict = Depends(get_token)):
+async def update_user(user: userModel.UpdateUser = Body(...), token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
+    id = token["id"]
+
     userOptions = {}
     model_dump = user.model_dump(by_alias=True)
 
@@ -258,13 +260,13 @@ def update_owner(id, user):
         )
 
 
-@app.delete("/" + versionRoute + "/user/{id}",
-            summary="Delete a user",
-            response_description="Delete a user",
-            status_code=status.HTTP_204_NO_CONTENT,
-            responses={404: errors.error_404},
-            tags=["User"])
-async def delete_user(id: str, token: dict = Depends(get_token)):
+# @app.delete("/" + versionRoute + "/user/{id}",
+#             summary="Delete a user",
+#             response_description="Delete a user",
+#             status_code=status.HTTP_204_NO_CONTENT,
+#             responses={404: errors.error_404},
+#             tags=["User"])
+# async def delete_user(id: str, token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
     

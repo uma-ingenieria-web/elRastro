@@ -19,7 +19,7 @@ interface UserBids {
 
 async function getBids(id: string, session: Session) {
   try {
-    const result = await fetchWithToken(productUrl + `/bids/${id}`, {}, session)
+    const result = await fetchWithToken(productUrl + `/bids`, {}, session)
     const products = await result.json()
     return products
   } catch (error: any) {

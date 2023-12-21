@@ -10,6 +10,7 @@ from bson.errors import InvalidId
 from ratingModel import Rating, RatingBasicInfo
 import errors
 import os
+import json
 
 app = FastAPI()
 
@@ -45,11 +46,11 @@ async def get_token(authorization: str = Header(...)):
         async with httpx.AsyncClient() as client:
             url = os.getenv("AUTH_URL")
             headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
-            response = await client.post(url, headers=headers)
+            response = await client.post(url + "/api/v1/auth/verify", headers=headers)
 
             if response.status_code == 200:
                 json_content = response.text
-                return json_content
+                return json.loads(json_content)
             else:
                 return False
     except HTTPException:
@@ -156,7 +157,7 @@ def insert_rating(new_rating: RatingBasicInfo, product_id: str, user_id: str):
 
 # Insert
 @app.put(
-    "/" + versionRoute + "/users/{product_id}/{user_id}/ratings",
+    "/" + versionRoute + "/users/{product_id}/ratings",
     summary="Insert a new rating for an user",
     response_description="Create a new rating and store it in the database",
     response_model=Rating,
@@ -167,7 +168,8 @@ def insert_rating(new_rating: RatingBasicInfo, product_id: str, user_id: str):
 def create_rating(product_id: str, user_id: str, rating: RatingBasicInfo, token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
+    user_id = token["id"]
+
     response = insert_rating(
         rating.model_dump(by_alias=True, exclude={"id"}), product_id, user_id
     )

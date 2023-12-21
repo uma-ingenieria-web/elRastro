@@ -3,6 +3,7 @@ from fastapi import Depends, FastAPI, File, HTTPException, Header, UploadFile
 from dotenv import load_dotenv
 
 import os
+import json
 import cloudinary
 import cloudinary.uploader as cloudinary_uploader
 from fastapi.middleware.cors import CORSMiddleware
@@ -43,11 +44,11 @@ async def get_token(authorization: str = Header(...)):
         async with httpx.AsyncClient() as client:
             url = os.getenv("AUTH_URL")
             headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
-            response = await client.post(url, headers=headers)
+            response = await client.post(url + "/api/v1/auth/verify", headers=headers)
 
             if response.status_code == 200:
                 json_content = response.text
-                return json_content
+                return json.loads(json_content)
             else:
                 return False
     except HTTPException:
@@ -88,4 +89,3 @@ def post_photo(id: str, file: UploadFile = File(), token: dict = Depends(get_tok
     
     response = cloudinary_uploader.upload(file.file, public_id=id, format="jpg")
     return response["secure_url"]
-

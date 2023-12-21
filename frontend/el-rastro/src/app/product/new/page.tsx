@@ -49,7 +49,7 @@ function CreateProduct() {
             return;
         }
 
-        fetchWithToken(apiUrl + userId, {
+        fetchWithToken(apiUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
