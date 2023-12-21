@@ -281,13 +281,13 @@ def update_owner(id, user):
         )
 
 
-# @app.delete("/" + versionRoute + "/user/{id}",
-#             summary="Delete a user",
-#             response_description="Delete a user",
-#             status_code=status.HTTP_204_NO_CONTENT,
-#             responses={404: errors.error_404},
-#             tags=["User"])
-# async def delete_user(id: str, token: dict = Depends(get_token)):
+""" @app.delete("/" + versionRoute + "/user/{id}",
+            summary="Delete a user",
+            response_description="Delete a user",
+            status_code=status.HTTP_204_NO_CONTENT,
+            responses={404: errors.error_404},
+            tags=["User"])
+async def delete_user(id: str, token: dict = Depends(get_token)):
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token")
     
@@ -299,7 +299,7 @@ def update_owner(id, user):
         return None
     else:
         raise HTTPException(status_code=404, detail=f"User {id} not found")
-
+ """
 
 @app.get("/" + versionRoute + "/user/{username}/buyers",
          summary="Get the user's products buyers",
