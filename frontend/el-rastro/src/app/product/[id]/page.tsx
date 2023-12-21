@@ -444,7 +444,7 @@ function Product({ params }: { params: { id: string } }) {
                   <span className="text-gray-600 font-semibold">
                     Current price:{" "}
                   </span>
-                  {co2Rate !== null && (
+                  {(co2Rate !== null && session) && (
                     <span className="text-gray-600 font-semibold mt-2">
                       CO2 Rate:
                     </span>
@@ -458,7 +458,7 @@ function Product({ params }: { params: { id: string } }) {
                   >
                     {currentPrice}€{userIsLastBidder && " (Winning bid!)"}
                   </span>
-                  {co2Rate !== null && (
+                  {(co2Rate !== null && session) && (
                     <>
                       {co2Rate < 0.0001 &&
                         session?.user?.id !== product?.owner._id && (
