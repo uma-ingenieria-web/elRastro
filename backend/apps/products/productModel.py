@@ -14,8 +14,6 @@ class Location(BaseModel):
 
 class Buyer(BaseModel):
     id: PyObjectId = Field(alias="_id", default=None)
-    username: str = Field(...)
-    location: Location = Field(...)
 
 
 class Owner(BaseModel):

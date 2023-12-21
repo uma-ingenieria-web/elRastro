@@ -291,6 +291,42 @@ def update_product(id: str, new_product: UpdateProduct, token: dict = Depends(ge
     except InvalidId as e:
         raise HTTPException(status_code=400, detail="Invalid ObjectId format")
 
+@app.get(
+    "/" + versionRoute + "/products/{id}/payment",
+    summary="Update the product with the provided id's buyer",
+    response_description="Update the product's buyer",
+    status_code=status.HTTP_200_OK,
+    responses={404: errors.error_404, 400: errors.error_400, 422: errors.error_422},
+)
+def update_product_buyer(id: str, token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    ownerId = token["id"]
+    
+    try:
+        product = db.Product.find_one({"_id": ObjectId(id)})
+        if not product:
+            raise HTTPException(status_code=404, detail="Not found")
+
+        if "buyer" in product and product["buyer"] is not None:
+            raise HTTPException(status_code=400, detail="Product already has a buyer")
+
+        update_result = db.Product.find_one_and_update(
+            {"_id": ObjectId(id)},
+            {"$set": {"buyer": {"_id": ObjectId(ownerId)}}},
+            return_document=ReturnDocument.AFTER,
+        )
+
+        if update_result is not None:
+            return "success"
+        else:
+            raise HTTPException(
+                status_code=404, detail=f"Product with id:{id} not found"
+            )
+
+    except InvalidId as e:
+        raise HTTPException(status_code=400, detail="Invalid ObjectId format")
+    
 
 # Delete a product
 @app.delete(
