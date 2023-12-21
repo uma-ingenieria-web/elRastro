@@ -176,7 +176,7 @@ function Product({ params }: { params: { id: string } }) {
   const [rating, setRating] = useState(0)
   const [validRating, setValidRating] = useState(true)
   const [map, setMap] = useState(<></>)
-  const [co2Rate, setCO2Rate] = useState(0)
+  const [co2Rate, setCO2Rate] = useState(null)
 
   const userId = (session?.user as LoggedUser)?.id || ""
   const paypalClient = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
@@ -234,18 +234,18 @@ function Product({ params }: { params: { id: string } }) {
     if (product) {
       const fetchCO2Rate = async () => {
         const userFetched = await getUser(session)
-        let userLocation = {
+        let location = {
           lat: 36.62035,
           lon: -4.49976,
         }
-        if (!userFetched.error) {
-          userLocation = userFetched.location
+        if (userFetched && userFetched.location) {
+          location = userFetched.location
         }
         const rate = await getCO2Rate(
           product.owner.location.lat,
           product.owner.location.lon,
-          userLocation.lat,
-          userLocation.lon,
+          location.lat,
+          location.lon,
           product.weight
         )
         if (rate && !rate.error) setCO2Rate(rate)
@@ -258,7 +258,10 @@ function Product({ params }: { params: { id: string } }) {
   const createChat = async () => {
     try {
       const chat = await fetchWithToken(
-        `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE}/api/v1/findChat/${id}?vendor_id=${product.owner._id}`, {}, session)
+        `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_CHAT_SERVICE}/api/v1/findChat/${id}?vendor_id=${product.owner._id}`,
+        {},
+        session
+      )
       const existChat = await chat.json()
       if (existChat._id === undefined) {
         const response = await fetchWithToken(
@@ -315,15 +318,16 @@ function Product({ params }: { params: { id: string } }) {
   const handleRate = async () => {
     if (product && typeof rate === "number") {
       if (rate >= 1 && rate <= 5) {
-        setRating(rate);
-        await fetchWithToken(`${rateUrl}/${id}/ratings`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            value: rate,
+        setRating(rate)
+        await fetchWithToken(
+          `${rateUrl}/${id}/ratings`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              value: rate,
             }),
           },
           session
@@ -440,9 +444,11 @@ function Product({ params }: { params: { id: string } }) {
                   <span className="text-gray-600 font-semibold">
                     Current price:{" "}
                   </span>
-                  <span className="text-gray-600 font-semibold mt-2">
-                    CO2 Rate:
-                  </span>
+                  {co2Rate !== null && (
+                    <span className="text-gray-600 font-semibold mt-2">
+                      CO2 Rate:
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-col items-end">
                   <span
@@ -452,18 +458,25 @@ function Product({ params }: { params: { id: string } }) {
                   >
                     {currentPrice}€{userIsLastBidder && " (Winning bid!)"}
                   </span>
-                  {co2Rate < 0.0001 &&
-                    session?.user?.id !== product?.owner._id && (
-                      <div className="flex justify-between w-full mt-2">
-                        <span className="font-semibold text-sm">This one is on us!</span>
-                      </div>
-                    )}
-                  {co2Rate > 0 && session?.user?.id !== product?.owner._id && (
-                    <div className="flex justify-between w-full mt-2">
-                      <span className="font-semibold text-sm">
-                        {co2Rate.toPrecision(4)}€
-                      </span>
-                    </div>
+                  {co2Rate !== null && (
+                    <>
+                      {co2Rate < 0.0001 &&
+                        session?.user?.id !== product?.owner._id && (
+                          <div className="flex justify-between w-full mt-2">
+                            <span className="font-semibold text-sm">
+                              This one is on us!
+                            </span>
+                          </div>
+                        )}
+                      {co2Rate > 0 &&
+                        session?.user?.id !== product?.owner._id && (
+                          <div className="flex justify-between w-full mt-2">
+                            <span className="font-semibold text-sm">
+                              {co2Rate.toPrecision(4)}€
+                            </span>
+                          </div>
+                        )}
+                    </>
                   )}
                 </div>
               </div>
