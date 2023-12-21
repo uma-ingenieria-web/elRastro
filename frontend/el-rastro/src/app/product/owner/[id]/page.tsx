@@ -2,7 +2,7 @@ import ProductList from "@/app/components/ProductsList"
 
 let userUrl = ""
 
-userUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_USER_SERVICE?? "http://localhost:8000"}/api/v1/user/`
+userUrl = `${process.env.BACKEND_SERVER_USER_SERVICE?? "http://localhost:8000"}/api/v1/user/`
 
 async function getUser(id: string) {
   try {
@@ -20,8 +20,7 @@ async function getUser(id: string) {
 }
 
 async function ProductsOwner({ params }: { params: { id: string } }) {
-
-  const username = await getUser(params.id).then((user) => user.username || "")
+  const username = await getUser(params.id).then((user) => {return user.username || ""})
 
   return <ProductList activeOwner={username} ownerId={params.id}/>
 }

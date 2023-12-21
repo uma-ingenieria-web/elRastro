@@ -242,7 +242,7 @@ def update_users(id, user : userModel.UpdateUser):
         )
         db.Product.update_many(
             {"bids.bidder._id": ObjectId(id)},
-            {"$set": {"bids.bidder.username": user.username}}
+            {"$set": {"bids.$[].bidder.username": user.username}}
         )
         db.Bid.update_many(
             {"owner._id": ObjectId(id)},
