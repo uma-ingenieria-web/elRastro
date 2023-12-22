@@ -69,7 +69,7 @@ export function Rating({ratings} : {ratings: Rate[]}) {
   ratings.forEach((rating) => {
     total += rating.value;
   });
-  const avgRating = len ? total / len : "Not rated";
+  const avgRating = len ? (total / len).toFixed(2) : "Not rated";
   const stars = getStars(avgRating);
   return (
     <div className="flex items-center">
