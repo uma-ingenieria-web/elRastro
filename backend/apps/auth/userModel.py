@@ -68,7 +68,7 @@ class User(BaseModel):
     username: str = Field(...)
     email: str = Field(...)
     location: Location = Field(...)
-    rating: Optional[List[Rating]] = Field([])
+    ratings: Optional[List[Rating]] = Field([])
     products: Optional[List[Product]] = Field([])
     bids: Optional[List[Bid]] = Field([])
 
