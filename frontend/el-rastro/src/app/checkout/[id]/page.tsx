@@ -7,6 +7,7 @@ import Modal from "react-modal";
 import { MdClose, MdOutlineZoomOutMap } from "react-icons/md";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import NotFound from "@/app/not-found";
+import { fetchWithToken } from "../../../../lib/authFetch";
 
 interface Props {
     initialProduct: Product;
@@ -18,6 +19,46 @@ const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE ?? "htt
 const photoUrl = `${
     process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE ?? "http://localhost:8003"
 }/api/v1/photo/`;
+
+const userMeURL = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_USER_SERVICE ?? "http://localhost:8000"}/api/v1/user/me`;
+
+const carbonUrl = `${
+    process.env.NEXT_PUBLIC_BACKEND_CLIENT_CARBON_FOOTPRINT_SERVICE ?? "https://locahost:8009"
+}/api/v2/carbon`;
+
+async function getUser(session) {
+    try {
+        const user_result = await fetchWithToken(userMeURL, {}, session);
+        const user = await user_result.json();
+        return user;
+    } catch (error: any) {
+        if (error.cause?.code === "ECONNREFUSED") {
+            console.error("Error connecting to backend API. Is the backend service working?");
+            return null;
+        }
+        console.error("Error fetching user:", error.message);
+        return null;
+    }
+}
+
+async function getCO2Rate(
+    origin_lat: number,
+    origin_lon: number,
+    destination_lat: number,
+    destination_lon: number,
+    weight: number
+) {
+    try {
+        const result = await fetch(
+            `${carbonUrl}/${origin_lat}/${origin_lon}/${destination_lat}/${destination_lon}/weight/${weight}`
+        );
+        const rate = await result.json();
+        return rate;
+    } catch (error: any) {
+        console.error("Error fetching rate:", error.message);
+        return 0;
+    }
+}
 
 async function getProduct(id: string) {
     try {
@@ -75,11 +116,11 @@ function onApprove(data2, actions, id, setSuccess, token) {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + token,
+                Authorization: "Bearer " + token,
             },
         }).then((res) => {
             if (res.ok) {
-                setSuccess(true)
+                setSuccess(true);
             } else {
                 console.error("Error");
             }
@@ -102,6 +143,7 @@ function CheckoutProduct({ params }: { params: { id: string } }) {
     const [found, setFound] = useState(true);
     const [success, setSuccess] = useState(false);
     const [description, setDescription] = useState("");
+    const [co2Rate, setCO2Rate] = useState<number | string>("co2");
 
     const [userId, setUserId] = useState("");
 
@@ -147,6 +189,31 @@ function CheckoutProduct({ params }: { params: { id: string } }) {
         }
     }, [session]);
 
+    useEffect(() => {
+        if (product && session) {
+            const fetchCO2Rate = async () => {
+                const userFetched = await getUser(session);
+                let location = {
+                    lat: 36.62035,
+                    lon: -4.49976,
+                };
+                if (userFetched && userFetched.location) {
+                    location = userFetched.location;
+                }
+                const rate = await getCO2Rate(
+                    product.owner.location.lat,
+                    product.owner.location.lon,
+                    location.lat,
+                    location.lon,
+                    product.weight
+                );
+                if (rate && !rate.error) setCO2Rate(rate);
+            };
+
+            fetchCO2Rate();
+        }
+    }, [product, session]);
+
     return !found ? (
         <NotFound />
     ) : (
@@ -185,16 +252,18 @@ function CheckoutProduct({ params }: { params: { id: string } }) {
                         <h2 className="text-gray-600 font-semibold text-sm">You are about to buy:</h2>
                         <h3 className="text-2xl font-bold text-center">{title}</h3>
                         <h4 className="text-xl font-semibold text-center mb-10">
-                            The final price is: {currentPrice} €
+                            The final price is: {currentPrice + (co2Rate as number)} € (included {co2Rate} € of CO2 emissions)
                         </h4>
-                        {(!success && (product && description && session && id && currentPrice != 0)) && (
+                        {!success && product && description && session && id && currentPrice != 0 && co2Rate != "co2" && (
                             <PayPalButtons
                                 style={{ layout: "vertical" }}
-                                createOrder={(data, actions) => createOrder(data, actions, currentPrice, description)}
-                                onApprove={(data, actions) => onApprove(data, actions, id, setSuccess, session.accessToken)}
+                                createOrder={(data, actions) => createOrder(data, actions, Math.floor((currentPrice + (co2Rate as number)) * 100) / 100, description)}
+                                onApprove={(data, actions) =>
+                                    onApprove(data, actions, id, setSuccess, session.accessToken)
+                                }
                             />
                         )}
-                        {success && (<h2 className="mt-10 text-xl text-green-500">Payment made successfully!</h2>)}
+                        {success && <h2 className="mt-10 text-xl text-green-500">Payment made successfully!</h2>}
                     </div>
                 </div>
             </div>
