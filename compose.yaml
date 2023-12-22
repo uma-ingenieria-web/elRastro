@@ -38,17 +38,17 @@ services:
   # backend-micro-coord-place:
   #   container_name: backend-coord-place
   #   env_file:
-  #     - ./backend/apps/coord-place/.env
+  #     - ./backend/apps/el-rastro-apis/coord-place/.env
   #   build:
-  #     context: ./backend/apps/coord-place/
+  #     context: ./backend/apps/el-rastro-apis/coord-place/
   #   ports:
   #     - 8004:8000
   # backend-micro-random-quote:
   #   container_name: backend-random-quote
   #   env_file:
-  #     - ./backend/apps/random-quote/.env
+  #     - ./backend/apps/el-rastro-apis/random-quote/.env
   #   build:
-  #     context: ./backend/apps/random-quote/
+  #     context: ./backend/apps/el-rastro-apis/random-quote/
   #   ports:
   #     - 8005:8000
   backend-micro-chats:
@@ -78,9 +78,9 @@ services:
   backend-micro-carbon-footprint:
     container_name: backend-carbon-footprint
     env_file:
-      - ./backend/apps/carbon-footprint/.env
+      - ./backend/apps/el-rastro-apis/carbon-footprint/.env
     build:
-      context: ./backend/apps/carbon-footprint/
+      context: ./backend/apps/el-rastro-apis/carbon-footprint/
     ports:
       - 8009:8000
   frontend:
