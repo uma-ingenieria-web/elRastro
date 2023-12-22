@@ -31,7 +31,7 @@ const bidUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_BID_SERVICE ?? "http://
 const userMeURL = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_USER_SERVICE ?? "http://localhost:8000"}/api/v1/user/me`;
 
 const carbonUrl = `${
-    process.env.NEXT_PUBLIC_BACKEND_CLIENT_CARBON_FOOTPRINT_SERVICE ?? "http://locahost:8009"
+    process.env.NEXT_PUBLIC_BACKEND_CLIENT_CARBON_FOOTPRINT_SERVICE ?? "http://localhost:8009"
 }/api/v2/carbon`;
 
 async function getUser(session) {
