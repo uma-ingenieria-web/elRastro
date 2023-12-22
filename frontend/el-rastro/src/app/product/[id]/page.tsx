@@ -446,7 +446,7 @@ function Product({ params }: { params: { id: string } }) {
                         )}
                         <div className="mb-4">
                             {userId &&
-                                closed &&
+                                closed && userId !== product?.owner._id &&
                                 ((rating != 0 && (
                                     <>
                                         <p>Rated with {rating} ⭐</p>
