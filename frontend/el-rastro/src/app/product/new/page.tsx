@@ -49,7 +49,6 @@ function CreateProduct() {
             alert("Please fill all the fields");
             return;
         }
-
         fetchWithToken(apiUrl, {
             method: "POST",
             headers: {
@@ -153,9 +152,9 @@ function CreateProduct() {
                     <input
                         type="number"
                         value={weight}
-                        onChange={(e) => setWeight(parseInt(e.target.value))}
+                        onChange={(e) => setWeight(parseFloat(e.target.value))}
                         className="w-full p-2 border border-gray-300 rounded"
-                        placeholder="Title for your product"
+                        placeholder="Weight for your product"
                     />
                 </label>
                 <button
