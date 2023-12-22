@@ -23,7 +23,7 @@ uri = os.getenv('MONGODB_URI')
 client = MongoClient(uri)
 
 # Set the desired db
-db = client.elRastro2
+db = client.elRastro3
 
 versionRoute = "api/v1"
 
