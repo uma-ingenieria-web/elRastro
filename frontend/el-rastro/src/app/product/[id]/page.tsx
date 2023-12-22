@@ -440,8 +440,7 @@ function Product({ params }: { params: { id: string } }) {
                             </Link>
                         )}
                         <div className="mb-4">
-                            {userId &&
-                                closed && userId !== product?.owner._id &&
+                            {userId && closed &&
                                 (!rating ? (
                                     <p>Rated with {rating} ⭐</p>
                                 ) : (
