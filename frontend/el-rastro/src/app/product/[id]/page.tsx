@@ -302,8 +302,8 @@ function Product({ params }: { params: { id: string } }) {
     ) : closed && !userIsLastBidder && !(userId && product?.owner._id === userId) ? (
         <Closed />
     ) : (
-        <div className="flex justify-center items-center h-screen">
-            <div className="flex bg-gray-100 p-8 rounded-lg shadow-lg h-auto md:flex-row flex-col justify-center  md:space-x-32">
+        <div className="flex justify-center items-center max-h-[70vh] overflow-scroll mt-16 bg-gray-100">
+            <div className="flex p-8 h-auto md:flex-row flex-col justify-center md:space-x-32 max-h-[70vh]">
                 <div className="flex-shrink-0 mb-8 md:mb-0">
                     <Modal isOpen={imageOpen} onRequestClose={() => setImageOpen(false)}>
                         <div className="flex items-center justify-center h-full">
@@ -487,7 +487,7 @@ function Product({ params }: { params: { id: string } }) {
                                     </p>
                                 )}
                                 <button
-                                    className={`w-20 h-20 border-2 border-gray-300 mb-4 ${
+                                    className={`w-20 h-20 border-2 border-gray-300 mt-8 mb-4 ${
                                         userId && !closed && userId !== product?.owner._id
                                             ? "cursor-pointer"
                                             : "cursor-not-allowed bg-gray-300"
