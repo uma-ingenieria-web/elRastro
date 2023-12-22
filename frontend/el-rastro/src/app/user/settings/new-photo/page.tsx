@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { fetchWithToken } from '../../../../../lib/authFetch';
 
 export default function ProfilePageId() {
   const {data: session} = useSession()
@@ -29,10 +30,10 @@ export default function ProfilePageId() {
       formData.append('file', file);
 
       try {
-        const response = await fetch(apiUrl, {
+        const response = await fetchWithToken(apiUrl, {
           method: 'POST',
           body: formData,
-        });
+        }, session);
 
         if (response.ok) {
           setStatus('File uploaded successfully');

@@ -3,8 +3,9 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Product } from "@/app/product.types";
 import { useSession } from "next-auth/react";
+import { fetchWithToken } from "../../../../lib/authFetch";
 
-const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products/`;
+const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_PRODUCT_SERVICE?? "http://localhost:8002"}/api/v1/products`;
 
 const photoUrl = `${process.env.NEXT_PUBLIC_BACKEND_CLIENT_IMAGE_STORAGE_SERVICE?? "http://localhost:8003"}/api/v1/photo/`;
 
@@ -18,6 +19,7 @@ function CreateProduct() {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState(0);
+    const [weight, setWeight] = useState(0);
     const [endDate, setEndDate] = useState("");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -43,12 +45,11 @@ function CreateProduct() {
     const handleSubmit = async (e: { preventDefault: () => void }) => {
         e.preventDefault();
 
-        if (!title || !description || !price || !endDate || !selectedFile) {
+        if (!title || !description || !price || !endDate || !selectedFile || !weight) {
             alert("Please fill all the fields");
             return;
         }
-
-        fetch(apiUrl + userId, {
+        fetchWithToken(apiUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -58,17 +59,17 @@ function CreateProduct() {
                 description: description,
                 initialPrice: price,
                 closeDate: buildISODate(new Date(endDate)),
-                weight: 5,
+                weight: weight,
             }),
-        })
+        }, session)
             .then((response) => response.json())
             .then((data) => {
                 const formData = new FormData();
                 formData.append("file", selectedFile!);
-                fetch(photoUrl + data._id, {
+                fetchWithToken(photoUrl + data._id, {
                     method: "POST",
                     body: formData,
-                })
+                }, session)
                     .then((response) => response.json())
                     .then((data) => {
                         router.push(`/product/`);
@@ -144,6 +145,16 @@ function CreateProduct() {
                         className="w-full p-2 border border-gray-300 rounded"
                         min={getFormattedDate()}
                         onChange={handleDateChange}
+                    />
+                </label>
+                <label className="block mb-2">
+                    Weight:
+                    <input
+                        type="number"
+                        value={weight}
+                        onChange={(e) => setWeight(parseFloat(e.target.value))}
+                        className="w-full p-2 border border-gray-300 rounded"
+                        placeholder="Weight for your product"
                     />
                 </label>
                 <button

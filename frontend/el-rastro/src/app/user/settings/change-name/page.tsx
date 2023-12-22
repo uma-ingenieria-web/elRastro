@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { fetchWithToken } from '../../../../../lib/authFetch';
 
 export default function ChangeUsernamePage() {
   const {data: session} = useSession()
@@ -15,7 +16,7 @@ export default function ChangeUsernamePage() {
       if (newName === null || newName === "") {
         throw new Error("Could not update name")
       }
-      const result = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_USER_SERVICE?? "http://localhost:8000"}/api/v1/user/${session?.user?.id}`, {
+      const result = await fetchWithToken(`${process.env.NEXT_PUBLIC_BACKEND_CLIENT_USER_SERVICE?? "http://localhost:8000"}/api/v1/user`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -23,7 +24,7 @@ export default function ChangeUsernamePage() {
         body: JSON.stringify({
           username: newName
         })
-      })
+      }, session)
       if (!result.ok) {
         throw new Error("Could not update name")
       }

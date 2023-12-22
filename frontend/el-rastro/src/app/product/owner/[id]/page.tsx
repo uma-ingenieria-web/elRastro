@@ -20,8 +20,7 @@ async function getUser(id: string) {
 }
 
 async function ProductsOwner({ params }: { params: { id: string } }) {
-
-  const username = await getUser(params.id).then((user) => user.username || "")
+  const username = await getUser(params.id).then((user) => {return user.username || ""})
 
   return <ProductList activeOwner={username} ownerId={params.id}/>
 }

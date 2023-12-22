@@ -1,11 +1,13 @@
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, Header, UploadFile
 from dotenv import load_dotenv
 
 import os
+import json
 import cloudinary
 import cloudinary.uploader as cloudinary_uploader
 from fastapi.middleware.cors import CORSMiddleware
+import httpx
 
 app = FastAPI()
 
@@ -33,6 +35,24 @@ versionRoute = "api/v1"
 origins = [
     "*"
 ]
+
+async def get_token(authorization: str = Header(...)):
+    scheme, token = authorization.split()
+    if scheme.lower() != "bearer":
+        raise HTTPException(status_code=403, detail="Invalid authentication scheme")
+    try:
+        async with httpx.AsyncClient() as client:
+            url = os.getenv("AUTH_URL")
+            headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
+            response = await client.post(url, headers=headers)
+
+            if response.status_code == 200:
+                json_content = response.text
+                return json.loads(json_content)
+            else:
+                return False
+    except HTTPException:
+        return False
 
 @app.get("/" + versionRoute + "/photo/{id}",
          summary="Get url to photo from id",
@@ -63,7 +83,9 @@ def get_url_photo(id: str):
             }
         },
         tags=["Photo"])
-def post_photo(id: str, file: UploadFile = File()):
+def post_photo(id: str, file: UploadFile = File(), token: dict = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
     response = cloudinary_uploader.upload(file.file, public_id=id, format="jpg")
     return response["secure_url"]
-
