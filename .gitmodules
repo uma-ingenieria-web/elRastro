@@ -4,3 +4,6 @@
 [submodule "backend/apps/el-rastro-apis"]
 	path = backend/apps/el-rastro-apis
 	url = https://github.com/uma-ingenieria-web/el-rastro-apis.git
+[submodule "backend/apps/el-rastro-advanced"]
+	path = backend/apps/el-rastro-advanced
+	url = https://github.com/uma-ingenieria-web/el-rastro-advanced.git

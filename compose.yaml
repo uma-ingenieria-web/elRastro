@@ -54,17 +54,17 @@ services:
   backend-micro-chats:
     container_name: backend-chats
     env_file:
-      - ./backend/apps/chats/.env
+      - ./backend/apps/el-rastro-advanced/chats/.env
     build:
-      context: ./backend/apps/chats/
+      context: ./backend/apps/el-rastro-advanced/chats/
     ports:
       - 8006:8000
   backend-micro-ratings:
     container_name: backend-ratings
     env_file:
-      - ./backend/apps/ratings/.env
+      - ./backend/apps/el-rastro-advanced/ratings/.env
     build:
-      context: ./backend/apps/ratings/
+      context: ./backend/apps/el-rastro-advanced/ratings/
     ports:
       - 8007:8000
   backend-micro-auth:
