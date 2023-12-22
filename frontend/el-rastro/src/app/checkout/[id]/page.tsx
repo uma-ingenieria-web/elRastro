@@ -50,12 +50,16 @@ async function getCO2Rate(
 ) {
     try {
         const result = await fetch(
-            `${carbonUrl}/${origin_lat}/${origin_lon}/${destination_lat}/${destination_lon}/weight/${weight}`
+            `${carbonUrl}?origin_lat=${origin_lat}&
+            origin_lon=${origin_lon}&
+            destination_lat=${destination_lat}&
+            destination_lon=${destination_lon}&
+            weight=${weight}`
         );
         const rate = await result.json();
         return rate;
     } catch (error: any) {
-        console.error("Error fetching rate:", error.message);
+        console.error("Error fetching co2 rate:", error.message);
         return 0;
     }
 }
