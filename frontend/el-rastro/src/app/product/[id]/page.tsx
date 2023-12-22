@@ -101,12 +101,7 @@ async function getCO2Rate(
     weight: number
 ) {
     try {
-        const result = await fetch(
-            `${carbonUrl}?origin_lat=${origin_lat}&
-            origin_lon=${origin_lon}&
-            destination_lat=${destination_lat}&
-            destination_lon=${destination_lon}&
-            weight=${weight}`
+        const result = await fetch(`${carbonUrl}?origin_lat=${origin_lat}&origin_lon=${origin_lon}&destination_lat=${destination_lat}&destination_lon=${destination_lon}&weight=${weight}`
         );
         const rate = await result.json();
         return rate;
