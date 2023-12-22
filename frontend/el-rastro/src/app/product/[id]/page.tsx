@@ -441,7 +441,7 @@ function Product({ params }: { params: { id: string } }) {
                         )}
                         <div className="mb-4">
                             {userId && closed &&
-                                (!rating ? (
+                                (rating != 0 ? (
                                     <p>Rated with {rating} ⭐</p>
                                 ) : (
                                     <>
