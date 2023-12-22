@@ -1,0 +1,3 @@
+[submodule "backend/apps/el-rastro-basics"]
+	path = backend/apps/el-rastro-basics
+	url = https://github.com/josanri/el-rastro-basics.git
