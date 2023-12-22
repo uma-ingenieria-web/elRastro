@@ -69,14 +69,14 @@ export function Rating({ratings} : {ratings: Rate[]}) {
   ratings.forEach((rating) => {
     total += rating.value;
   });
-  const avgRating = len ? total / len : "Not rated";
+  const avgRating = len ? (total / len).toFixed(2) : "Not rated";
   const stars = getStars(avgRating);
   return (
     <div className="flex items-center">
       {stars}
       <p className="ms-2 text-sm font-bold text-gray-900 dark:text-white">{avgRating}</p>
       <span className="w-1 h-1 mx-1.5 bg-gray-500 rounded-full dark:bg-gray-400"></span>
-      <a href="#" className="text-sm font-medium text-gray-900 underline hover:no-underline dark:text-white">{len} reviews</a>
+      <p className="text-sm font-medium text-gray-900 dark:text-white">{len} reviews</p>
     </div>
   );
 }
