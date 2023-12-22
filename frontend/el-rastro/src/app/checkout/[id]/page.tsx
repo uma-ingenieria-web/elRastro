@@ -205,7 +205,7 @@ function CheckoutProduct({ params }: { params: { id: string } }) {
                     product.owner.location.lon,
                     location.lat,
                     location.lon,
-                    800
+                    product.weight
                 );
                 if (rate && !rate.error) setCO2Rate(rate);
             };
